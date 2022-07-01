@@ -1,5 +1,6 @@
 package org.fanjr.simplify.context;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.util.TypeUtils;
 import com.alibaba.fastjson2.writer.ObjectWriter;
@@ -16,7 +17,7 @@ import java.util.*;
  * @file MapContext.java
  * @since 2022/5/19 下午4:59
  */
-public class MapContext extends InnerMapperAdapter<String, Object> implements IContext, Cloneable, Serializable {
+public class JsonContext extends InnerMapperAdapter<String, Object> implements IContext, Cloneable, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,24 +31,24 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
 
     private final boolean ordered;
 
-    public MapContext() {
+    public JsonContext() {
         this(DEFAULT_INITIAL_CAPACITY, false);
     }
 
-    public MapContext(Map<String, Object> map) {
-        super(map);
+    public JsonContext(JSONObject json) {
+        super(json);
         this.ordered = false;
     }
 
-    public MapContext(boolean ordered) {
+    public JsonContext(boolean ordered) {
         this(DEFAULT_INITIAL_CAPACITY, ordered);
     }
 
-    public MapContext(int initialCapacity) {
+    public JsonContext(int initialCapacity) {
         this(initialCapacity, false);
     }
 
-    public MapContext(int initialCapacity, boolean ordered) {
+    public JsonContext(int initialCapacity, boolean ordered) {
         super(ordered ? new LinkedHashMap<>(initialCapacity) : new HashMap<>(initialCapacity));
         this.ordered = ordered;
     }
@@ -114,8 +115,8 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
     }
 
     @Override
-    public MapContext clone() {
-        return CLONE_UTIL.clone(this);
+    public JsonContext clone() {
+        return new JsonContext(new JSONObject(innerMap));
     }
 
     /**
@@ -156,7 +157,7 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
     @Override
     public String toString() {
         try (JSONWriter writer = JSONWriter.of()) {
-            ObjectWriter<?> objectWriter = writer.getObjectWriter(MapContext.class, MapContext.class);
+            ObjectWriter<?> objectWriter = writer.getObjectWriter(JsonContext.class, JsonContext.class);
             objectWriter.write(writer, this, null, null, 0);
             return writer.toString();
         } catch (NullPointerException | NumberFormatException ex) {
@@ -172,7 +173,7 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
      * @param javaObject 不能为空
      * @return
      */
-    private void removeObjectByKey(String key, Object javaObject) {
+    private Object removeObjectByKey(String key, Object javaObject) {
         if (ARRAY_END_CHAR == key.charAt(key.length() - 1)) {
             int lastStartCharIndex = key.lastIndexOf(ARRAY_START_CHAR);
             javaObject = getObjectByKey(key.substring(0, lastStartCharIndex), javaObject);
@@ -259,7 +260,7 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
             return (T) this.toString();
         }
 
-        if (clazz == MapContext.class || clazz == Object.class) {
+        if (clazz == JsonContext.class || clazz == Object.class) {
             return (T) this;
         }
         return cast(innerMap, clazz, DEFAULT_PARSER_CONFIG);
@@ -286,7 +287,7 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
         return ContextDispatcher.getInstance(nodeName).doGet(innerMap);
     }
 
-    public MapContext getContext(String nodeName) {
+    public IContext getContext(String nodeName) {
         Object obj = getByNode(nodeName);
         if (null == obj) {
             return null;
@@ -297,10 +298,10 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
     @SuppressWarnings("unchecked")
     public <T> T getObject(String key, Class<T> clazz) {
         Object obj = getByNode(key);
-        if (obj instanceof MapContext) {
-            return ((MapContext) obj).toJavaBean(clazz);
+        if (obj instanceof JsonContext) {
+            return ((JsonContext) obj).toJavaBean(clazz);
         }
-        if (null != obj && clazz == MapContext.class) {
+        if (null != obj && clazz == JsonContext.class) {
             return (T) toContext(obj);
         }
         return cast(obj, clazz, DEFAULT_PARSER_CONFIG);
@@ -309,9 +310,9 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
     @SuppressWarnings("unchecked")
     public <T> T getObject(String key, Type type) {
         Object obj = getByNode(key);
-        if (obj instanceof MapContext) {
+        if (obj instanceof JsonContext) {
             if (type instanceof Class) {
-                return (T) ((MapContext) obj).toJavaBean((Class<?>) type);
+                return (T) ((JsonContext) obj).toJavaBean((Class<?>) type);
             }
         }
         return cast(obj, type, DEFAULT_PARSER_CONFIG);
@@ -462,16 +463,18 @@ public class MapContext extends InnerMapperAdapter<String, Object> implements IC
     @SuppressWarnings("unchecked")
     public List<Object> getList(String nodeName) {
         Object obj = getByNode(nodeName);
+        if (null == obj) {
+            return new ArrayList<>();
+        }
         if (obj instanceof List) {
             return (List<Object>) obj;
         } else if (obj instanceof Object[]) {
+            List<Object> target = new ArrayList<>();
             Object[] arr = (Object[]) obj;
             return Arrays.asList(arr);
         } else {
             List<Object> list = new ArrayList<>();
-            if (null != obj) {
-                list.add(obj);
-            }
+            list.add(obj);
             return list;
         }
     }

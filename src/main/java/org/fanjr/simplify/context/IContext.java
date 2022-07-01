@@ -1,6 +1,13 @@
 package org.fanjr.simplify.context;
 
+import com.alibaba.fastjson2.JSONFactory;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
+import com.alibaba.fastjson2.reader.ObjectReader;
+import com.alibaba.fastjson2.reader.ObjectReaderProvider;
+
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author fanjr@vip.qq.com
@@ -11,41 +18,44 @@ public interface IContext {
 
     static IContext toContext(Object javaObject) {
         if (null == javaObject) {
-            return new MapContext();
+            return null;
         }
 
         if (javaObject instanceof IContext) {
             return (IContext) javaObject;
         }
 
+        if (javaObject instanceof JSONObject) {
+            return new JsonContext((JSONObject) javaObject);
+        }
+
         if (javaObject instanceof Map) {
-            return new MapContext((Map<String, Object>) javaObject);
+            return new JsonContext(new JSONObject((Map) javaObject));
         }
 
         if (javaObject instanceof String) {
-            try (DefaultJSONParser parser = new DefaultJSONParser((String) javaObject, DEFAULT_PARSER_CONFIG,
-                    JSON.DEFAULT_PARSER_FEATURE)) {
-                MapContext value = parser.parseObject(MapContext.class, null);
-                parser.handleResovleTask(value);
-                return value;
-            } catch (Exception e) {
-                throw new ContextException("转换成上下文发生错误", e);
+            String json = (String) javaObject;
+            if (json.isEmpty() || "null".equals(json)) {
+                return null;
+            }
+
+            char first = json.trim().charAt(0);
+            if (first == '{') {
+                try (JSONReader reader = JSONReader.of(json)) {
+                    ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
+                    JSONObject jsonObject = objectReader.readObject(reader, 0);
+                    return new JsonContext(jsonObject);
+                }
             }
         }
 
-        ObjectSerializer serializer = DEFAULT_SERIAL_CONFIG.getObjectWriter(type);
-        if (serializer instanceof JavaBeanSerializer) {
-            Map<String, Object> fieldValues;
-            try {
-                fieldValues = ((JavaBeanSerializer) serializer).getFieldValuesMap(javaObject);
-            } catch (Exception e) {
-                throw new ContextException("转换成上下文发生错误", e);
-            }
-            MapContext context = new MapContext(fieldValues);
-            return context;
+        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+        Function<Object, JSONObject> typeConvert = provider.getTypeConvert(javaObject.getClass(), JSONObject.class);
+        if (typeConvert != null) {
+            return new JsonContext(typeConvert.apply(javaObject));
         }
 
-        throw new ContextException(String.format("转换成上下文发生错误,类型[%s]无法直接进行转换", type.getName()));
+        throw new ContextException(String.format("转换成上下文发生错误,类型[%s]无法直接进行转换", javaObject.getClass().toString()));
     }
 
     /**
