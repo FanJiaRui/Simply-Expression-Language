@@ -6,7 +6,7 @@ import org.fanjr.simplify.el.ELInvoker;
 import java.util.LinkedList;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file BinocularInvoker.java
  * @since 2021/7/8 下午5:39
  */

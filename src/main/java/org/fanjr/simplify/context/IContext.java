@@ -16,47 +16,47 @@ import java.util.function.Function;
  */
 public interface IContext {
 
-    static IContext toContext(Object javaObject) {
-        if (null == javaObject) {
-            return null;
-        }
-
-        if (javaObject instanceof IContext) {
-            return (IContext) javaObject;
-        }
-
-        if (javaObject instanceof JSONObject) {
-            return new JsonContext((JSONObject) javaObject);
-        }
-
-        if (javaObject instanceof Map) {
-            return new JsonContext(new JSONObject((Map) javaObject));
-        }
-
-        if (javaObject instanceof String) {
-            String json = (String) javaObject;
-            if (json.isEmpty() || "null".equals(json)) {
-                return null;
-            }
-
-            char first = json.trim().charAt(0);
-            if (first == '{') {
-                try (JSONReader reader = JSONReader.of(json)) {
-                    ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
-                    JSONObject jsonObject = objectReader.readObject(reader, 0);
-                    return new JsonContext(jsonObject);
-                }
-            }
-        }
-
-        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
-        Function<Object, JSONObject> typeConvert = provider.getTypeConvert(javaObject.getClass(), JSONObject.class);
-        if (typeConvert != null) {
-            return new JsonContext(typeConvert.apply(javaObject));
-        }
-
-        throw new ContextException(String.format("转换成上下文发生错误,类型[%s]无法直接进行转换", javaObject.getClass().toString()));
-    }
+//    static IContext toContext(Object javaObject) {
+//        if (null == javaObject) {
+//            return null;
+//        }
+//
+//        if (javaObject instanceof IContext) {
+//            return (IContext) javaObject;
+//        }
+//
+//        if (javaObject instanceof JSONObject) {
+//            return new JsonContext((JSONObject) javaObject);
+//        }
+//
+//        if (javaObject instanceof Map) {
+//            return new JsonContext(new JSONObject((Map) javaObject));
+//        }
+//
+//        if (javaObject instanceof String) {
+//            String json = (String) javaObject;
+//            if (json.isEmpty() || "null".equals(json)) {
+//                return null;
+//            }
+//
+//            char first = json.trim().charAt(0);
+//            if (first == '{') {
+//                try (JSONReader reader = JSONReader.of(json)) {
+//                    ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
+//                    JSONObject jsonObject = objectReader.readObject(reader, 0);
+//                    return new JsonContext(jsonObject);
+//                }
+//            }
+//        }
+//
+//        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+//        Function<Object, JSONObject> typeConvert = provider.getTypeConvert(javaObject.getClass(), JSONObject.class);
+//        if (typeConvert != null) {
+//            return new JsonContext(typeConvert.apply(javaObject));
+//        }
+//
+//        throw new ContextException(String.format("转换成上下文发生错误,类型[%s]无法直接进行转换", javaObject.getClass().toString()));
+//    }
 
     /**
      * 将变量value放入上下文中对应节点

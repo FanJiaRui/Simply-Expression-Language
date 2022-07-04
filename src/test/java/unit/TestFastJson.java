@@ -19,7 +19,7 @@ public class TestFastJson {
         ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
         Function typeConvert = provider.getTypeConvert(targetObj.getClass(), boolean.class);
         if (typeConvert != null) {
-            b = !(boolean) typeConvert.apply(targetObj);
+            b = (boolean) typeConvert.apply(targetObj);
         } else {
             throw new ContextException("无法将类型" + targetObj.getClass() + "转换为boolean类型");
         }

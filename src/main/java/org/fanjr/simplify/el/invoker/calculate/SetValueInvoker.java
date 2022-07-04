@@ -8,7 +8,7 @@ import org.fanjr.simplify.el.invoker.node.NodeInvoker;
 import java.util.LinkedList;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file SetValueInvoker.java
  * @since 2021/7/9 下午2:20
  */

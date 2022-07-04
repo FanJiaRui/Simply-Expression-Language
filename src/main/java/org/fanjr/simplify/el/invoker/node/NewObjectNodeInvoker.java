@@ -1,10 +1,8 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.hundsun.gaps.core.exceptions.GapsUnusableException;
-import com.hundsun.gaps.flowexecutor.el.invoker.ArrayInvoker;
-import com.hundsun.gaps.flowexecutor.exceptions.GapsFlowContextException;
-import com.hundsun.gaps.flowexecutor.utils.GapsTypeUtils;
+import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.invoker.ArrayInvoker;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
@@ -13,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file NewObjectNodeInvoker.java
  * @since 2021/7/12 下午1:42
  */
@@ -52,12 +50,12 @@ public class NewObjectNodeInvoker extends NodeInvoker {
                         }
                     }
                     return () -> {
-                        throw new GapsFlowContextException(className + "实例化失败！找不到构造方法！");
+                        throw new ContextException(className + "实例化失败！找不到构造方法！");
                     };
                 }
             } catch (Exception e) {
                 return () -> {
-                    throw new GapsFlowContextException(className + "实例化失败！", e);
+                    throw new ContextException(className + "实例化失败！", e);
                 };
             }
         }).get();
@@ -65,7 +63,7 @@ public class NewObjectNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new GapsUnusableException("不可对【" + this.toString() + "】执行结果重新赋值！");
+        throw new ContextException("不可对【" + this.toString() + "】执行结果重新赋值！");
     }
 
     @Override
@@ -78,12 +76,12 @@ public class NewObjectNodeInvoker extends NodeInvoker {
             } else {
                 Type[] types = constructor.getGenericParameterTypes();
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = GapsTypeUtils.cast(parameters[i], types[i], ParserConfig.getGlobalInstance());
+                    parameters[i] = ElUtils.cast(parameters[i], types[i]);
                 }
                 return constructor.newInstance(parameters);
             }
         } catch (Exception e) {
-            throw new GapsFlowContextException(className + "实例化失败！", e);
+            throw new ContextException(className + "实例化失败！", e);
         }
     }
 }

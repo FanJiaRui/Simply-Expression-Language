@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ELInvokerBuilder.java
  * @since 2021/7/9 下午12:00
  */

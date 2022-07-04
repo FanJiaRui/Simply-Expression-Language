@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file StringInvoker.java
  * @since 2021/6/28 下午4:27
  */

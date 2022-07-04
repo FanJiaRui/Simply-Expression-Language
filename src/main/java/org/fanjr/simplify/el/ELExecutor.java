@@ -1,16 +1,13 @@
 package org.fanjr.simplify.el;
 
 
-import com.alibaba.fastjson2.util.TypeUtils;
 import org.fanjr.simplify.context.ContextException;
-import org.fanjr.simplify.el.builder.AssignmentBuilder;
-import org.fanjr.simplify.el.builder.BinocularBuilder;
-import org.fanjr.simplify.el.builder.ELInvokerBuilder;
-import org.fanjr.simplify.el.invoker.ArrayInvoker;
-import org.fanjr.simplify.el.invoker.CompositeInvoker;
-import org.fanjr.simplify.el.invoker.NumberInvoker;
-import org.fanjr.simplify.el.invoker.StringInvoker;
+import org.fanjr.simplify.el.builder.*;
+import org.fanjr.simplify.el.invoker.*;
 import org.fanjr.simplify.el.invoker.calculate.*;
+import org.fanjr.simplify.el.invoker.node.*;
+import org.fanjr.simplify.utils.ElUtils;
+import org.fanjr.simplify.utils.Pair;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,23 +20,21 @@ import java.util.function.Supplier;
 import static org.fanjr.simplify.el.ELTokenUtils.*;
 
 /**
- * EL表达式计算工具，非MVEL实现方案
+ * EL表达式计算工具
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ElUtils.java
  * @since 2021/6/29 上午10:50
  */
 public class ELExecutor {
     private static final Map<String, EL> COMPILES = new ConcurrentHashMap<>();
 
-    private static final String EL_COMPILE_KEY = "EL#C#L#K";
-
     public static <T> T eval(String el, Object vars, Class<T> type) {
-        return TypeUtils.cast(eval(el, vars), type);
+        return ElUtils.cast(eval(el, vars), type);
     }
 
-    public static <T> T eval(String el, Object vars, Type type) {
-        return TypeUtils.cast(eval(el, vars), type );
+    public static Object eval(String el, Object vars, Type type) {
+        return ElUtils.cast(eval(el, vars), type);
     }
 
     public static Object eval(String el, Object vars) {
@@ -50,28 +45,12 @@ public class ELExecutor {
         return elInstance.invoke(vars);
     }
 
-    public static <T> T eval(String el, Class<T> type) {
-        return eval(el, null, type);
-    }
-
     public static EL compile(final String el) {
-
-        COMPILES.computeIfAbsent(el,ELExecutor::doCompile);
-
-        // 兼容老语法.?安全取值转为.
-        String replaceStr = el.replace(".?", ".");
-        NamedLock lock = NamedLockPool.getWriteLock(replaceStr + EL_COMPILE_KEY);
-        try {
-            lock.lock();
-
-        } finally {
-            lock.unlock();
-            lock.returnLock();
-        }
+        return COMPILES.computeIfAbsent(el, ELExecutor::doCompile);
     }
 
-    private static EL doCompile(String el){
-        EL elInstance = null;
+    private static EL doCompile(String el) {
+        EL elInstance;
 
         char[] chars = el.toCharArray();
         int start = 0;
@@ -83,18 +62,14 @@ public class ELExecutor {
 
         int elStart = findElStart(chars, start, end);
         if (-1 == elStart) {
-            start = chars[start] != '?' ? start : start + 1;
             elInstance = new SimpleEL(resolve(chars, start, end));
-            COMPILES.put(el, elInstance);
             COMPILES.put(el, elInstance);
             return elInstance;
         }
 
         if (elStart == start && chars[end - 1] == '}' && -1 == findElStart(chars, start + 1, end)) {
             start += 2;
-            start = chars[start] != '?' ? start : start + 1;
             elInstance = new SimpleEL(resolve(chars, start, end - 1));
-            COMPILES.put(el, elInstance);
             COMPILES.put(el, elInstance);
             return elInstance;
         }
@@ -106,7 +81,6 @@ public class ELExecutor {
                 targets.add(StringInvoker.newInstance(new String(chars, start, elStart - start)));
             }
             elStart += 2;
-            elStart = chars[elStart] != '?' ? elStart : elStart + 1;
             targets.add(resolve(chars, elStart, elEnd));
             start = elEnd + 1;
             elStart = findElStart(chars, start, end);
@@ -385,7 +359,7 @@ public class ELExecutor {
             if (e instanceof ContextException) {
                 throw e;
             } else {
-                throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于index:" + start, e);
+                throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于[" + start + "," + end + "]", e);
             }
         }
     }

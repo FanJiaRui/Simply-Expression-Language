@@ -1,5 +1,8 @@
-package org.fanjr.simplify.el;
+package org.fanjr.simplify.utils;
 
+import com.alibaba.fastjson2.util.TypeUtils;
+
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ELUtils.java
  * @since 2021/7/13 上午10:23
  */
@@ -276,4 +279,26 @@ public class ElUtils {
     public static String trimToEmpty(String str) {
         return str == null ? EMPTY : str.trim();
     }
+
+
+    public static Object cast(Object obj, Type targetType) {
+        if (targetType.getClass() == Class.class) {
+            return cast(obj, (Class<?>) targetType);
+        }
+        //FIXME 还没做完
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(Object obj, Class<T> targetClass) {
+        if (null == obj) {
+            if (targetClass.isPrimitive()) {
+                // 基础类型为空时需要返回默认值，避免出现异常
+                return (T) TypeUtils.getDefaultValue(targetClass);
+            }
+            return null;
+        }
+        return TypeUtils.cast(obj, targetClass);
+    }
+
 }

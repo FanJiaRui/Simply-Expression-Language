@@ -3,7 +3,7 @@ package org.fanjr.simplify.el.invoker.node;
 import org.fanjr.simplify.context.ContextException;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file RootInvoker.java
  * @since 2021/7/6 下午4:28
  */

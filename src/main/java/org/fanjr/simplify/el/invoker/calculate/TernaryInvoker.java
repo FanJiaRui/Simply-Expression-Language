@@ -8,7 +8,7 @@ import java.util.LinkedList;
 /**
  * 三元运算
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file TernaryInvoker.java
  * @since 2021/6/30 下午2:57
  */

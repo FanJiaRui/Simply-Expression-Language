@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file BinocularBuilder.java
  * @since 2021/7/14 上午10:23
  */

@@ -1,10 +1,8 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.hundsun.gaps.core.exceptions.GapsUnusableException;
-import com.hundsun.gaps.flowexecutor.el.invoker.ArrayInvoker;
-import com.hundsun.gaps.flowexecutor.exceptions.GapsFlowContextException;
-import com.hundsun.gaps.flowexecutor.utils.GapsTypeUtils;
+import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.invoker.ArrayInvoker;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file MethodInvoker.java
  * @since 2021/7/7 下午2:43
  */
@@ -82,12 +80,12 @@ public class MethodNodeInvoker extends NodeInvoker {
                         return () -> method;
                     }
                     return () -> {
-                        throw new GapsFlowContextException(methodName + "执行失败！找不到方法！");
+                        throw new ContextException(methodName + "执行失败！找不到方法！");
                     };
                 }
             } catch (Exception e) {
                 return () -> {
-                    throw new GapsFlowContextException(methodName + "执行失败！", e);
+                    throw new ContextException(methodName + "执行失败！", e);
                 };
             }
         }).get();
@@ -95,7 +93,7 @@ public class MethodNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new GapsUnusableException("不可对【" + this.toString() + "】方法执行结果重新赋值！");
+        throw new ContextException("不可对【" + this.toString() + "】方法执行结果重新赋值！");
     }
 
     @Override
@@ -122,12 +120,12 @@ public class MethodNodeInvoker extends NodeInvoker {
             } else {
                 Type[] types = method.getGenericParameterTypes();
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = GapsTypeUtils.cast(parameters[i], types[i], ParserConfig.getGlobalInstance());
+                    parameters[i] = ElUtils.cast(parameters[i], types[i]);
                 }
                 return method.invoke(parentValue, parameters);
             }
         } catch (Exception e) {
-            throw new GapsFlowContextException(methodName + "执行失败！", e);
+            throw new ContextException(methodName + "执行失败！", e);
         }
     }
 

@@ -1,13 +1,16 @@
 package org.fanjr.simplify.el.invoker;
 
 
+import com.alibaba.fastjson2.JSONArray;
+import org.fanjr.simplify.el.ELInvoker;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ListInvoker.java
  * @since 2021/7/5 下午2:23
  */
@@ -31,11 +34,10 @@ public class ArrayInvoker implements ELInvoker {
     }
 
     @Override
-    public GapsArray invoke(Object ctx) {
-        GapsArray array = new GapsArray(itemInvokers.size());
-        int size = itemInvokers.size();
-        for (int i = 0; i < size; i++) {
-            array.add(itemInvokers.get(i).invoke(ctx));
+    public List<Object> invoke(Object ctx) {
+        List<Object> array = new JSONArray();
+        for (ELInvoker itemInvoker : itemInvokers) {
+            array.add(itemInvoker.invoke(ctx));
         }
         return array;
     }

@@ -1,7 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 
-import org.fanjr.simplify.context.JsonContext;
+import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.utils.Pair;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file JsonInvoker.java
  * @since 2021/7/6 下午1:51
  */
@@ -35,15 +35,14 @@ public class JsonInvoker implements ELInvoker {
 
 
     @Override
-    public Object invoke(Object ctx) {
-        JsonContext context = new JsonContext();
-        int size = itemInvokers.size();
-        for (int i = 0; i < size; i++) {
-            String key = String.valueOf(itemInvokers.get(i).k.invoke(ctx));
-            Object value = itemInvokers.get(i).v.invoke(ctx);
-            context.put(key, value);
+    public JSONObject invoke(Object ctx) {
+        JSONObject json = new JSONObject();
+        for (Pair<ELInvoker, ELInvoker> itemInvoker : itemInvokers) {
+            String key = String.valueOf(itemInvoker.k.invoke(ctx));
+            Object value = itemInvoker.v.invoke(ctx);
+            json.put(key, value);
         }
-        return context;
+        return json;
     }
 
     @Override

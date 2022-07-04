@@ -1,6 +1,6 @@
 package org.fanjr.simplify.el;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * 具体EL的实现类
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file Invoker.java
  * @since 2021/6/25 下午4:14
  */
@@ -25,7 +25,7 @@ public class SpliceEL implements EL {
         for (ELInvoker invoker : invokers) {
             Object target = invoker.invoke(ctx);
             if (target instanceof Map) {
-                sb.append(JSON.toJSONString(target));
+                sb.append(JSONObject.toJSONString(target));
             } else if (null != target) {
                 sb.append(target);
             }

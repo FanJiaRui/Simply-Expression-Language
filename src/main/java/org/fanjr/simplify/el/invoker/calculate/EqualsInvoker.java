@@ -1,7 +1,7 @@
 package org.fanjr.simplify.el.invoker.calculate;
 
 import org.fanjr.simplify.el.ELInvoker;
-import org.fanjr.simplify.el.ElUtils;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file EqualsInvoker.java
  * @since 2021/6/28 下午4:38
  */

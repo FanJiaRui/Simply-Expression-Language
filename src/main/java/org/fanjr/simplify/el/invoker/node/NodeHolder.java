@@ -1,17 +1,16 @@
 package org.fanjr.simplify.el.invoker.node;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file NodeResult.java
  * @since 2021/7/7 上午10:46
  */
 public final class NodeHolder {
 
-    private final Object value;
     private final NodeHolder parentNode;
     private final int index;
-
     private final NodeInvoker nodeInvoker;
+    private Object value;
 
     private NodeHolder(Object value, NodeHolder parentNode, NodeInvoker nodeInvoker, int index) {
         this.value = value;
@@ -39,6 +38,7 @@ public final class NodeHolder {
      * @return
      */
     public void setValue(Object value) {
+        this.value = value;
         nodeInvoker.setValueByParent(parentNode, value, index);
     }
 

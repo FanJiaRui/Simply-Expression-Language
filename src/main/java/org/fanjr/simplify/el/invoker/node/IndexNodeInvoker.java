@@ -1,16 +1,15 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import com.alibaba.fastjson.parser.ParserConfig;
-import com.hundsun.gaps.flowexecutor.GapsArray;
-import com.hundsun.gaps.flowexecutor.el.ELInvoker;
-import com.hundsun.gaps.flowexecutor.exceptions.GapsFlowContextException;
-import com.hundsun.gaps.flowexecutor.utils.GapsTypeUtils;
+import com.alibaba.fastjson2.JSONArray;
+import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
 import java.util.List;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file IndexNodeInvoker.java
  * @since 2021/7/8 上午11:42
  */
@@ -34,7 +33,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     }
 
     private int getIndex(Object ctx) {
-        return GapsTypeUtils.cast(indexEl.invoke(ctx), int.class, ParserConfig.getGlobalInstance());
+        return ElUtils.cast(indexEl.invoke(ctx), int.class);
     }
 
     public NodeHolder getNodeHolder(Object ctx) {
@@ -59,19 +58,19 @@ public class IndexNodeInvoker extends NodeInvoker {
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
-            throw new GapsFlowContextException("不可对【" + this.toString() + "】进行赋值！");
+            throw new ContextException("不可对【" + this.toString() + "】进行赋值！");
         }
         Object parentValue = parentNode.getValue();
         if (parentValue == null) {
-            GapsArray gapsArray = new GapsArray();
-            gapsArray.set(index, value);
-            parentNode.setValue(gapsArray);
+            List<Object> newArray = new JSONArray();
+            newArray.set(index, value);
+            parentNode.setValue(newArray);
         } else if (parentValue instanceof List) {
             ((List<Object>) parentValue).set(index, value);
         } else if (parentValue.getClass().isArray()) {
             Array.set(parentValue, index, value);
         } else {
-            GapsArray gapsArray = new GapsArray();
+            List<Object> gapsArray = new JSONArray();
             gapsArray.add(parentValue);
             gapsArray.set(index, value);
             parentNode.setValue(gapsArray);

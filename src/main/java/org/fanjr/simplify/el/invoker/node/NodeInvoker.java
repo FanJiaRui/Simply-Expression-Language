@@ -6,7 +6,7 @@ import org.fanjr.simplify.el.ELInvoker;
 /**
  * 节点执行器，用于获取或设置节点
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file NodeInvoker.java
  * @since 2021/6/28 下午5:03
  */

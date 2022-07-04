@@ -2,12 +2,13 @@ package org.fanjr.simplify.el.invoker;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ConversionInvoker.java
  * @since 2021/7/8 下午5:25
  */
@@ -31,7 +32,7 @@ public class ConversionInvoker implements ELInvoker {
 
     @Override
     public Object invoke(Object ctx) {
-        return GapsTypeUtils.cast(subInvoker.invoke(ctx), type, ParserConfig.getGlobalInstance());
+        return ElUtils.cast(subInvoker.invoke(ctx), type);
     }
 
     @Override

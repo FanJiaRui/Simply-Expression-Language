@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 /**
  * 转换器构造者
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ConversionBuilder.java
  * @since 2021/7/9 下午12:00
  */

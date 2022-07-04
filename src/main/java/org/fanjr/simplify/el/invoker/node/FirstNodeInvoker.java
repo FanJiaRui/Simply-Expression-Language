@@ -1,12 +1,12 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import com.hundsun.gaps.core.exceptions.GapsUnusableException;
-import com.hundsun.gaps.flowexecutor.el.ELInvoker;
+import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ELInvoker;
 
 /**
  * 用于对节点的第一个特殊节点进行取值
  *
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file FirstNodeInvoker.java
  * @since 2021/7/8 上午10:13
  */
@@ -35,7 +35,7 @@ public class FirstNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new GapsUnusableException("不可设置【" + el.toString() + "】的值！");
+        throw new ContextException("不可设置【" + el.toString() + "】的值！");
     }
 
     @Override

@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file NegationInvoker.java
  * @since 2021/6/29 上午11:19
  */

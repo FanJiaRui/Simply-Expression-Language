@@ -4,7 +4,7 @@ package org.fanjr.simplify.el;
 import org.fanjr.simplify.context.ContextException;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file ELTokenUtils.java
  * @since 2021/7/9 上午11:50
  */

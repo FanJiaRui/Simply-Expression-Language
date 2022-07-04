@@ -1,12 +1,13 @@
 package org.fanjr.simplify.el.invoker.calculate;
 
-import com.hundsun.gaps.flowexecutor.el.ELInvoker;
-import com.hundsun.gaps.flowexecutor.el.ElUtils;
+
+import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.utils.ElUtils;
 
 import java.util.LinkedList;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file RemainderInvoker.java
  * @since 2021/7/9 下午2:47
  */

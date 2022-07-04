@@ -6,7 +6,7 @@ import org.fanjr.simplify.el.ELTokenUtils;
 import org.fanjr.simplify.el.invoker.calculate.SetValueInvoker;
 
 /**
- * @author fanjr15662@hundsun.com
+ * @author fanjr@vip.qq.com
  * @file AssignmentBuilder.java
  * @since 2021/8/4 下午3:13
  */
