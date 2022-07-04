@@ -1,7 +1,7 @@
 package org.fanjr.simplify.el.invoker.node;
 
 import com.alibaba.fastjson2.JSONArray;
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.utils.ElUtils;
 
@@ -58,7 +58,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
-            throw new ContextException("不可对【" + this.toString() + "】进行赋值！");
+            throw new ElException("不可对【" + this.toString() + "】进行赋值！");
         }
         Object parentValue = parentNode.getValue();
         if (parentValue == null) {

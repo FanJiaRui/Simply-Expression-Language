@@ -3,7 +3,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 import com.alibaba.fastjson2.JSONFactory;
 import com.alibaba.fastjson2.reader.ObjectReaderProvider;
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
 
 import java.util.LinkedList;
@@ -42,7 +42,7 @@ public class NegationInvoker implements ELInvoker {
             return !(boolean) typeConvert.apply(targetObj);
         }
 
-        throw new ContextException("无法将类型" + targetObj.getClass() + "转换为boolean类型");
+        throw new ElException("无法将类型" + targetObj.getClass() + "转换为boolean类型");
     }
 
     @Override

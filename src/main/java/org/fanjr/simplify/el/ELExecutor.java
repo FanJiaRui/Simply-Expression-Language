@@ -1,7 +1,6 @@
 package org.fanjr.simplify.el;
 
 
-import org.fanjr.simplify.context.ContextException;
 import org.fanjr.simplify.el.builder.*;
 import org.fanjr.simplify.el.invoker.*;
 import org.fanjr.simplify.el.invoker.calculate.*;
@@ -294,7 +293,7 @@ public class ELExecutor {
                         start = end;
                         continue;
                     } else {
-                        throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,错误的数字或变量：" + numStr);
+                        throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,错误的数字或变量：" + numStr);
                     }
                 }
 
@@ -356,10 +355,10 @@ public class ELExecutor {
 
             return buildAll(builderStack);
         } catch (Exception e) {
-            if (e instanceof ContextException) {
+            if (e instanceof ElException) {
                 throw e;
             } else {
-                throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于[" + start + "," + end + "]", e);
+                throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于[" + start + "," + end + "]", e);
             }
         }
     }
@@ -379,7 +378,7 @@ public class ELExecutor {
         String nodeName = new String(chars, start, end - start);
         if (nextToken != -1) {
             if (chars[end - 1] != ']') {
-                throw new ContextException("解析错误！错误的节点:" + nodeName);
+                throw new ElException("解析错误！错误的节点:" + nodeName);
             } else {
                 int lastArrayIndex = findLastCharToken(chars, '[', start, end - 1, false);
                 NodeInvoker parent = resolveNode(chars, start, lastArrayIndex);
@@ -391,7 +390,7 @@ public class ELExecutor {
         nextToken = findNextCharToken(chars, '(', start, end, false);
         if (-1 != nextToken) {
             if (chars[end - 1] != ')') {
-                throw new ContextException("解析错误！错误的节点:" + nodeName);
+                throw new ElException("解析错误！错误的节点:" + nodeName);
             } else {
                 return MethodNodeInvoker.newInstance(nodeName, new String(chars, start, nextToken - start), resolveList(chars, nextToken, end));
             }
@@ -416,7 +415,7 @@ public class ELExecutor {
             //在下一个逗号前寻找冒号
             int nextColon = findNextCharToken(chars, ':', start, nextComma, false);
             if (-1 == nextColon) {
-                throw new ContextException("解析错误！错误的JSON:" + jsonStr);
+                throw new ElException("解析错误！错误的JSON:" + jsonStr);
             }
             Pair<ELInvoker, ELInvoker> pair = new Pair<>(resolve(chars, start, nextColon), resolve(chars, nextColon + 1, nextComma));
             itemInvokers.add(pair);
@@ -464,7 +463,7 @@ public class ELExecutor {
             if (target.size() == 1) {
                 return target.get(0);
             } else {
-                throw new ContextException("表达式解析错误！");
+                throw new ElException("表达式解析错误！");
             }
         }
     }

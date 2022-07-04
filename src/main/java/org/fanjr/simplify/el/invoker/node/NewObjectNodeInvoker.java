@@ -1,6 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
 
@@ -50,12 +50,12 @@ public class NewObjectNodeInvoker extends NodeInvoker {
                         }
                     }
                     return () -> {
-                        throw new ContextException(className + "实例化失败！找不到构造方法！");
+                        throw new ElException(className + "实例化失败！找不到构造方法！");
                     };
                 }
             } catch (Exception e) {
                 return () -> {
-                    throw new ContextException(className + "实例化失败！", e);
+                    throw new ElException(className + "实例化失败！", e);
                 };
             }
         }).get();
@@ -63,7 +63,7 @@ public class NewObjectNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ContextException("不可对【" + this.toString() + "】执行结果重新赋值！");
+        throw new ElException("不可对【" + this.toString() + "】执行结果重新赋值！");
     }
 
     @Override
@@ -81,7 +81,7 @@ public class NewObjectNodeInvoker extends NodeInvoker {
                 return constructor.newInstance(parameters);
             }
         } catch (Exception e) {
-            throw new ContextException(className + "实例化失败！", e);
+            throw new ElException(className + "实例化失败！", e);
         }
     }
 }

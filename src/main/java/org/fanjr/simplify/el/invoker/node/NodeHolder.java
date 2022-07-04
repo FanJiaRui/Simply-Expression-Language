@@ -11,6 +11,10 @@ public final class NodeHolder {
     private final int index;
     private final NodeInvoker nodeInvoker;
     private Object value;
+    /**
+     * 用于标记get操作时是否变化了原有类型
+     */
+    private boolean change;
 
     private NodeHolder(Object value, NodeHolder parentNode, NodeInvoker nodeInvoker, int index) {
         this.value = value;
@@ -25,6 +29,14 @@ public final class NodeHolder {
 
     public static NodeHolder newArrayNodeHolder(Object value, NodeHolder parentNode, NodeInvoker nodeInvoker, int nowIndex) {
         return new NodeHolder(value, parentNode, nodeInvoker, nowIndex);
+    }
+
+    public boolean isChange() {
+        return change;
+    }
+
+    public void setChange(boolean change) {
+        this.change = change;
     }
 
     public Object getValue() {

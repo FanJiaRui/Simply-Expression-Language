@@ -3,7 +3,7 @@ package org.fanjr.simplify.el.invoker.node;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 
 import java.util.Map;
 
@@ -30,16 +30,18 @@ public class MapNodeInvoker extends NodeInvoker {
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
-            throw new ContextException("不可对【" + this.toString() + "】进行赋值！");
+            throw new ElException("不可对【" + this.toString() + "】进行赋值！");
         }
-        if (null == parentNode.getValue()) {
+        Object parentValue = parentNode.getValue();
+        if (null == parentValue) {
             if (parentNode.isRoot()) {
-                throw new ContextException("ROOT节点为空！不可对【" + this.toString() + "】进行赋值！");
+                throw new ElException("ROOT节点为空！不可对【" + this.toString() + "】进行赋值！");
             }
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(nodeName, value);
             parentNode.setValue(jsonObject);
         } else {
+
 //            dispatcher.doPut(parentNode.getValue(), value, false);
         }
     }
@@ -67,7 +69,8 @@ public class MapNodeInvoker extends NodeInvoker {
                 try (JSONReader reader = JSONReader.of(json)) {
                     ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
                     JSONObject jsonObject = objectReader.readObject(reader, 0);
-                    return new JsonContext(jsonObject);
+                    parentNode.setChange(true);
+                    return jsonObject;
                 }
             }
         }

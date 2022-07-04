@@ -1,7 +1,6 @@
 package org.fanjr.simplify.el;
 
 
-import org.fanjr.simplify.context.ContextException;
 import org.fanjr.simplify.el.builder.BinocularBuilder;
 import org.fanjr.simplify.el.invoker.calculate.*;
 
@@ -73,7 +72,7 @@ public enum CalculateEnum {
                     if (index - 3 >= start) {
                         if (chars[index - 3] == '+'){
                             //存在++++，语法异常！
-                            throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【+】");
+                            throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【+】");
                         }else {
                             return true;
                         }
@@ -103,7 +102,7 @@ public enum CalculateEnum {
                     if (index - 3 >= start) {
                         if (chars[index - 3] == '-'){
                             //存在----，语法异常！
-                            throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【-】");
+                            throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【-】");
                         }else {
                             return true;
                         }

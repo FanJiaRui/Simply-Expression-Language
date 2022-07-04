@@ -1,8 +1,6 @@
 package org.fanjr.simplify.el;
 
 
-import org.fanjr.simplify.context.ContextException;
-
 /**
  * @author fanjr@vip.qq.com
  * @file ELTokenUtils.java
@@ -145,7 +143,7 @@ public class ELTokenUtils {
             char c = ")]}".charAt(i);
             int index = findNextCharToken(chars, c, start, end, false);
             if (-1 != index) {
-                throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【" + c + "】");
+                throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【" + c + "】");
             }
         }
     }
@@ -186,7 +184,7 @@ public class ELTokenUtils {
             }
         }
         if (throwException) {
-            throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
+            throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
         } else {
             return -1;
         }
@@ -232,7 +230,7 @@ public class ELTokenUtils {
             }
         }
         if (throwException) {
-            throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
+            throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
         } else {
             return -1;
         }
@@ -255,7 +253,7 @@ public class ELTokenUtils {
                 }
             }
         }
-        throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
+        throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
     }
 
     /**
@@ -275,7 +273,7 @@ public class ELTokenUtils {
                 }
             }
         }
-        throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
+        throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
     }
 
     /**
@@ -306,7 +304,7 @@ public class ELTokenUtils {
                 }
             }
         }
-        throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
+        throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
     }
 
     /**
@@ -337,7 +335,7 @@ public class ELTokenUtils {
                 }
             }
         }
-        throw new ContextException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
+        throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
     }
 
     /**

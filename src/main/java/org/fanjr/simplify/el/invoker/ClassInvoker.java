@@ -1,7 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
 
 import java.util.LinkedList;
@@ -29,7 +29,7 @@ public class ClassInvoker implements ELInvoker {
         try {
             return Class.forName(className);
         } catch (Exception e) {
-            throw new ContextException("找不到类：" + className, e);
+            throw new ElException("找不到类：" + className, e);
         }
     }
 

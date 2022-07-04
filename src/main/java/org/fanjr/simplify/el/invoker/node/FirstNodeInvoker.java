@@ -1,6 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
 
 /**
@@ -35,7 +35,7 @@ public class FirstNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ContextException("不可设置【" + el.toString() + "】的值！");
+        throw new ElException("不可设置【" + el.toString() + "】的值！");
     }
 
     @Override

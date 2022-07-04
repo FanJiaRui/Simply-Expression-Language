@@ -1,6 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import org.fanjr.simplify.context.ContextException;
+import org.fanjr.simplify.el.ElException;
 
 /**
  * @author fanjr@vip.qq.com
@@ -32,7 +32,7 @@ public class RootNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ContextException("不可设置ROOT(this)节点值！");
+        throw new ElException("不可设置ROOT(this)节点值！");
     }
 
     @Override

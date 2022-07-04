@@ -1,13 +1,8 @@
 package org.fanjr.simplify.context;
 
-import com.alibaba.fastjson2.JSONFactory;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.JSONReader;
-import com.alibaba.fastjson2.reader.ObjectReader;
-import com.alibaba.fastjson2.reader.ObjectReaderProvider;
+import org.fanjr.simplify.el.ElException;
 
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * @author fanjr@vip.qq.com
@@ -67,7 +62,7 @@ public interface IContext {
      * 例如:对上下文{}执行put操作</br>
      * key为"a.b",value为"xxx"时上下文内容将变成{"a":{"b":"xxx"}}</br>
      * @throws NullPointerException key为空时将会抛出这个异常
-     * @throws ContextException     上下文操作发生错误时将会抛出这个异常
+     * @throws ElException     上下文操作发生错误时将会抛出这个异常
      */
     void putByNode(String nodeName, Object value);
 
@@ -81,7 +76,7 @@ public interface IContext {
      * key为"c.b"时将返回null</br>
      * key为"b"时将返回{"c":"2"}
      * @throws NullPointerException key为空时将会抛出这个异常
-     * @throws ContextException     上下文操作发生错误时将会抛出这个异常
+     * @throws ElException     上下文操作发生错误时将会抛出这个异常
      */
     Object getByNode(String nodeName);
 
