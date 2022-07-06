@@ -62,14 +62,12 @@ public class ELExecutor {
         int elStart = findElStart(chars, start, end);
         if (-1 == elStart) {
             elInstance = new SimpleEL(resolve(chars, start, end));
-            COMPILES.put(el, elInstance);
             return elInstance;
         }
 
         if (elStart == start && chars[end - 1] == '}' && -1 == findElStart(chars, start + 1, end)) {
             start += 2;
             elInstance = new SimpleEL(resolve(chars, start, end - 1));
-            COMPILES.put(el, elInstance);
             return elInstance;
         }
 
@@ -350,7 +348,6 @@ public class ELExecutor {
                     start = nextDot + 1;
                 } while (start < end);
                 pushOrBuild(builderStack, parent);
-
             }
 
             return buildAll(builderStack);

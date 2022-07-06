@@ -1,11 +1,16 @@
 package org.fanjr.simplify.utils;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONFactory;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.reader.ObjectReaderProvider;
 import com.alibaba.fastjson2.util.TypeUtils;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,8 +22,6 @@ import java.util.regex.Pattern;
 public class ElUtils {
     /**
      * The empty String <code>""</code>.
-     *
-     * @since 2.0
      */
     public static final String EMPTY = "";
 
@@ -285,8 +288,15 @@ public class ElUtils {
         if (targetType.getClass() == Class.class) {
             return cast(obj, (Class<?>) targetType);
         }
-        //FIXME 还没做完
-        return null;
+        if (null == obj) {
+            return null;
+        }
+        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+        Function typeConvert = provider.getTypeConvert(obj.getClass(), targetType);
+        if (typeConvert != null) {
+            return typeConvert.apply(obj);
+        }
+        return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
     }
 
     @SuppressWarnings("unchecked")
@@ -297,6 +307,9 @@ public class ElUtils {
                 return (T) TypeUtils.getDefaultValue(targetClass);
             }
             return null;
+        }
+        if (obj.getClass() == Character.class) {
+            return (T) String.valueOf(obj);
         }
         return TypeUtils.cast(obj, targetClass);
     }

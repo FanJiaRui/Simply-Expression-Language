@@ -10,7 +10,7 @@ import org.fanjr.simplify.el.ELInvoker;
  * @file NodeInvoker.java
  * @since 2021/6/28 下午5:03
  */
-public abstract class NodeInvoker implements ELInvoker {
+public abstract class NodeInvoker implements ELInvoker, Node {
 
     protected final String nodeName;
 
@@ -21,14 +21,35 @@ public abstract class NodeInvoker implements ELInvoker {
     }
 
     @Override
-    public Object invoke(Object ctx) {
+    public Object getNode(Object ctx) {
         return getNodeHolder(ctx).getValue();
     }
 
+    @Override
+    public void putNode(Object ctx, Object value) {
+        getNodeHolder(ctx).setValue(value);
+    }
+
+    @Override
+    public Object invoke(Object ctx) {
+        return getNode(ctx);
+    }
+
+    /**
+     * 计算出当前NodeHolder包含value
+     */
     public NodeHolder getNodeHolder(Object ctx) {
         NodeHolder parentNode = getParentNodeHolder(ctx);
         Object value = getValueByParent(ctx, parentNode);
         return NodeHolder.newNodeHolder(value, parentNode, this);
+    }
+
+    /**
+     * 计算出当前NodeHolder不包含value
+     */
+    public NodeHolder getNodeHolderNoValue(Object ctx) {
+        NodeHolder parentNode = getParentNodeHolder(ctx);
+        return NodeHolder.newNodeHolder(null, parentNode, this);
     }
 
     public NodeHolder getParentNodeHolder(Object ctx) {
@@ -42,9 +63,9 @@ public abstract class NodeInvoker implements ELInvoker {
         this.parentNodeInvoker = parentNodeInvoker;
     }
 
-    public abstract void setValueByParent(NodeHolder parentNode, Object value, int index);
+    abstract void setValueByParent(NodeHolder parentNode, Object value, int index);
 
-    public abstract Object getValueByParent(Object ctx, NodeHolder parentNode);
+    abstract Object getValueByParent(Object ctx, NodeHolder parentNode);
 
     public String toString() {
         if (null != parentNodeInvoker) {

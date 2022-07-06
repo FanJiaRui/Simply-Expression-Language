@@ -1,8 +1,8 @@
 package org.fanjr.simplify.el.invoker.node;
 
 import com.alibaba.fastjson2.JSONArray;
-import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
@@ -45,8 +45,14 @@ public class IndexNodeInvoker extends NodeInvoker {
         Object parentValue = parentNode.getValue();
         Object value = null;
         if (parentValue instanceof List) {
+            if (index >= ((List<?>) parentValue).size()) {
+                return NodeHolder.newArrayNodeHolder(null, parentNode, this, index);
+            }
             value = ((List<?>) parentValue).get(index);
         } else if (parentValue.getClass().isArray()) {
+            if (index >= Array.getLength(parentValue)) {
+                return NodeHolder.newArrayNodeHolder(null, parentNode, this, index);
+            }
             value = Array.get(parentValue, index);
         } else if (index == 0) {
             value = parentValue;
