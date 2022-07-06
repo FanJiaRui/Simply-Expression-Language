@@ -13,37 +13,19 @@ import java.util.HashMap;
  * el表达式工具测试类
  *
  * @author fanjr@vip.qq.com
- * @date 2018年4月2日
+ * @date 2022年6月6日
  */
 public class ElTest {
 
-//    /**
-//     * 测试普通计算,判断和取值
-//     */
-//    @Test
-//    public void test() {
-//        GapsContext context = new GapsContext();
-//        context.put("enum", GapsFlowPlatformNodeEnum.GAPS_SERIAL_ID);
-//        Assert.assertTrue(
-//                ELExecutor.eval("enum == ((class)\"com.hundsun.gaps.flowexecutor.enums.GapsFlowPlatformNodeEnum\").GAPS_SERIAL_ID",
-//                        context, boolean.class));
-//        Assert.assertTrue(
-//                ELExecutor.eval("enumClass = (class)\"com.hundsun.gaps.flowexecutor.enums.GapsFlowPlatformNodeEnum\";enum==enumClass.GAPS_SERIAL_ID",
-//                        context, boolean.class));
-//        Assert.assertEquals("EL取枚举错误！", GapsFlowPlatformNodeEnum.GAPS_SERIAL_ID, ELExecutor.eval("?enum", context, Object.class));
-//        Assert.assertEquals("EL取枚举错误！", GapsFlowPlatformNodeEnum.GAPS_SERIAL_ID.NODE_NAME, ELExecutor.eval("?enum.?NODE_NAME", context, Object.class));
-//        Assert.assertEquals("EL取数组错误", 1, ELExecutor.eval("this", 1));
-//    }
-//
-//    /**
-//     * 测试枚举取值
-//     */
-//    @Test
-//    public void testEnum() {
-//        GapsContext context = new GapsContext();
-//        Assert.assertEquals("EL取枚举错误！", "GAPS_SERIAL_ID", ELExecutor.eval("((class) \"com.hundsun.gaps.flowexecutor.enums.GapsFlowPlatformNodeEnum\").GAPS_SERIAL_ID.NODE_NAME", context, Object.class));
-//        Assert.assertEquals("EL取枚举错误！", "平台流水号", ELExecutor.eval("((class) \"com.hundsun.gaps.flowexecutor.enums.GapsFlowPlatformNodeEnum\").GAPS_SERIAL_ID.TITLE", context, Object.class));
-//    }
+    /**
+     * 测试枚举取值
+     */
+    @Test
+    public void testEnum() {
+        JSONObject context = new JSONObject();
+        Assert.assertEquals("EL取枚举错误！", "SERIAL_ID", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.NODE_NAME", context, Object.class));
+        Assert.assertEquals("EL取枚举错误！", "流水号", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.TITLE", context, Object.class));
+    }
 
     /**
      * 速度测试
@@ -70,25 +52,6 @@ public class ElTest {
         //计算结果正确性断言
         Assert.assertArrayEquals(arr1, arr2);
     }
-//
-//    /**
-//     * 测试条件判断
-//     */
-//    @Test
-//    public void testPredicate() {
-//        Predicate<GapsContext> predicate = ExpressionPredicate.build("!((test.?x == 1 || !test.y) && test.z != 3)");
-//        GapsContext context = new GapsContext();
-//        context.putByNode("test.x", "1");
-//        context.putByNode("test.y", true);
-//        context.putByNode("test.z", 1);
-//        System.out.println(predicate.test(context));
-//        context.putByNode("test.z", 3);
-//        System.out.println(predicate.test(context));
-//        context.removeByNode("test.x");
-//        System.out.println(predicate.test(context));
-//        predicate = ExpressionPredicate.build("test.y");
-//        System.out.println(predicate.test(context));
-//    }
 
     @Test
     public void sigTest() {
@@ -213,4 +176,18 @@ public class ElTest {
 
     }
 
+
+
+}
+
+enum TestEnum{
+    SERIAL_ID("SERIAL_ID","流水号"),;
+
+    public final String NODE_NAME;
+    public final String TITLE;
+
+    TestEnum(String nodeName, String title){
+        this.NODE_NAME = nodeName;
+        this.TITLE = title;
+    }
 }

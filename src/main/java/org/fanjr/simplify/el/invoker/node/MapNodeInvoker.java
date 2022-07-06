@@ -130,7 +130,19 @@ public class MapNodeInvoker extends NodeInvoker {
             return ((Map<?, ?>) parentValue).get(nodeName);
         }
         Class<?> parentClass = parentValue.getClass();
-        if (parentClass == String.class) {
+        if (parentClass == Class.class) {
+            if (((Class<?>) parentValue).isEnum()) {
+                return Enum.valueOf((Class<? extends Enum>) parentValue, nodeName);
+            }
+        } else if (parentClass.isEnum()) {
+            try {
+                Field field = parentClass.getDeclaredField(nodeName);
+                field.setAccessible(true);
+                return field.get(parentValue);
+            } catch (Exception e) {
+                return null;
+            }
+        } else if (parentClass == String.class) {
             String json = (String) parentValue;
             if (json.isEmpty() || "null".equals(json)) {
                 return null;
@@ -146,6 +158,7 @@ public class MapNodeInvoker extends NodeInvoker {
                 }
             }
         }
+
         //从javaBean中取值
         ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
         ObjectReader<?> reader = provider.getObjectReader(parentClass);
