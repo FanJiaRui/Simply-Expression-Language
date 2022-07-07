@@ -13,7 +13,11 @@ public interface EL {
 
     Object invoke(Object ctx);
 
-    default <T> Object invoke(Object ctx, Type type) {
+    default Object invoke(Object ctx, Type type) {
+        return ElUtils.cast(invoke(ctx), type);
+    }
+
+    default <T> T invoke(Object ctx, Class<T> type) {
         return ElUtils.cast(invoke(ctx), type);
     }
 }
