@@ -2,7 +2,6 @@
 <!--
   ~ @author fanjr@vip.qq.com
   ~ @since 2020/11/6 下午3:55
-  ~ @file pom.xml
   ~
   -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -26,7 +25,7 @@
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
-            <version>2.0.8</version>
+            <version>2.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

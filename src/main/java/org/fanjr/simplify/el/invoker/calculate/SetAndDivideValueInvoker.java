@@ -10,7 +10,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file SetAndDivideValueInvoker.java
  * @since 2021/7/9 下午9:27
  */
 public class SetAndDivideValueInvoker implements ELInvoker {

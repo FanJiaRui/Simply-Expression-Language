@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file LessInvoker.java
  * @since 2021/7/13 下午8:20
  */
 public class LessInvoker extends BinocularInvoker {

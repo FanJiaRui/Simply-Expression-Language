@@ -1,16 +1,19 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ElException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 用于对节点的第一个特殊节点进行取值
  *
  * @author fanjr@vip.qq.com
- * @file FirstNodeInvoker.java
  * @since 2021/7/8 上午10:13
  */
 public class FirstNodeInvoker extends NodeInvoker {
+
+    private static final Logger logger = LoggerFactory.getLogger(FirstNodeInvoker.class);
 
     private final ELInvoker el;
 
@@ -34,12 +37,18 @@ public class FirstNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
         throw new ElException("不可设置【" + el.toString() + "】的值！");
     }
 
     @Override
-    public Object getValueByParent(Object ctx, NodeHolder parentNode) {
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        // skip
+        logger.info("移除【{}】操作无效，无需移除！", this.toString());
+    }
+
+    @Override
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
         //当前节点没有父节点
         return ctx;
     }

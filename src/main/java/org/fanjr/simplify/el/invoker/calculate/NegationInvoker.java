@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 /**
  * @author fanjr@vip.qq.com
- * @file NegationInvoker.java
  * @since 2021/6/29 上午11:19
  */
 public class NegationInvoker implements ELInvoker {

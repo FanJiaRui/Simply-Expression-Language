@@ -10,16 +10,17 @@ import com.alibaba.fastjson2.writer.FieldWriter;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import org.fanjr.simplify.el.ElException;
+import org.fanjr.simplify.utils.ElUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author fanjr@vip.qq.com
- * @file MapNodeInvoker.java
  * @since 2021/7/8 上午11:42
  */
 public class MapNodeInvoker extends NodeInvoker {
@@ -35,7 +36,7 @@ public class MapNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
             throw new ElException("不可对【" + this.toString() + "】进行赋值！");
         }
@@ -64,7 +65,6 @@ public class MapNodeInvoker extends NodeInvoker {
                         try (JSONReader reader = JSONReader.of(json)) {
                             ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
                             JSONObject jsonObject = objectReader.readObject(reader, 0);
-                            parentNode.setChange(true);
                             jsonObject.put(nodeName, value);
                             parentNode.setValue(jsonObject.toString());
                             return;
@@ -89,7 +89,7 @@ public class MapNodeInvoker extends NodeInvoker {
                 Method method = fieldWriter.getMethod();
                 if (method != null) {
                     try {
-                        method.invoke(parentValue, value);
+                        method.invoke(parentValue, ElUtils.cast(value, fieldWriter.getFieldType()));
                     } catch (Exception e) {
                         // skip
                     }
@@ -97,7 +97,7 @@ public class MapNodeInvoker extends NodeInvoker {
                 Field field = fieldWriter.getField();
                 if (field != null) {
                     try {
-                        field.set(parentValue, value);
+                        field.set(parentValue, ElUtils.cast(value, fieldWriter.getFieldType()));
                     } catch (IllegalAccessException e) {
                         // skip
                     }
@@ -118,7 +118,7 @@ public class MapNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public Object getValueByParent(Object ctx, NodeHolder parentNode) {
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
         if (null == parentNode) {
             return null;
         }
@@ -186,6 +186,70 @@ public class MapNodeInvoker extends NodeInvoker {
         logger.warn("无法从类型[{}]中获取属性[{}]", parentClass.getName(), nodeName);
         //无法获取值，取null
         return null;
+    }
+
+    @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        if (null == parentNode) {
+            return;
+        }
+        Object parentValue = parentNode.getValue();
+        if (null == parentValue) {
+            return;
+        }
+        if (parentValue instanceof Map) {
+            ((Map<?, ?>) parentValue).remove(nodeName);
+        }
+
+        Class<?> parentClass = parentValue.getClass();
+        if (parentClass == String.class) {
+            //Parent类型为字符串，操作完后确保推送回Parent为字符串
+            String json = (String) parentValue;
+            if (json.isEmpty() || "null".equals(json)) {
+                return;
+            } else {
+                char first = json.trim().charAt(0);
+                if (first == '{') {
+                    try (JSONReader reader = JSONReader.of(json)) {
+                        ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
+                        JSONObject jsonObject = objectReader.readObject(reader, 0);
+                        jsonObject.remove(nodeName);
+                        parentNode.setValue(jsonObject.toString());
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+
+        if (parentValue instanceof List || parentClass.isArray()) {
+            // 不做处理
+            return;
+        }
+
+        ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
+        ObjectWriter objectWriter = provider.getObjectWriter(parentClass);
+        FieldWriter fieldWriter = objectWriter.getFieldWriter(nodeName);
+        if (null != fieldWriter) {
+            // 优先采用方法获取，其次采用Field
+            Method method = fieldWriter.getMethod();
+            if (method != null) {
+                try {
+                    method.invoke(parentValue, ElUtils.cast(null, fieldWriter.getFieldType()));
+                } catch (Exception e) {
+                    // skip
+                }
+            }
+            Field field = fieldWriter.getField();
+            if (field != null) {
+                try {
+                    field.set(parentValue, ElUtils.cast(null, fieldWriter.getFieldType()));
+                } catch (IllegalAccessException e) {
+                    // skip
+                }
+            }
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package unit;
 import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.EL;
 import org.fanjr.simplify.el.ELExecutor;
+import org.fanjr.simplify.el.invoker.node.Node;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 enum TestEnum {
     SERIAL_ID("SERIAL_ID", "流水号"),
@@ -196,7 +198,22 @@ public class ElTest {
         System.out.println(ELExecutor.eval("(4/2).floatValue()==2", context, String.class));
         System.out.println(ELExecutor.eval("map=new com.alibaba.fastjson2.JSONObject();map.b=2;map.a=1;map", context, String.class));
         System.out.println(ELExecutor.eval("this", context, String.class));
+    }
 
+    @Test
+    @DisplayName("节点测试")
+    public void testNode() {
+        JSONObject ctx = new JSONObject();
+        Node a = ELExecutor.compileNode("a.b.c.d");
+        Node b = ELExecutor.compileNode("a.b.c.d2");
+        Node c = ELExecutor.compileNode("a.b.c");
+        a.putNode(ctx,"testStr1");
+        b.putNode(ctx,"testStr2");
+        Assertions.assertEquals(a.getNode(ctx),"testStr1");
+        Assertions.assertEquals(b.getNode(ctx),"testStr2");
+        Assertions.assertEquals(c.getNode(ctx).toString(),"{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
+        c.removeNode(ctx);
+        Assertions.assertEquals(ctx.toString(),"{\"a\":{\"b\":{}}}");
     }
 
 

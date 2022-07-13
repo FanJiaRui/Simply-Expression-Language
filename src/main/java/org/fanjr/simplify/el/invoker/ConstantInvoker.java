@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author fanjr@vip.qq.com
- * @file ConstantInvoker.java
  * @since 2021/7/5 上午11:31
  */
 public class ConstantInvoker implements ELInvoker {

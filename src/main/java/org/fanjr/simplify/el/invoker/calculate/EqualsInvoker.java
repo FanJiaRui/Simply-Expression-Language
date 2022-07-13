@@ -12,7 +12,6 @@ import java.util.Objects;
 
 /**
  * @author fanjr@vip.qq.com
- * @file EqualsInvoker.java
  * @since 2021/6/28 下午4:38
  */
 public class EqualsInvoker extends BinocularInvoker {

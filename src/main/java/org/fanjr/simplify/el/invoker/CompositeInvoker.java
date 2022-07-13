@@ -9,7 +9,6 @@ import java.util.List;
  * 组合计算，用于支持多个语句组合的情况用分号隔开多个语句，例如 el1;el2;el3
  *
  * @author fanjr@vip.qq.com
- * @file CompositeInvoker.java
  * @since 2021/7/12 上午9:29
  */
 public class CompositeInvoker implements ELInvoker {

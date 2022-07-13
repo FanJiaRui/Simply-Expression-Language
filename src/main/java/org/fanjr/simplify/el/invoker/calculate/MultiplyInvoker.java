@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file MultiplyInvoker.java
  * @since 2021/7/9 下午8:38
  */
 public class MultiplyInvoker extends BinocularInvoker {

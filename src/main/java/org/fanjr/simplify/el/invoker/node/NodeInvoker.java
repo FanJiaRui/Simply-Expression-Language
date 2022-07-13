@@ -7,7 +7,6 @@ import org.fanjr.simplify.el.ELInvoker;
  * 节点执行器，用于获取或设置节点
  *
  * @author fanjr@vip.qq.com
- * @file NodeInvoker.java
  * @since 2021/6/28 下午5:03
  */
 public abstract class NodeInvoker implements ELInvoker, Node {
@@ -31,28 +30,38 @@ public abstract class NodeInvoker implements ELInvoker, Node {
     }
 
     @Override
+    public void removeNode(Object ctx) {
+        getNodeHolder(ctx).remove();
+    }
+
+    @Override
     public Object invoke(Object ctx) {
         return getNode(ctx);
     }
 
     /**
-     * 计算出当前NodeHolder包含value
+     * 计算出当前NodeHolder
+     *
+     * @param ctx 上下文
+     * @return 节点Holder
      */
     public NodeHolder getNodeHolder(Object ctx) {
         NodeHolder parentNode = getParentNodeHolder(ctx);
         Object value = getValueByParent(ctx, parentNode);
-        return NodeHolder.newNodeHolder(value, parentNode, this);
+        NodeHolder nodeHolder = NodeHolder.newNodeHolder(value, parentNode, this);
+        if (parentNode.isChange()) {
+            nodeHolder.setChange(true);
+        }
+        return nodeHolder;
     }
 
     /**
-     * 计算出当前NodeHolder不包含value
+     * 计算出上一级NodeHolder
+     *
+     * @param ctx 上下文
+     * @return 节点Holder
      */
-    public NodeHolder getNodeHolderNoValue(Object ctx) {
-        NodeHolder parentNode = getParentNodeHolder(ctx);
-        return NodeHolder.newNodeHolder(null, parentNode, this);
-    }
-
-    public NodeHolder getParentNodeHolder(Object ctx) {
+    protected NodeHolder getParentNodeHolder(Object ctx) {
         if (null != parentNodeInvoker) {
             return parentNodeInvoker.getNodeHolder(ctx);
         }
@@ -66,6 +75,8 @@ public abstract class NodeInvoker implements ELInvoker, Node {
     abstract void setValueByParent(NodeHolder parentNode, Object value, int index);
 
     abstract Object getValueByParent(Object ctx, NodeHolder parentNode);
+
+    abstract void removeValueByParent(NodeHolder parentNode, int index);
 
     public String toString() {
         if (null != parentNodeInvoker) {

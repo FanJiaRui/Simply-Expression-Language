@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 /**
  * @author fanjr@vip.qq.com
- * @file BinocularBuilder.java
  * @since 2021/7/14 上午10:23
  */
 public class BinocularBuilder extends ELInvokerBuilder {

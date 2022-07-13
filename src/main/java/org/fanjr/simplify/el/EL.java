@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 /**
  * @author fanjr@vip.qq.com
- * @file EL.java
  * @since 2021/6/28 下午4:08
  */
 public interface EL {

@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author fanjr@vip.qq.com
- * @file StringInvoker.java
  * @since 2021/6/28 下午4:27
  */
 public class StringInvoker implements ELInvoker {

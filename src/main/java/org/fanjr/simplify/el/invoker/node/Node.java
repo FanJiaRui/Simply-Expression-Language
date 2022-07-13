@@ -4,7 +4,6 @@ package org.fanjr.simplify.el.invoker.node;
  * 代表一个指定的节点
  *
  * @author fanjr@vip.qq.com
- * @file Node.java
  * @since 2022/7/5 上午9:33
  */
 public interface Node {
@@ -24,4 +23,11 @@ public interface Node {
      * @param value 要放入对象该节点的值
      */
     void putNode(Object ctx, Object value);
+
+    /**
+     * 目标对象的该节点移除
+     *
+     * @param ctx 对象
+     */
+    void removeNode(Object ctx);
 }

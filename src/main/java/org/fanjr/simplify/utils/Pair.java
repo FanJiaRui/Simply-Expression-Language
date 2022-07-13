@@ -4,7 +4,6 @@ import java.util.Objects;
 
 /**
  * @author fanjr@vip.qq.com
- * @file Pair.java
  * @since 2021/4/2 下午3:33
  */
 public class Pair<K, V> {

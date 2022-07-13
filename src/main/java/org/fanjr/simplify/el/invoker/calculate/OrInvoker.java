@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file OrInvoker.java
  * @since 2021/7/9 下午3:58
  */
 public class OrInvoker extends BinocularInvoker {

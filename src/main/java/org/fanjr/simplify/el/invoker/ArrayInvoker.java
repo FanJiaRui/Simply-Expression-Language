@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author fanjr@vip.qq.com
- * @file ListInvoker.java
  * @since 2021/7/5 下午2:23
  */
 public class ArrayInvoker implements ELInvoker {

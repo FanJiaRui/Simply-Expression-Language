@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file EqualOrLessInvoker.java
  * @since 2021/7/13 下午8:19
  */
 public class EqualOrLessInvoker extends BinocularInvoker {

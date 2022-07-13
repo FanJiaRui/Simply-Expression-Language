@@ -3,6 +3,8 @@ package org.fanjr.simplify.el.invoker.node;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
@@ -12,10 +14,11 @@ import java.util.function.Supplier;
 
 /**
  * @author fanjr@vip.qq.com
- * @file NewObjectNodeInvoker.java
  * @since 2021/7/12 下午1:42
  */
 public class NewObjectNodeInvoker extends NodeInvoker {
+
+    private static final Logger logger = LoggerFactory.getLogger(NewObjectNodeInvoker.class);
 
     private static final Map<String, Supplier<Constructor<?>>> CONSTRUCTOR_POOL = new ConcurrentHashMap<>();
 
@@ -83,5 +86,11 @@ public class NewObjectNodeInvoker extends NodeInvoker {
         } catch (Exception e) {
             throw new ElException(className + "实例化失败！", e);
         }
+    }
+
+    @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        // skip
+        logger.info("移除【{}】操作无效，无需移除！", this.toString());
     }
 }

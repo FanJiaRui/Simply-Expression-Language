@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file GreaterInvoker.java
  * @since 2021/7/13 下午8:17
  */
 public class GreaterInvoker extends BinocularInvoker {

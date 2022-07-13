@@ -3,7 +3,6 @@ package org.fanjr.simplify.el;
 
 /**
  * @author fanjr@vip.qq.com
- * @file ELTokenUtils.java
  * @since 2021/7/9 上午11:50
  */
 public class ELTokenUtils {
@@ -339,13 +338,13 @@ public class ELTokenUtils {
     }
 
     /**
-     * 寻找从start开始有多少个空白字符串<br/>
-     * 0 <= start < end
+     * 寻找从start开始有多少个空白字符串<br>
+     * <p>0 &lt;= start &lt; end</p>
      *
      * @param chars 字符数组
      * @param start 起始查找位置，
      * @param end   结束查找位置
-     * @return 空白字符数量
+     * @return 空白字符数量, 大于等于0
      */
     public static int findHeadSpace(char[] chars, int start, int end) {
         int s = 0;
@@ -367,13 +366,13 @@ public class ELTokenUtils {
     }
 
     /**
-     * 寻找找end开始，有多少个空白字符<br/>
-     * 0 <= start < end
+     * 寻找找end开始，有多少个空白字符<br>
+     * 0 &lt;= start &lt; end
      *
      * @param chars 字符数组
      * @param start 起始查找位置，
      * @param end   结束查找位置
-     * @return 空白字符数量
+     * @return 空白字符数量, 大于等于0
      */
     public static int findEndSpace(char[] chars, int start, int end) {
         int s = 0;

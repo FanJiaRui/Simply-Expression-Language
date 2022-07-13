@@ -22,11 +22,12 @@ import static org.fanjr.simplify.el.ELTokenUtils.*;
  * EL表达式计算工具
  *
  * @author fanjr@vip.qq.com
- * @file ElUtils.java
  * @since 2021/6/29 上午10:50
  */
 public class ELExecutor {
-    private static final Map<String, EL> COMPILES = new ConcurrentHashMap<>();
+    private static final String LOCK_KEY = "E_L_KEY.";
+    private static final Map<String, EL> COMPILES_EL = new ConcurrentHashMap<>();
+    private static final Map<String, NodeInvoker> COMPILES_NODE = new ConcurrentHashMap<>();
 
     public static <T> T eval(String el, Object vars, Class<T> type) {
         return ElUtils.cast(eval(el, vars), type);
@@ -37,58 +38,182 @@ public class ELExecutor {
     }
 
     public static Object eval(String el, Object vars) {
-        EL elInstance = COMPILES.get(el);
-        if (null == elInstance) {
-            elInstance = compile(el);
-        }
-        return elInstance.invoke(vars);
+        return compile(el).invoke(vars);
     }
 
     public static EL compile(final String el) {
-        return COMPILES.computeIfAbsent(el, ELExecutor::doCompile);
+        if (null == el) {
+            // 容错处理
+            return NullEL.INSTANCE;
+        }
+
+        EL target = COMPILES_EL.get(el);
+        if (null != target) {
+            return target;
+        }
+
+        return doCompile(el);
+    }
+
+    public static Node compileNode(String nodeName) {
+        if (null == nodeName) {
+            // 容错处理
+            return NullNodeInvoker.INSTANCE;
+        }
+
+        Node target = COMPILES_NODE.get(nodeName);
+        if (null != target) {
+            return target;
+        }
+
+        return doCompileNode(nodeName.toCharArray(), 0, nodeName.length());
+    }
+
+    private static NodeInvoker doCompileNode(char[] chars, int start, int end) {
+        String nodeName = new String(chars, start, end - start);
+        synchronized (LOCK_KEY + nodeName) {
+            NodeInvoker node = COMPILES_NODE.get(nodeName);
+            if (null != node) {
+                return node;
+            }
+
+            //Trim
+            int startSpace = findHeadSpace(chars, start, end);
+            int endSpace = findEndSpace(chars, start, end);
+            start += startSpace;
+            end -= endSpace;
+            boolean trim = (0 != start + end);
+
+            if (start >= end) {
+                node = NullNodeInvoker.INSTANCE;
+                COMPILES_NODE.put(nodeName, node);
+                return NullNodeInvoker.INSTANCE;
+            }
+            String trimStr = new String(chars, start, end - start);
+            node = COMPILES_NODE.get(trimStr);
+            if (null != node) {
+                COMPILES_NODE.put(nodeName, node);
+                return node;
+            }
+
+            //判断取值&赋值
+            int nextDot = findNextCharToken(chars, '.', start, end, false);
+            if (nextDot == -1) {
+                //没有.分割
+                node = resolveNode(chars, start, end);
+                COMPILES_NODE.put(nodeName, node);
+                if (trim) {
+                    COMPILES_NODE.put(trimStr, node);
+                }
+                return node;
+            }
+
+            if (start == nextDot) {
+                // 节点表达式错误
+                throw new ElException("解析错误！错误的节点:" + nodeName);
+            } else {
+                //判断是否为this.开头
+                String key = new String(chars, start, nextDot - start);
+                if ("this".equals(key)) {
+                    node = RootNodeInvoker.INSTANCE;
+                    start += 5;
+                }
+            }
+
+            do {
+                nextDot = findNextCharToken(chars, '.', start, end, false);
+                if (-1 == nextDot) {
+                    nextDot = end;
+                }
+                NodeInvoker curr = resolveNode(chars, start, nextDot);
+                if (node != null) {
+                    curr.setParentNodeInvoker(node);
+                }
+                node = curr;
+                start = nextDot + 1;
+            } while (start < end);
+
+            COMPILES_NODE.put(nodeName, node);
+            if (trim) {
+                COMPILES_NODE.put(trimStr, node);
+            }
+            return node;
+        }
     }
 
     private static EL doCompile(String el) {
-        EL elInstance;
-
-        char[] chars = el.toCharArray();
-        int start = 0;
-        int end = el.length();
-
-        //Trim
-        start += findHeadSpace(chars, start, end);
-        end -= findEndSpace(chars, start, end);
-
-        int elStart = findElStart(chars, start, end);
-        if (-1 == elStart) {
-            elInstance = new SimpleEL(resolve(chars, start, end));
-            return elInstance;
-        }
-
-        if (elStart == start && chars[end - 1] == '}' && -1 == findElStart(chars, start + 1, end)) {
-            start += 2;
-            elInstance = new SimpleEL(resolve(chars, start, end - 1));
-            return elInstance;
-        }
-
-        List<ELInvoker> targets = new ArrayList<>();
-        while (start < end) {
-            int elEnd = findNextCharToken(chars, '}', elStart + 2, end);
-            if (elStart != start) {
-                targets.add(StringInvoker.newInstance(new String(chars, start, elStart - start)));
+        synchronized (LOCK_KEY + el) {
+            EL elInstance = COMPILES_EL.get(el);
+            if (null != elInstance) {
+                return elInstance;
             }
-            elStart += 2;
-            targets.add(resolve(chars, elStart, elEnd));
-            start = elEnd + 1;
-            elStart = findElStart(chars, start, end);
+
+            char[] chars = el.toCharArray();
+            int start = 0;
+            int end = el.length();
+
+            //Trim
+            int startSpace = findHeadSpace(chars, start, end);
+            int endSpace = findEndSpace(chars, start, end);
+            start += startSpace;
+            end -= endSpace;
+            boolean trim = (0 != start + end);
+
+            if (start >= end) {
+                elInstance = NullEL.INSTANCE;
+                COMPILES_EL.put(el, elInstance);
+                return elInstance;
+            }
+            String trimStr = new String(chars, start, end - start);
+            elInstance = COMPILES_EL.get(trimStr);
+            if (null != elInstance) {
+                COMPILES_EL.put(el, elInstance);
+                return elInstance;
+            }
+
+            int elStart = findElStart(chars, start, end);
             if (-1 == elStart) {
-                //最后是一段字符串
-                targets.add(StringInvoker.newInstance(new String(chars, start, end - start)));
-                start = end;
+                elInstance = new SimpleEL(resolve(chars, start, end));
+                COMPILES_EL.put(el, elInstance);
+                if (trim) {
+                    COMPILES_EL.put(trimStr, elInstance);
+                }
+                return elInstance;
             }
+
+            if (elStart == start && chars[end - 1] == '}' && -1 == findElStart(chars, start + 1, end)) {
+                start += 2;
+                elInstance = new SimpleEL(resolve(chars, start, end - 1));
+                COMPILES_EL.put(el, elInstance);
+                if (trim) {
+                    COMPILES_EL.put(trimStr, elInstance);
+                }
+                return elInstance;
+            }
+
+            List<ELInvoker> targets = new ArrayList<>();
+            while (start < end) {
+                int elEnd = findNextCharToken(chars, '}', elStart + 2, end);
+                if (elStart != start) {
+                    targets.add(StringInvoker.newInstance(new String(chars, start, elStart - start)));
+                }
+                elStart += 2;
+                targets.add(resolve(chars, elStart, elEnd));
+                start = elEnd + 1;
+                elStart = findElStart(chars, start, end);
+                if (-1 == elStart) {
+                    //最后是一段字符串
+                    targets.add(StringInvoker.newInstance(new String(chars, start, end - start)));
+                    start = end;
+                }
+            }
+            elInstance = new SpliceEL(targets);
+            COMPILES_EL.put(el, elInstance);
+            if (trim) {
+                COMPILES_EL.put(trimStr, elInstance);
+            }
+            return elInstance;
         }
-        elInstance = new SpliceEL(targets);
-        return elInstance;
     }
 
     private static int findElStart(char[] chars, int start, int end) {
@@ -117,7 +242,7 @@ public class ELExecutor {
      * @param chars 要解析的字符数组
      * @param start 从哪开始，第一位为index为0
      * @param end   在哪结束，最后一位index为end - 1
-     * @return
+     * @return 解析后的可执行表达式
      */
     public static ELInvoker resolve(char[] chars, int start, int end) {
         try {
@@ -327,26 +452,21 @@ public class ELExecutor {
                     ELInvoker left = builderStack.removeLast().get();
                     parent = FirstNodeInvoker.newInstance(left);
                     start++;
-                } else {
-                    //判断是否为this.开头
-                    String key = new String(chars, start, nextDot - start);
-                    if ("this".equals(key)) {
-                        parent = RootNodeInvoker.INSTANCE;
-                        start += 5;
-                    }
-                }
-                do {
-                    nextDot = findNextCharToken(chars, '.', start, end, false);
-                    if (-1 == nextDot) {
-                        nextDot = end;
-                    }
-                    NodeInvoker curr = resolveNode(chars, start, nextDot);
-                    if (parent != null) {
+                    do {
+                        nextDot = findNextCharToken(chars, '.', start, end, false);
+                        if (-1 == nextDot) {
+                            nextDot = end;
+                        }
+                        NodeInvoker curr = resolveNode(chars, start, nextDot);
                         curr.setParentNodeInvoker(parent);
-                    }
-                    parent = curr;
-                    start = nextDot + 1;
-                } while (start < end);
+                        parent = curr;
+                        start = nextDot + 1;
+                    } while (start < end);
+                } else {
+                    parent = doCompileNode(chars, start, end);
+                    //解析完节点，一次性移动到末尾
+                    start = end + 1;
+                }
                 pushOrBuild(builderStack, parent);
             }
 

@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file DivideInvoker.java
  * @since 2021/7/9 下午9:25
  */
 public class DivideInvoker extends BinocularInvoker {

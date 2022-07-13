@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * @author fanjr@vip.qq.com
- * @file IndexNodeInvoker.java
  * @since 2021/7/8 上午11:42
  */
 public class IndexNodeInvoker extends NodeInvoker {
@@ -62,7 +61,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
             throw new ElException("不可对【" + this.toString() + "】进行赋值！");
         }
@@ -84,8 +83,44 @@ public class IndexNodeInvoker extends NodeInvoker {
     }
 
     @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        if (null == parentNode) {
+            throw new ElException("不可对【" + this.toString() + "】进行赋值！");
+        }
+        Object parentValue = parentNode.getValue();
+        if (parentValue == null) {
+            return;
+        }
+
+        if (parentValue instanceof List) {
+            if (index >= ((List<?>) parentValue).size()) {
+                // 要移除的index大于List大小，跳过
+            } else {
+                ((List<?>) parentValue).remove(index);
+            }
+            return;
+        }
+
+        Class<?> parentClass = parentValue.getClass();
+        if (parentClass.isArray()) {
+            if (index >= Array.getLength(parentValue)) {
+                // 要移除的index大于List大小，跳过
+            } else {
+                // 避免基础类型不能为空
+                Array.set(parentValue, index, ElUtils.cast(null, parentClass.getComponentType()));
+            }
+            return;
+        }
+
+        if (index == 0) {
+            //既不是List也不是Array，若index为0则移除parent，否则不做操作
+            parentNode.remove();
+        }
+    }
+
+    @Override
     @Deprecated
-    public Object getValueByParent(Object ctx, NodeHolder parentNode) {
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
         //skip
         return null;
     }

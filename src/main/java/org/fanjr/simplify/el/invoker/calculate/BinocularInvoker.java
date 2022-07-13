@@ -7,7 +7,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file BinocularInvoker.java
  * @since 2021/7/8 下午5:39
  */
 public abstract class BinocularInvoker implements ELInvoker {

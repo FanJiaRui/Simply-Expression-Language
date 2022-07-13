@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file ClassInvoker.java
  * @since 2021/7/13 下午3:48
  */
 public class ClassInvoker implements ELInvoker {

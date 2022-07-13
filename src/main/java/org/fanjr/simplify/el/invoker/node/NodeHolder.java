@@ -2,7 +2,6 @@ package org.fanjr.simplify.el.invoker.node;
 
 /**
  * @author fanjr@vip.qq.com
- * @file NodeResult.java
  * @since 2021/7/7 上午10:46
  */
 public final class NodeHolder {
@@ -46,12 +45,16 @@ public final class NodeHolder {
     /**
      * 本质上是将这个值设置到其上层结构中
      *
-     * @param value
-     * @return
+     * @param value 要设置的值
      */
     public void setValue(Object value) {
         this.value = value;
         nodeInvoker.setValueByParent(parentNode, value, index);
+    }
+
+    public void remove() {
+        this.value = null;
+        nodeInvoker.removeValueByParent(parentNode, index);
     }
 
     public NodeHolder getParentNode() {
@@ -61,4 +64,6 @@ public final class NodeHolder {
     public boolean isRoot() {
         return nodeInvoker instanceof RootNodeInvoker;
     }
+
+
 }

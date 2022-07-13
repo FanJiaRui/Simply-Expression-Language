@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file SubtractInvoker.java
  * @since 2021/7/9 下午7:07
  */
 public class SubtractInvoker extends BinocularInvoker {

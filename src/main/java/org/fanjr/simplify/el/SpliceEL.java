@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 具体EL的实现类
+ * 复合EL表达式
  *
  * @author fanjr@vip.qq.com
- * @file Invoker.java
  * @since 2021/6/25 下午4:14
  */
 public class SpliceEL implements EL {

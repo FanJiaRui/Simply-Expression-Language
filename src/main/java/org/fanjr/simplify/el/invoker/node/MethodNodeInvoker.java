@@ -3,6 +3,8 @@ package org.fanjr.simplify.el.invoker.node;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,10 +17,11 @@ import java.util.function.Supplier;
 
 /**
  * @author fanjr@vip.qq.com
- * @file MethodInvoker.java
  * @since 2021/7/7 下午2:43
  */
 public class MethodNodeInvoker extends NodeInvoker {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodNodeInvoker.class);
 
     private static final Map<String, Supplier<Method>> METHOD_POOL = new ConcurrentHashMap<>();
 
@@ -92,12 +95,12 @@ public class MethodNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
         throw new ElException("不可对【" + this.toString() + "】方法执行结果重新赋值！");
     }
 
     @Override
-    public Object getValueByParent(Object ctx, NodeHolder parentNode) {
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
         if (null == parentNode) {
             return null;
         }
@@ -129,5 +132,10 @@ public class MethodNodeInvoker extends NodeInvoker {
         }
     }
 
+    @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        // skip
+        logger.info("移除【{}】操作无效，无需移除！", this.toString());
+    }
 
 }

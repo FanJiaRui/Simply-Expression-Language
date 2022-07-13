@@ -1,8 +1,8 @@
 package org.fanjr.simplify.el;
 
 /**
+ * 简易EL表达式
  * @author fanjr@vip.qq.com
- * @file SimpleEL.java
  * @since 2021/6/28 下午4:08
  */
 public class SimpleEL implements EL {

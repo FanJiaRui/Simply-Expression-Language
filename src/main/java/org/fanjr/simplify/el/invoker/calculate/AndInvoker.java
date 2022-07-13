@@ -7,7 +7,6 @@ import java.util.LinkedList;
 
 /**
  * @author fanjr@vip.qq.com
- * @file AndInvoker.java
  * @since 2021/7/9 下午3:52
  */
 public class AndInvoker extends BinocularInvoker {

@@ -15,7 +15,6 @@ import java.util.function.Supplier;
  * 关键字构造者
  *
  * @author fanjr@vip.qq.com
- * @file KeywordBuilder.java
  * @since 2021/7/9 下午12:00
  */
 public class KeywordBuilder {

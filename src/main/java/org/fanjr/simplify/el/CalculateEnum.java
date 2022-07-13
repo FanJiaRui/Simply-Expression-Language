@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 /**
  * @author fanjr@vip.qq.com
- * @file BinocularEnum.java
  * @since 2021/7/5 下午3:33
  */
 public enum CalculateEnum {
