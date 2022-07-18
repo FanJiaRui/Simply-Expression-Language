@@ -2,7 +2,6 @@
 <!--
   ~ @author fanjr@vip.qq.com
   ~ @since 2020/11/6 下午3:55
-  ~
   -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
@@ -17,6 +16,21 @@
         logic simple but complicated coding work.
     </description>
     <url>https://gitee.com/fanjr/simplify-el</url>
+
+    <scm>
+        <tag>master</tag>
+        <url>https://gitee.com/fanjr/simplify-el.git</url>
+        <connection>scm:git@gitee.com:fanjr/simplify-el.git</connection>
+        <developerConnection>scm:git:git@gitee.com:fanjr/simplify-el.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>JIARUI FAN</name>
+            <email>fanjr@vip.qq.com</email>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>

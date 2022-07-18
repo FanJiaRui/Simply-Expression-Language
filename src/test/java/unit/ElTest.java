@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Map;
 
 enum TestEnum {
     SERIAL_ID("SERIAL_ID", "流水号"),

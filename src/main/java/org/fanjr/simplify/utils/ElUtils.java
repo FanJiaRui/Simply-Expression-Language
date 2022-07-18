@@ -19,9 +19,7 @@ import java.util.regex.Pattern;
  * @since 2021/7/13 上午10:23
  */
 public class ElUtils {
-    /**
-     * The empty String <code>""</code>.
-     */
+
     public static final String EMPTY = "";
 
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${\\n}]*)\\}");
@@ -307,9 +305,12 @@ public class ElUtils {
             }
             return null;
         }
+        //FIXME 当前版本FASTJSON2存在转换char类型问题，需要等待新版本2.0.10发布后升级修复，之后去除下面部分
         if (obj.getClass() == Character.class) {
             return (T) String.valueOf(obj);
         }
+        //FIXME 当前版本FASTJSON2存在转换char类型问题，需要等待新版本2.0.10发布后升级修复，之后去除上面部分
+
         return TypeUtils.cast(obj, targetClass);
     }
 
