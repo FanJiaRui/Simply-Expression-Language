@@ -75,10 +75,10 @@ public class IndexNodeInvoker extends NodeInvoker {
         } else if (parentValue.getClass().isArray()) {
             Array.set(parentValue, index, value);
         } else {
-            List<Object> gapsArray = new JSONArray();
-            gapsArray.add(parentValue);
-            gapsArray.set(index, value);
-            parentNode.setValue(gapsArray);
+            List<Object> jsonArray = new JSONArray();
+            jsonArray.add(parentValue);
+            jsonArray.set(index, value);
+            parentNode.setValue(jsonArray);
         }
     }
 
