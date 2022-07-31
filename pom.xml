@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <description>
         Simple expression language, aimed at solving the judgment, calculation, value, structure transformation of these
