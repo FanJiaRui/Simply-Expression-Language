@@ -11,10 +11,16 @@
     <artifactId>simplify-el</artifactId>
     <version>1.0.1</version>
     <packaging>jar</packaging>
+    <name>Simply Expression Language</name>
     <description>
         Simple expression language, aimed at solving the judgment, calculation, value, structure transformation of these
         logic simple but complicated coding work.
     </description>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+    </properties>
+
     <url>https://gitee.com/fanjr/simplify-el</url>
 
     <scm>
@@ -24,17 +30,19 @@
         <developerConnection>scm:git:git@gitee.com:fanjr/simplify-el.git</developerConnection>
     </scm>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <name>JIARUI FAN</name>
             <email>fanjr@vip.qq.com</email>
         </developer>
     </developers>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
@@ -67,7 +75,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
