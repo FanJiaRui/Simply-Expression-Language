@@ -134,6 +134,8 @@ public class ElTest {
 
         JSONObject context = new JSONObject();
         Assertions.assertEquals("1234567890", ELExecutor.eval("a.b.c.d=(String)1234567890", context, String.class));
+        Assertions.assertEquals("t1",ELExecutor.eval("a.b.c.d=='1234567890'?'t1':'t2'", context, String.class));
+        Assertions.assertEquals("t1",ELExecutor.eval("a.b.c.d=='1234567890'?\"t1\":\"t2\"", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.boo=true", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.arr[3][1]=true", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index=1", context, String.class));
