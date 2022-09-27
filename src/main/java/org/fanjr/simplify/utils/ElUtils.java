@@ -289,18 +289,23 @@ public class ElUtils {
             return null;
         }
         ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
-        Function typeConvert = provider.getTypeConvert(obj.getClass(), targetType);
+        Class<?> objClass = obj.getClass();
+        Function typeConvert = provider.getTypeConvert(objClass, targetType);
         if (typeConvert != null) {
             return typeConvert.apply(obj);
         }
-        return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
+        if (String.class == objClass) {
+            return JSON.parseObject((String) obj, targetType);
+        } else {
+            return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T cast(Object obj, Class<T> targetClass) {
         if (null == obj) {
             if (targetClass.isPrimitive()) {
-                // 基础类型为空时需要返回默认值，避免出现异常
+                // 基础类型为空时需要返回默认值,避免出现异常
                 return (T) TypeUtils.getDefaultValue(targetClass);
             }
             return null;

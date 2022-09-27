@@ -34,52 +34,6 @@ enum TestEnum {
 @DisplayName("EL测试")
 public class ElTest {
 
-    /**
-     * 测试枚举取值
-     */
-    @Test
-    @DisplayName("枚举测试")
-    public void testEnum() {
-        JSONObject context = new JSONObject();
-        Assertions.assertEquals("SERIAL_ID", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.NODE_NAME", context, Object.class));
-        Assertions.assertEquals("流水号", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.TITLE", context, Object.class));
-    }
-
-    /**
-     * 速度测试
-     */
-    @Test
-    @DisplayName("运行效率测试")
-    public void speedTest() {
-        Assertions.assertEquals("3699", ELExecutor.eval("(this + 1234) * 3 - 6", 1, String.class));
-        long start1 = System.currentTimeMillis();
-        int[] arr1 = new int[1000000];
-        int[] arr2 = new int[1000000];
-        for (int i = 0; i < 1000000; i++) {
-            arr1[i] = (i + 1234) * 3 - 6;
-        }
-        long end1 = System.currentTimeMillis();
-        System.out.println(end1 - start1);
-
-        long start2 = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            arr2[i] = ELExecutor.eval("(this + 1234) * 3 - 6", i, int.class);
-        }
-        long end2 = System.currentTimeMillis();
-        System.out.println(end2 - start2);
-
-        //计算结果正确性断言
-        Assertions.assertArrayEquals(arr1, arr2);
-    }
-
-    @Test
-    @Disabled
-    @DisplayName("单次测试")
-    public void sigTest() {
-        int num = 0;
-        Assertions.assertEquals(num-- + ++num, ELExecutor.eval("num=0;num-- + ++num", new HashMap<>(), int.class));
-    }
-
     @Test
     @DisplayName("基础测试")
     public void baseTest() {
@@ -134,8 +88,8 @@ public class ElTest {
 
         JSONObject context = new JSONObject();
         Assertions.assertEquals("1234567890", ELExecutor.eval("a.b.c.d=(String)1234567890", context, String.class));
-        Assertions.assertEquals("t1",ELExecutor.eval("a.b.c.d=='1234567890'?'t1':'t2'", context, String.class));
-        Assertions.assertEquals("t1",ELExecutor.eval("a.b.c.d=='1234567890'?\"t1\":\"t2\"", context, String.class));
+        Assertions.assertEquals("t1", ELExecutor.eval("a.b.c.d=='1234567890'?'t1':'t2'", context, String.class));
+        Assertions.assertEquals("t1", ELExecutor.eval("a.b.c.d=='1234567890'?\"t1\":\"t2\"", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.boo=true", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.arr[3][1]=true", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index=1", context, String.class));
@@ -202,19 +156,74 @@ public class ElTest {
     }
 
     @Test
+    @Disabled
+    @DisplayName("单次测试")
+    public void sigTest() {
+        int num = 0;
+        Assertions.assertEquals(num-- + ++num, ELExecutor.eval("num=0;num-- + ++num", new HashMap<>(), int.class));
+    }
+
+    /**
+     * 速度测试
+     */
+    @Test
+    @DisplayName("运行效率测试")
+    public void speedTest() {
+        Assertions.assertEquals("3699", ELExecutor.eval("(this + 1234) * 3 - 6", 1, String.class));
+        long start1 = System.currentTimeMillis();
+        int[] arr1 = new int[1000000];
+        int[] arr2 = new int[1000000];
+        for (int i = 0; i < 1000000; i++) {
+            arr1[i] = (i + 1234) * 3 - 6;
+        }
+        long end1 = System.currentTimeMillis();
+        System.out.println(end1 - start1);
+
+        long start2 = System.currentTimeMillis();
+        for (int i = 0; i < 1000000; i++) {
+            arr2[i] = ELExecutor.eval("(this + 1234) * 3 - 6", i, int.class);
+        }
+        long end2 = System.currentTimeMillis();
+        System.out.println(end2 - start2);
+
+        //计算结果正确性断言
+        Assertions.assertArrayEquals(arr1, arr2);
+    }
+
+    /**
+     * 测试枚举取值
+     */
+    @Test
+    @DisplayName("枚举测试")
+    public void testEnum() {
+        JSONObject context = new JSONObject();
+        Assertions.assertEquals("SERIAL_ID", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.NODE_NAME", context, Object.class));
+        Assertions.assertEquals("流水号", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.TITLE", context, Object.class));
+    }
+
+    @Test
     @DisplayName("节点测试")
     public void testNode() {
         JSONObject ctx = new JSONObject();
         Node a = ELExecutor.compileNode("a.b.c.d");
         Node b = ELExecutor.compileNode("a.b.c.d2");
         Node c = ELExecutor.compileNode("a.b.c");
-        a.putNode(ctx,"testStr1");
-        b.putNode(ctx,"testStr2");
-        Assertions.assertEquals(a.getNode(ctx),"testStr1");
-        Assertions.assertEquals(b.getNode(ctx),"testStr2");
-        Assertions.assertEquals(c.getNode(ctx).toString(),"{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
+        a.putNode(ctx, "testStr1");
+        b.putNode(ctx, "testStr2");
+        Assertions.assertEquals(a.getNode(ctx), "testStr1");
+        Assertions.assertEquals(b.getNode(ctx), "testStr2");
+        Assertions.assertEquals(c.getNode(ctx).toString(), "{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
         c.removeNode(ctx);
-        Assertions.assertEquals(ctx.toString(),"{\"a\":{\"b\":{}}}");
+        Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{}}}");
+
+        Node arr = ELExecutor.compileNode("a.b.arr[1]");
+        Node ov = ELExecutor.compileNode("a.b.arr.x");
+        arr.putNode(ctx, "1");
+        ov.putNode(ctx, "1");
+        Assertions.assertEquals(ov.getNode(ctx), "1");
+        arr.putNode(ctx, "2");
+        Assertions.assertEquals(arr.getNode(ctx), "2");
+        Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"},\"2\"]}}}");
     }
 
 
