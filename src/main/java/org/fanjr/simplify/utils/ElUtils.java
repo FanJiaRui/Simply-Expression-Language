@@ -3,9 +3,18 @@ package org.fanjr.simplify.utils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONFactory;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.reader.FieldReader;
+import com.alibaba.fastjson2.reader.ObjectReader;
 import com.alibaba.fastjson2.reader.ObjectReaderProvider;
 import com.alibaba.fastjson2.util.TypeUtils;
+import com.alibaba.fastjson2.writer.FieldWriter;
+import com.alibaba.fastjson2.writer.ObjectWriter;
+import com.alibaba.fastjson2.writer.ObjectWriterProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,20 +30,39 @@ import java.util.regex.Pattern;
 public class ElUtils {
 
     public static final String EMPTY = "";
-
+    private static final Logger logger = LoggerFactory.getLogger(ElUtils.class);
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${\\n}]*)\\}");
 
-    public static boolean isElString(String str) {
-        return PATTERN.matcher(str).find();
+    public static Object cast(Object obj, Type targetType) {
+        if (targetType.getClass() == Class.class) {
+            return cast(obj, (Class<?>) targetType);
+        }
+        if (null == obj) {
+            return null;
+        }
+        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+        Class<?> objClass = obj.getClass();
+        Function typeConvert = provider.getTypeConvert(objClass, targetType);
+        if (typeConvert != null) {
+            return typeConvert.apply(obj);
+        }
+        if (String.class == objClass) {
+            return JSON.parseObject((String) obj, targetType);
+        } else {
+            return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
+        }
     }
 
-    public static List<String> groupEL(String str) {
-        List<String> list = new ArrayList<>();
-        Matcher matcher = PATTERN.matcher(str);
-        while (matcher.find()) {
-            list.add(matcher.group(1));
+    @SuppressWarnings("unchecked")
+    public static <T> T cast(Object obj, Class<T> targetClass) {
+        if (null == obj) {
+            if (targetClass.isPrimitive()) {
+                // 基础类型为空时需要返回默认值,避免出现异常
+                return (T) TypeUtils.getDefaultValue(targetClass);
+            }
+            return null;
         }
-        return list;
+        return TypeUtils.cast(obj, targetClass);
     }
 
     public static BigDecimal castToBigDecimal(Object obj) {
@@ -46,6 +74,148 @@ public class ElUtils {
         } else {
             return new BigDecimal(String.valueOf(obj));
         }
+    }
+
+    public static Object getFieldByPojo(Object pojo, String fieldKey) {
+        Class<?> pojoClass = pojo.getClass();
+
+        //从javaBean中取值
+        ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
+        // 优先采用方法获取，其次采用Field
+        {
+            ObjectWriter<?> reader = provider.getObjectWriter(pojoClass);
+            FieldWriter<?> fieldReader = reader.getFieldWriter(fieldKey);
+            if (null != fieldReader) {
+                Method method = fieldReader.method;
+                if (method != null) {
+                    try {
+                        return method.invoke(pojo);
+                    } catch (Exception e) {
+                        // skip
+                    }
+                }
+            }
+        }
+        {
+            ObjectWriter<?> reader = provider.getObjectWriter(pojoClass, pojoClass, true);
+            FieldWriter<?> fieldReader = reader.getFieldWriter(fieldKey);
+            if (null != fieldReader) {
+                Field field = fieldReader.field;
+                if (field != null) {
+                    try {
+                        return field.get(pojo);
+                    } catch (IllegalAccessException e) {
+                        // skip
+                    }
+                }
+            }
+        }
+        logger.warn("无法从类型[{}]中获取属性[{}]", pojoClass.getName(), fieldKey);
+        return null;
+    }
+
+    public static List<String> groupEL(String str) {
+        List<String> list = new ArrayList<>();
+        Matcher matcher = PATTERN.matcher(str);
+        while (matcher.find()) {
+            list.add(matcher.group(1));
+        }
+        return list;
+    }
+
+    // Empty checks
+    //-----------------------------------------------------------------------
+
+    /**
+     * <p>Checks if a String is whitespace, empty ("") or null.</p>
+     *
+     * <pre>
+     * StringUtils.isBlank(null)      = true
+     * StringUtils.isBlank("")        = true
+     * StringUtils.isBlank(" ")       = true
+     * StringUtils.isBlank("bob")     = false
+     * StringUtils.isBlank("  bob  ") = false
+     * </pre>
+     *
+     * @param str the String to check, may be null
+     * @return <code>true</code> if the String is null, empty or whitespace
+     * @since 2.0
+     */
+    public static boolean isBlank(String str) {
+        int strLen;
+        if (str == null || (strLen = str.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isElString(String str) {
+        return PATTERN.matcher(str).find();
+    }
+
+    /**
+     * <p>Checks if a String is empty ("") or null.</p>
+     *
+     * <pre>
+     * StringUtils.isEmpty(null)      = true
+     * StringUtils.isEmpty("")        = true
+     * StringUtils.isEmpty(" ")       = false
+     * StringUtils.isEmpty("bob")     = false
+     * StringUtils.isEmpty("  bob  ") = false
+     * </pre>
+     *
+     * <p>NOTE: This method changed in Lang version 2.0.
+     * It no longer trims the String.
+     * That functionality is available in isBlank().</p>
+     *
+     * @param str the String to check, may be null
+     * @return <code>true</code> if the String is empty or null
+     */
+    public static boolean isEmpty(String str) {
+        return str == null || str.length() == 0;
+    }
+
+    /**
+     * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
+     *
+     * <pre>
+     * StringUtils.isNotBlank(null)      = false
+     * StringUtils.isNotBlank("")        = false
+     * StringUtils.isNotBlank(" ")       = false
+     * StringUtils.isNotBlank("bob")     = true
+     * StringUtils.isNotBlank("  bob  ") = true
+     * </pre>
+     *
+     * @param str the String to check, may be null
+     * @return <code>true</code> if the String is
+     * not empty and not null and not whitespace
+     * @since 2.0
+     */
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
+
+    /**
+     * <p>Checks if a String is not empty ("") and not null.</p>
+     *
+     * <pre>
+     * StringUtils.isNotEmpty(null)      = false
+     * StringUtils.isNotEmpty("")        = false
+     * StringUtils.isNotEmpty(" ")       = true
+     * StringUtils.isNotEmpty("bob")     = true
+     * StringUtils.isNotEmpty("  bob  ") = true
+     * </pre>
+     *
+     * @param str the String to check, may be null
+     * @return <code>true</code> if the String is not empty and not null
+     */
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
     }
 
     /**
@@ -165,95 +335,44 @@ public class ElUtils {
         return !allowSigns && foundDigit;
     }
 
-    // Empty checks
-    //-----------------------------------------------------------------------
+    public static boolean putFieldByPojo(Object pojo, String fieldKey, Object value) {
+        Class<?> pojoClass = pojo.getClass();
 
-    /**
-     * <p>Checks if a String is empty ("") or null.</p>
-     *
-     * <pre>
-     * StringUtils.isEmpty(null)      = true
-     * StringUtils.isEmpty("")        = true
-     * StringUtils.isEmpty(" ")       = false
-     * StringUtils.isEmpty("bob")     = false
-     * StringUtils.isEmpty("  bob  ") = false
-     * </pre>
-     *
-     * <p>NOTE: This method changed in Lang version 2.0.
-     * It no longer trims the String.
-     * That functionality is available in isBlank().</p>
-     *
-     * @param str the String to check, may be null
-     * @return <code>true</code> if the String is empty or null
-     */
-    public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
-    }
-
-    /**
-     * <p>Checks if a String is not empty ("") and not null.</p>
-     *
-     * <pre>
-     * StringUtils.isNotEmpty(null)      = false
-     * StringUtils.isNotEmpty("")        = false
-     * StringUtils.isNotEmpty(" ")       = true
-     * StringUtils.isNotEmpty("bob")     = true
-     * StringUtils.isNotEmpty("  bob  ") = true
-     * </pre>
-     *
-     * @param str the String to check, may be null
-     * @return <code>true</code> if the String is not empty and not null
-     */
-    public static boolean isNotEmpty(String str) {
-        return !isEmpty(str);
-    }
-
-    /**
-     * <p>Checks if a String is whitespace, empty ("") or null.</p>
-     *
-     * <pre>
-     * StringUtils.isBlank(null)      = true
-     * StringUtils.isBlank("")        = true
-     * StringUtils.isBlank(" ")       = true
-     * StringUtils.isBlank("bob")     = false
-     * StringUtils.isBlank("  bob  ") = false
-     * </pre>
-     *
-     * @param str the String to check, may be null
-     * @return <code>true</code> if the String is null, empty or whitespace
-     * @since 2.0
-     */
-    public static boolean isBlank(String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
-            return true;
-        }
-        for (int i = 0; i < strLen; i++) {
-            if (!Character.isWhitespace(str.charAt(i))) {
-                return false;
+        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+        // 优先采用方法获取，其次采用Field
+        {
+            ObjectReader<?> objectReader = provider.getObjectReader(pojoClass);
+            FieldReader<?> fieldReader = objectReader.getFieldReader(fieldKey);
+            if (null != fieldReader) {
+                Method method = fieldReader.method;
+                if (method != null) {
+                    try {
+                        method.invoke(pojo, ElUtils.cast(value, fieldReader.fieldType));
+                        return true;
+                    } catch (Exception e) {
+                        // skip
+                    }
+                }
             }
         }
-        return true;
-    }
+        {
+            ObjectReader<?> objectReader = provider.getObjectReader(pojoClass, true);
+            FieldReader<?> fieldReader = objectReader.getFieldReader(fieldKey);
+            if (null != fieldReader) {
+                Field field = fieldReader.field;
+                if (field != null) {
+                    try {
+                        field.set(pojo, ElUtils.cast(value, fieldReader.fieldType));
+                        return true;
+                    } catch (IllegalAccessException e) {
+                        // skip
+                    }
+                }
+            }
+        }
 
-    /**
-     * <p>Checks if a String is not empty (""), not null and not whitespace only.</p>
-     *
-     * <pre>
-     * StringUtils.isNotBlank(null)      = false
-     * StringUtils.isNotBlank("")        = false
-     * StringUtils.isNotBlank(" ")       = false
-     * StringUtils.isNotBlank("bob")     = true
-     * StringUtils.isNotBlank("  bob  ") = true
-     * </pre>
-     *
-     * @param str the String to check, may be null
-     * @return <code>true</code> if the String is
-     * not empty and not null and not whitespace
-     * @since 2.0
-     */
-    public static boolean isNotBlank(String str) {
-        return !isBlank(str);
+        return false;
+
     }
 
     /**
@@ -278,39 +397,6 @@ public class ElUtils {
      */
     public static String trimToEmpty(String str) {
         return str == null ? EMPTY : str.trim();
-    }
-
-
-    public static Object cast(Object obj, Type targetType) {
-        if (targetType.getClass() == Class.class) {
-            return cast(obj, (Class<?>) targetType);
-        }
-        if (null == obj) {
-            return null;
-        }
-        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
-        Class<?> objClass = obj.getClass();
-        Function typeConvert = provider.getTypeConvert(objClass, targetType);
-        if (typeConvert != null) {
-            return typeConvert.apply(obj);
-        }
-        if (String.class == objClass) {
-            return JSON.parseObject((String) obj, targetType);
-        } else {
-            return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T cast(Object obj, Class<T> targetClass) {
-        if (null == obj) {
-            if (targetClass.isPrimitive()) {
-                // 基础类型为空时需要返回默认值,避免出现异常
-                return (T) TypeUtils.getDefaultValue(targetClass);
-            }
-            return null;
-        }
-        return TypeUtils.cast(obj, targetClass);
     }
 
 }

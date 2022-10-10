@@ -159,8 +159,11 @@ public class ElTest {
     @Disabled
     @DisplayName("单次测试")
     public void sigTest() {
-        int num = 0;
-        Assertions.assertEquals(num-- + ++num, ELExecutor.eval("num=0;num-- + ++num", new HashMap<>(), int.class));
+        TestPojo testPojo = new TestPojo();
+        testPojo.setAbc("123");
+        JSONObject context = new JSONObject();
+        context.put("pojo", testPojo);
+        System.out.println(ELExecutor.eval("pojo.abc=123456;pojo.abc", context, String.class));
     }
 
     /**

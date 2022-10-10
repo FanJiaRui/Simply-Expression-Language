@@ -1,21 +1,14 @@
 package org.fanjr.simplify.el.invoker.node;
 
-import com.alibaba.fastjson2.JSONFactory;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
-import com.alibaba.fastjson2.reader.FieldReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
-import com.alibaba.fastjson2.reader.ObjectReaderProvider;
-import com.alibaba.fastjson2.writer.FieldWriter;
-import com.alibaba.fastjson2.writer.ObjectWriter;
-import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.utils.ElUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -78,33 +71,7 @@ public class MapNodeInvoker extends NodeInvoker {
             }
         }
 
-        //从javaBean中取值
-        ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
-        ObjectReader<?> reader = provider.getObjectReader(parentClass);
-        FieldReader<?> fieldReader = reader.getFieldReader(nodeName);
-        if (null != fieldReader) {
-            // 优先采用方法获取，其次采用Field
-            Method method = fieldReader.getMethod();
-            if (method != null) {
-                try {
-                    return method.invoke(parentValue);
-                } catch (Exception e) {
-                    // skip
-                }
-            }
-            Field field = fieldReader.getField();
-            if (field != null) {
-                try {
-                    return field.get(parentValue);
-                } catch (IllegalAccessException e) {
-                    // skip
-                }
-            }
-        }
-
-        logger.warn("无法从类型[{}]中获取属性[{}]", parentClass.getName(), nodeName);
-        //无法获取值，取null
-        return null;
+        return ElUtils.getFieldByPojo(parentValue, nodeName);
     }
 
     @Override
@@ -147,28 +114,7 @@ public class MapNodeInvoker extends NodeInvoker {
             return;
         }
 
-        ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
-        ObjectWriter objectWriter = provider.getObjectWriter(parentClass);
-        FieldWriter fieldWriter = objectWriter.getFieldWriter(nodeName);
-        if (null != fieldWriter) {
-            // 优先采用方法获取，其次采用Field
-            Method method = fieldWriter.getMethod();
-            if (method != null) {
-                try {
-                    method.invoke(parentValue, ElUtils.cast(null, fieldWriter.getFieldType()));
-                } catch (Exception e) {
-                    // skip
-                }
-            }
-            Field field = fieldWriter.getField();
-            if (field != null) {
-                try {
-                    field.set(parentValue, ElUtils.cast(null, fieldWriter.getFieldType()));
-                } catch (IllegalAccessException e) {
-                    // skip
-                }
-            }
-        }
+        ElUtils.putFieldByPojo(parentValue, nodeName, null);
     }
 
     @Override
@@ -217,45 +163,14 @@ public class MapNodeInvoker extends NodeInvoker {
                 return;
             }
 
-            ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
-            ObjectWriter objectWriter = provider.getObjectWriter(parentClass);
-            FieldWriter fieldWriter = objectWriter.getFieldWriter(nodeName);
-            if (null != fieldWriter) {
-                // 优先采用方法获取，其次采用Field
-                Method method = fieldWriter.getMethod();
-                if (method != null) {
-                    try {
-                        method.invoke(parentValue, ElUtils.cast(value, fieldWriter.getFieldType()));
-                    } catch (Exception e) {
-                        // skip
-                    }
-                }
-                Field field = fieldWriter.getField();
-                if (field != null) {
-                    try {
-                        field.set(parentValue, ElUtils.cast(value, fieldWriter.getFieldType()));
-                    } catch (IllegalAccessException e) {
-                        // skip
-                    }
+            if (ElUtils.putFieldByPojo(parentValue, nodeName, value)) {
+                if (parentNode.isChange()) {
+                    parentNode.setValue(parentValue);
                 }
             } else {
-                //打破原有结构
-                JSONObject jsonObject;
-                if (parentValue instanceof String) {
-                    jsonObject = JSONObject.parseObject((String) parentValue);
-                } else {
-                    jsonObject = JSONObject.parseObject(JSONObject.toJSONString(parentValue));
-                }
-                jsonObject.put(nodeName, value);
-                parentNode.setValue(jsonObject);
-                return;
-            }
-
-            if (parentNode.isChange()) {
-                parentNode.setValue(parentValue);
+                ElUtils.putFieldByPojo(parentValue, nodeName, value);
             }
         }
-
     }
 
 }
