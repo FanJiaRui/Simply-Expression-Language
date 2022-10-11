@@ -1,1 +1,1 @@
-mvn clean deploy -P OSSRH-SNAPSHOT
+mvn clean deploy -P OSSRH-RELEASE
