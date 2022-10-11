@@ -63,6 +63,7 @@ public class ElTest {
         Assertions.assertEquals("333", ELExecutor.eval("a=(true;false)?123456:33;a+300", new HashMap<>(), String.class));
         Assertions.assertEquals("123456", ELExecutor.eval("true?123456:33", null, String.class));
         Assertions.assertEquals(BigDecimal.class, ELExecutor.eval("str=\"123456\";dec=(BigDecimal)str;dec.getClass()", new HashMap<>(), Object.class));
+
         Assertions.assertTrue(ELExecutor.eval("null==empty", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"\"==empty", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("\" \"==empty", null, boolean.class));
@@ -71,6 +72,7 @@ public class ElTest {
         Assertions.assertTrue(ELExecutor.eval("'  '==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("null==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("empty==blank", null, boolean.class));
+
         Assertions.assertTrue(ELExecutor.eval("true!=false", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("-1>0", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("-1>=0", null, boolean.class));
@@ -153,17 +155,22 @@ public class ElTest {
         System.out.println(ELExecutor.eval("(4/2).floatValue()==2", context, String.class));
         System.out.println(ELExecutor.eval("map=new com.alibaba.fastjson2.JSONObject();map.b=2;map.a=1;map", context, String.class));
         System.out.println(ELExecutor.eval("this", context, String.class));
+
+        ELExecutor.putNode(context, "pojo", new TestPojo());
+        ELExecutor.eval("pojo.abc=123", context);
+        ELExecutor.eval("p.pojo=pojo", context);
+        Assertions.assertEquals("123456", ELExecutor.eval("pojo.abc=123456;pojo.abc", context, String.class));
+        Assertions.assertEquals("123", ELExecutor.eval("p.pojo.abc=123;pojo.abc", context, String.class));
+        Assertions.assertEquals("1234", ELExecutor.eval("pojo.abc=pojo.abc=1234;p.pojo.abc", context, String.class));
     }
 
     @Test
     @Disabled
     @DisplayName("单次测试")
     public void sigTest() {
-        TestPojo testPojo = new TestPojo();
-        testPojo.setAbc("123");
         JSONObject context = new JSONObject();
-        context.put("pojo", testPojo);
-        System.out.println(ELExecutor.eval("pojo.abc=123456;pojo.abc", context, String.class));
+        context.put("abc", "abc");
+        System.out.println(ELExecutor.eval("abc=abc", context, String.class));
     }
 
     /**
@@ -172,19 +179,19 @@ public class ElTest {
     @Test
     @DisplayName("运行效率测试")
     public void speedTest() {
-        Assertions.assertEquals("3699", ELExecutor.eval("(this + 1234) * 3 - 6", 1, String.class));
+        Assertions.assertEquals("3704", ELExecutor.eval("3 * (this + 1234) - this", 1, String.class));
         long start1 = System.currentTimeMillis();
         int[] arr1 = new int[1000000];
         int[] arr2 = new int[1000000];
         for (int i = 0; i < 1000000; i++) {
-            arr1[i] = (i + 1234) * 3 - 6;
+            arr1[i] = 3 * (i + 1234) - i;
         }
         long end1 = System.currentTimeMillis();
         System.out.println(end1 - start1);
 
         long start2 = System.currentTimeMillis();
         for (int i = 0; i < 1000000; i++) {
-            arr2[i] = ELExecutor.eval("(this + 1234) * 3 - 6", i, int.class);
+            arr2[i] = ELExecutor.eval("3 * (this + 1234) - this", i, int.class);
         }
         long end2 = System.currentTimeMillis();
         System.out.println(end2 - start2);
