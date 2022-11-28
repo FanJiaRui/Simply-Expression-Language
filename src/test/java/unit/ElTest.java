@@ -162,6 +162,9 @@ public class ElTest {
         Assertions.assertEquals("123456", ELExecutor.eval("pojo.abc=123456;pojo.abc", context, String.class));
         Assertions.assertEquals("123", ELExecutor.eval("p.pojo.abc=123;pojo.abc", context, String.class));
         Assertions.assertEquals("1234", ELExecutor.eval("pojo.abc=pojo.abc=1234;p.pojo.abc", context, String.class));
+
+        ELExecutor.putNode(context, "arr", new String[]{"1", null, "3"});
+        Assertions.assertEquals("3", ELExecutor.eval("arr.size()", context, String.class));
     }
 
     @Test

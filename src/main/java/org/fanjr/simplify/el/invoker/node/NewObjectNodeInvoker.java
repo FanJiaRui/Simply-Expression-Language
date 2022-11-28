@@ -66,7 +66,7 @@ public class NewObjectNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ElException("不可对【" + this.toString() + "】执行结果重新赋值！");
+        throw new ElException("不可对【" + this + "】执行结果重新赋值！");
     }
 
     @Override
@@ -91,6 +91,6 @@ public class NewObjectNodeInvoker extends NodeInvoker {
     @Override
     void removeValueByParent(NodeHolder parentNode, int index) {
         // skip
-        logger.info("移除【{}】操作无效，无需移除！", this.toString());
+        logger.info("移除【{}】操作无效，无需移除！", this);
     }
 }
