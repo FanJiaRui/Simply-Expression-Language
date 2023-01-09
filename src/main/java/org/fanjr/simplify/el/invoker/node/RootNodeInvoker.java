@@ -18,11 +18,6 @@ public class RootNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public Object invoke(Object ctx) {
-        return ctx;
-    }
-
-    @Override
     public NodeHolder getNodeHolder(Object ctx) {
         return NodeHolder.newNodeHolder(ctx, null, this);
     }
@@ -33,19 +28,24 @@ public class RootNodeInvoker extends NodeInvoker {
     }
 
     @Override
-    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ElException("不可设置ROOT(this)节点值！");
-    }
-
-    @Override
     public Object getValueByParent(Object ctx, NodeHolder parentNode) {
         //root节点没有父节点
         return ctx;
     }
 
     @Override
+    public Object invoke(Object ctx) {
+        return ctx;
+    }
+
+    @Override
+    public void setValueByParent(NodeHolder parentNode, Object value, int index) {
+        throw new ElException("不可设置ROOT(this)节点值！");
+    }
+
+    @Override
     void removeValueByParent(NodeHolder parentNode, int index) {
         // skip
-        logger.info("移除【{}】操作无效，无需移除！", this.toString());
+        logger.info("移除【{}】操作无效，无需移除！", this);
     }
 }

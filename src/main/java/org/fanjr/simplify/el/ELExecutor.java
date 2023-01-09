@@ -401,7 +401,13 @@ public class ELExecutor {
 
             if (elStart == start && chars[end - 1] == '}' && -1 == findElStart(chars, start + 1, end)) {
                 start += 2;
-                elInstance = new SimpleEL(resolve(chars, start, end - 1));
+                if ('#' == chars[elStart]) {
+                    elInstance = new SimpleEL(doCompileNode(chars, start, end - 1));
+                } else if ('$' == chars[elStart]) {
+                    elInstance = new SimpleEL(resolve(chars, start, end - 1));
+                } else {
+                    throw new ElException("解析错误！错误的token:" + chars[elStart] + "{");
+                }
                 COMPILES_EL.put(el, elInstance);
                 if (trim) {
                     COMPILES_EL.put(trimStr, elInstance);
@@ -413,10 +419,18 @@ public class ELExecutor {
             while (start < end) {
                 int elEnd = findNextCharToken(chars, '}', elStart + 2, end);
                 if (elStart != start) {
+                    // 非表达式部分，解析为字符串
                     targets.add(StringInvoker.newInstance(new String(chars, start, elStart - start)));
                 }
-                elStart += 2;
-                targets.add(resolve(chars, elStart, elEnd));
+                if ('#' == chars[elStart]) {
+                    elStart += 2;
+                    targets.add(doCompileNode(chars, elStart, elEnd));
+                } else if ('$' == chars[elStart]) {
+                    elStart += 2;
+                    targets.add(resolve(chars, elStart, elEnd));
+                } else {
+                    throw new ElException("解析错误！错误的token:" + chars[elStart] + "{");
+                }
                 start = elEnd + 1;
                 elStart = findElStart(chars, start, end);
                 if (-1 == elStart) {
@@ -515,15 +529,21 @@ public class ELExecutor {
         return -1;
     }
 
+    /**
+     * 用于寻找 ${ 或者 #{
+     *
+     * @return $ 或者 # 的index
+     */
     private static int findElStart(char[] chars, int start, int end) {
-        int elStart = findChar(chars, '$', start, end);
-        if (elStart == -1) {
+        // 通过下一个花括号位置来判断是否存在 ${ 或者 #{
+        int nextCurly = findChar(chars, '{', start, end);
+        if (nextCurly == -1) {
             return -1;
         } else {
-            if (elStart + 1 < end && '{' == chars[elStart + 1]) {
-                return elStart;
+            if (nextCurly > start && nextCurly < end && ('$' == chars[nextCurly - 1] || '#' == chars[nextCurly - 1])) {
+                return nextCurly - 1;
             } else {
-                return findChar(chars, '$', elStart + 1, end);
+                return findElStart(chars, nextCurly + 2, end);
             }
         }
     }
