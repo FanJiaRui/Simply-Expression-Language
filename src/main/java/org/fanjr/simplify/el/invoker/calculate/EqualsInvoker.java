@@ -1,5 +1,6 @@
 package org.fanjr.simplify.el.invoker.calculate;
 
+import com.alibaba.fastjson2.JSON;
 import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.utils.ElUtils;
 
@@ -71,8 +72,18 @@ public class EqualsInvoker extends BinocularInvoker {
             return isEmpty(eq1);
         }
 
-        String str1 = String.valueOf(eq1);
-        String str2 = String.valueOf(eq2);
+        String str1;
+        if (eq1 instanceof String) {
+            str1 = (String) eq1;
+        } else {
+            str1 = JSON.toJSONString(eq1);
+        }
+        String str2;
+        if (eq2 instanceof String) {
+            str2 = (String) eq2;
+        } else {
+            str2 = JSON.toJSONString(eq2);
+        }
         if (ElUtils.isNumber(str1)
                 && ElUtils.isNumber(str2)) {
             //数字不比较精度
