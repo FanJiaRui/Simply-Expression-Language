@@ -68,6 +68,9 @@ public class EqualsInvoker extends BinocularInvoker {
         } else if (EMPTY_FLAG == eq2) {
             return isEmpty(eq1);
         }
+
+        // 比较时将各类型转换为JSON字符串以比较不同类型的对象
+        // TODO 这是临时的解决方案，后续应该考虑更具备性能的方案
         String str1;
         if (eq1 instanceof String) {
             str1 = (String) eq1;
