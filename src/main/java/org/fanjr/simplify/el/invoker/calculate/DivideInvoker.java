@@ -4,6 +4,7 @@ import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.utils.ElUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 
 /**
@@ -25,6 +26,6 @@ public class DivideInvoker extends BinocularInvoker {
     protected Object doOperation(Object val1, Object val2) {
         BigDecimal num1 = ElUtils.castToBigDecimal(val1);
         BigDecimal num2 = ElUtils.castToBigDecimal(val2);
-        return num1.divide(num2, 8, BigDecimal.ROUND_HALF_UP);
+        return num1.divide(num2, 8, RoundingMode.HALF_UP);
     }
 }

@@ -6,10 +6,7 @@ import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author fanjr@vip.qq.com
@@ -48,7 +45,7 @@ public class EqualsInvoker extends BinocularInvoker {
     }
 
     private static boolean isBlank(Object obj) {
-        if (null == obj || EMPTY_FLAG == obj) {
+        if (null == obj || EMPTY_FLAG == obj || BLANK_FLAG == obj) {
             return true;
         }
         return ElUtils.isBlank(String.valueOf(obj));
@@ -71,7 +68,6 @@ public class EqualsInvoker extends BinocularInvoker {
         } else if (EMPTY_FLAG == eq2) {
             return isEmpty(eq1);
         }
-
         String str1;
         if (eq1 instanceof String) {
             str1 = (String) eq1;

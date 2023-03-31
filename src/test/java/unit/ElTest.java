@@ -51,29 +51,37 @@ public class ElTest {
         Assertions.assertFalse(ELExecutor.eval("a=1;true&&1+a*2<2", new HashMap<>(), boolean.class));
         Assertions.assertEquals("{\"c\":1,\"b\":1,\"a\":1}", ELExecutor.eval("map.a=map.b=map.c=1;map", new HashMap<>(), String.class));
         Assertions.assertFalse(ELExecutor.eval("\"true\"!='true'", null, boolean.class));
-        Assertions.assertFalse(ELExecutor.eval("!(\"\"==empty)?true:(false?true:false)", null, boolean.class));
-        Assertions.assertFalse(ELExecutor.eval("!(''==empty)?true:(false?true:false)", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("false&&true==false", null, boolean.class));
         Assertions.assertEquals("{\"0\":1,\"str\":2,\"3\":\"str2\"}", ELExecutor.eval("i=0;{i++:i++,'str':i++,i++:\"str2\"}", new HashMap<>(), String.class));
         Assertions.assertTrue(ELExecutor.eval("(1!='1')==false", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("123456==\"123456\"", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("9==(123456789).toString().length()", null, boolean.class));
-        Assertions.assertTrue(ELExecutor.eval("(false!=(1==1))", null, boolean.class));
         Assertions.assertEquals("[true,{\"1.2\":2.55,\"true\":{\"1\":true,\"2\":[0,1,2,3]}},\" false!=(1==1)\",213]", ELExecutor.eval("[ false!=(1 == 1) ,{1.2 : 2.55, false!=(1 == 1):{1:false!=(1 == 1),2:[0,1,2,3]},2:this}, \" false!=(1==1)\" , 213]", null, String.class));
         Assertions.assertEquals("333", ELExecutor.eval("a=(true;false)?123456:33;a+300", new HashMap<>(), String.class));
         Assertions.assertEquals("123456", ELExecutor.eval("true?123456:33", null, String.class));
         Assertions.assertEquals(BigDecimal.class, ELExecutor.eval("str=\"123456\";dec=(BigDecimal)str;dec.getClass()", new HashMap<>(), Object.class));
 
+        // null\empty\blank等关键字
         Assertions.assertTrue(ELExecutor.eval("null==empty", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"\"==empty", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("\" \"==empty", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("\" \"!=empty", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"\"==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"  \"==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("'  '==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("null==blank", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("empty==blank", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("blank==empty", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("empty==empty", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("blank==blank", null, boolean.class));
+        Assertions.assertFalse(ELExecutor.eval("!(\"\"==empty)?true:(false?true:false)", null, boolean.class));
+        Assertions.assertFalse(ELExecutor.eval("!(''==empty)?true:(false?true:false)", null, boolean.class));
 
+        // 常量计算
         Assertions.assertTrue(ELExecutor.eval("true!=false", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("true==true", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("false==false", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("(false!=(1==1))", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("-1>0", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("-1>=0", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("0<-1", null, boolean.class));
@@ -82,6 +90,9 @@ public class ElTest {
         Assertions.assertFalse(ELExecutor.eval("-1+1>0", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("0==-1+1", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("0<-1+1", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("[0,  1,2]==[0,1,2]", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("this==[0,1,2]", new byte[]{0, 1, 2}, boolean.class));
+
         Assertions.assertEquals("6", ELExecutor.eval("(1==1?'123456':33).length()", null, String.class));
         Assertions.assertEquals("2", ELExecutor.eval("(1==1?\"123456\":33).charAt(1)", null, String.class));
         Assertions.assertEquals("456", ELExecutor.eval("(1==1?\"123456\":33).substring(2).substring(\"1\")", null, String.class));
@@ -108,16 +119,16 @@ public class ElTest {
         Assertions.assertEquals("10012345678901", ELExecutor.eval("((String)1100).substring(1) + (a.b.c.d + 1)", context, String.class));
         Assertions.assertEquals("10012345678901", ELExecutor.eval("(((String)1100).substring(1) + a.b.c.d) + 1", context, String.class));
         Assertions.assertEquals("6", ELExecutor.eval("a.index = (a.index + 5)", context, String.class));
-        Assertions.assertEquals("11",ELExecutor.eval("+ a.index += 5", context, String.class));
-        Assertions.assertEquals("11",ELExecutor.eval("a.index2[a.index] = a.index", context, String.class));
-        Assertions.assertEquals("6",ELExecutor.eval("a.index = (a.index - 5)", context, String.class));
-        Assertions.assertEquals("1",ELExecutor.eval("a.index -= 5", context, String.class));
-        Assertions.assertEquals("1",ELExecutor.eval("a.index2[this.a.index] = a.index", context, String.class));
-        Assertions.assertEquals("-2",ELExecutor.eval("a.index = (a.index * (-2))", context, String.class));
-        Assertions.assertEquals("4",ELExecutor.eval("a.index *= \"-2\"", context, String.class));
-        Assertions.assertEquals("-4",ELExecutor.eval("-a.index", context, String.class));
-        Assertions.assertEquals("4",ELExecutor.eval("a.index2[a.index] = a.index", context, String.class));
-        Assertions.assertEquals("[null,1,null,null,4,null,null,null,null,null,null,11]",ELExecutor.eval("a.index2", context, String.class));
+        Assertions.assertEquals("11", ELExecutor.eval("+ a.index += 5", context, String.class));
+        Assertions.assertEquals("11", ELExecutor.eval("a.index2[a.index] = a.index", context, String.class));
+        Assertions.assertEquals("6", ELExecutor.eval("a.index = (a.index - 5)", context, String.class));
+        Assertions.assertEquals("1", ELExecutor.eval("a.index -= 5", context, String.class));
+        Assertions.assertEquals("1", ELExecutor.eval("a.index2[this.a.index] = a.index", context, String.class));
+        Assertions.assertEquals("-2", ELExecutor.eval("a.index = (a.index * (-2))", context, String.class));
+        Assertions.assertEquals("4", ELExecutor.eval("a.index *= \"-2\"", context, String.class));
+        Assertions.assertEquals("-4", ELExecutor.eval("-a.index", context, String.class));
+        Assertions.assertEquals("4", ELExecutor.eval("a.index2[a.index] = a.index", context, String.class));
+        Assertions.assertEquals("[null,1,null,null,4,null,null,null,null,null,null,11]", ELExecutor.eval("a.index2", context, String.class));
         Assertions.assertTrue(ELExecutor.eval("true||false", context, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("false||true", context, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("true&&false", context, boolean.class));
@@ -175,9 +186,20 @@ public class ElTest {
     @Disabled
     @DisplayName("单次测试")
     public void sigTest() {
-        JSONObject context = new JSONObject();
-        context.put("abc", "abc");
-        System.out.println(ELExecutor.eval("abc=abc", context, String.class));
+        // 这里用于临时测试，把测试用例追加到基础测试中
+        TestReq req = new TestReq();
+        ELExecutor.eval("head.serialId=123456", req);
+        ELExecutor.putNode(req, "head.date", "20230330");
+        System.out.println(req);
+
+        System.out.println(ELExecutor.eval("head.serialId", req));
+        System.out.println(ELExecutor.eval("head.date", req));
+        System.out.println(ELExecutor.eval("body.data", req));
+
+        System.out.println(req.getHead().getSerialId());
+        System.out.println(req.getHead().getDate());
+        System.out.println(req.getBody().getData());
+
     }
 
     /**
