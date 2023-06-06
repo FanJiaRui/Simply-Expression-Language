@@ -13,12 +13,14 @@ import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,8 +32,10 @@ import java.util.regex.Pattern;
 public class ElUtils {
 
     public static final String EMPTY = "";
+    private static final String SIMPLIFY_EL_FUNCTIONS = "META-INF/simplify-el.functions";
     private static final Logger logger = LoggerFactory.getLogger(ElUtils.class);
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${\\n}]*)\\}");
+    private static final Map<String, String> UTILS_MAP = new HashMap<>();
 
     public static Object cast(Object obj, Type targetType) {
         if (targetType.getClass() == Class.class) {
@@ -399,4 +403,34 @@ public class ElUtils {
         return str == null ? EMPTY : str.trim();
     }
 
+    static {
+        init();
+    }
+
+    private synchronized static void init() {
+        try {
+            ClassLoader classLoader = ElUtils.class.getClassLoader();
+            final Enumeration<URL> functionsUrl =
+                    classLoader.getResources(SIMPLIFY_EL_FUNCTIONS);
+            Properties functionsProperties = new Properties();
+            while (functionsUrl.hasMoreElements()) {
+                final URL url = functionsUrl.nextElement();
+                try (InputStream inputStream = url.openStream()) {
+                    functionsProperties.load(inputStream);
+                }
+            }
+            for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
+                final String utilsName = ((String) entry.getKey()).trim();
+                final String utilsClassName = ((String) entry.getValue()).trim();
+                UTILS_MAP.put(utilsName, utilsClassName);
+            }
+        } catch (IOException e) {
+            // SKIP
+            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+        }
+    }
+
+    public static String findUtils(String name) {
+        return UTILS_MAP.get(name);
+    }
 }

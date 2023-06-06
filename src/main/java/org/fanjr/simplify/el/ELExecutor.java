@@ -29,6 +29,12 @@ public class ELExecutor {
     private static final Map<String, EL> COMPILES_EL = new ConcurrentHashMap<>();
     private static final Map<String, NodeInvoker> COMPILES_NODE = new ConcurrentHashMap<>();
 
+    /**
+     * 生成表达式对象
+     *
+     * @param el 表达式字符串
+     * @return 可执行的表达式对象
+     */
     public static EL compile(final String el) {
         if (null == el) {
             // 容错处理
@@ -43,6 +49,12 @@ public class ELExecutor {
         return doCompile(el);
     }
 
+    /**
+     * 生成节点对象
+     *
+     * @param nodeName 节点名
+     * @return 可执行的节点对象
+     */
     public static Node compileNode(String nodeName) {
         if (null == nodeName) {
             // 容错处理
@@ -57,28 +69,71 @@ public class ELExecutor {
         return doCompileNode(nodeName.toCharArray(), 0, nodeName.length());
     }
 
+    /**
+     * 计算表达式，返回结果
+     *
+     * @param el   表达式
+     * @param vars 上下文
+     * @return 计算结果
+     */
     public static Object eval(String el, Object vars) {
         return compile(el).invoke(vars);
     }
 
+    /**
+     * 计算表达式，返回指定类型结果
+     *
+     * @param el   表达式
+     * @param vars 上下文
+     * @param type 预期结果的类型
+     * @return 计算结果
+     */
     public static <T> T eval(String el, Object vars, Class<T> type) {
         return ElUtils.cast(eval(el, vars), type);
     }
 
+    /**
+     * 计算表达式，返回指定类型结果
+     *
+     * @param el   表达式
+     * @param vars 上下文
+     * @param type 预期结果的类型
+     * @return 计算结果
+     */
     public static Object eval(String el, Object vars, Type type) {
         return ElUtils.cast(eval(el, vars), type);
     }
 
+    /**
+     * 从对象中获取某个属性或节点
+     *
+     * @param ctx      上下文/POJO
+     * @param nodeName 属性名或节点名
+     * @return 对应属性或节点的值
+     */
     public static Object getNode(Object ctx, String nodeName) {
         Node node = compileNode(nodeName);
         return node.getNode(ctx);
     }
 
+    /**
+     * 将某个值放入对象指定属性或节点
+     *
+     * @param ctx      上下文/POJO
+     * @param nodeName 属性名或节点名
+     * @param value    要放入的值
+     */
     public static void putNode(Object ctx, String nodeName, Object value) {
         Node node = compileNode(nodeName);
         node.putNode(ctx, value);
     }
 
+    /**
+     * 将某个值或节点移除或置空
+     *
+     * @param ctx      上下文/POJO
+     * @param nodeName 要移除或置空的节点名
+     */
     public static void removeNode(Object ctx, String nodeName) {
         Node node = compileNode(nodeName);
         node.removeNode(ctx);
@@ -292,7 +347,7 @@ public class ELExecutor {
                     continue;
                 }
 
-                NodeInvoker parent = null;
+                NodeInvoker parent;
                 if (start == nextDot) {
                     //先取左边的表达式
                     ELInvoker left = builderStack.removeLast().get();
@@ -309,6 +364,53 @@ public class ELExecutor {
                         start = nextDot + 1;
                     } while (start < end);
                 } else {
+
+                    // 判断是否包含自定义函数  eg : XX.fun(...)
+                    int nextFunctionToken = findNextCharToken(chars, '(', start, end, false);
+                    if (nextFunctionToken > 0) {
+                        int nextFunctionEnd = findNextCharToken(chars, ')', nextFunctionToken + 1, end, true);
+                        // 是方法，需要判断是否为自定义函数
+                        int[] dots = countCharToken(chars, '.', start, nextFunctionToken);
+                        if (dots.length == 1) {
+                            // 已判断形式为XX.fun(...)形式，进一步判断是否为注册的function
+                            String functionUtilsName = String.valueOf(chars, start, dots[0] - start);
+                            String className = ElUtils.findUtils(functionUtilsName);
+                            if (null != className) {
+                                String methodName = String.valueOf(chars, dots[0] + 1, nextFunctionToken - dots[0] - 1);
+                                parent = FunctionMethodNodeInvoker.newInstance(className, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
+                                // 位移到方法后
+                                start = nextFunctionEnd + 1;
+                                if (start >= end) {
+                                    // 末尾退出解析并压栈
+                                    pushOrBuild(builderStack, parent);
+                                    continue;
+                                }
+                                // 寻找下一个非空字符
+                                int spaceNum = findHeadSpace(chars, start, end);
+                                // 位移到下一个非空白字符'.'
+                                start += spaceNum;
+                                if (chars[start] == '.') {
+                                    // 跳过分隔符
+                                    start++;
+                                } else {
+                                    throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，错误的方法后缀：" + String.valueOf(chars, start, end - start));
+                                }
+                                while (start < end) {
+                                    nextDot = findNextCharToken(chars, '.', start, end, false);
+                                    if (-1 == nextDot) {
+                                        nextDot = end;
+                                    }
+                                    NodeInvoker curr = resolveNode(chars, start, nextDot);
+                                    curr.setParentNodeInvoker(parent);
+                                    parent = curr;
+                                    start = nextDot + 1;
+                                }
+                                pushOrBuild(builderStack, parent);
+                                continue;
+                            }
+                        }
+                    }
+
                     parent = doCompileNode(chars, start, end);
                     //解析完节点，一次性移动到末尾
                     start = end + 1;

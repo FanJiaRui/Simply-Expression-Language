@@ -1,6 +1,8 @@
 package org.fanjr.simplify.el;
 
 
+import java.util.stream.IntStream;
+
 /**
  * @author fanjr@vip.qq.com
  * @since 2021/7/9 上午11:50
@@ -233,6 +235,35 @@ public class ELTokenUtils {
         } else {
             return -1;
         }
+    }
+
+    public static int[] countCharToken(char[] chars, char c, int start, int end) {
+        IntStream.Builder builder = IntStream.builder();
+        for (int i = start; i < end; i++) {
+            if (chars[i] == c) {
+                builder.add(i);
+            }
+            switch (chars[i]) {
+                case '"':
+                    i = findStringEndDouble(chars, i + 1, end);
+                    break;
+                case '\'':
+                    i = findStringEndSingle(chars, i + 1, end);
+                    break;
+                case '(':
+                    i = findNextCharToken(chars, ')', i + 1, end);
+                    break;
+                case '[':
+                    i = findNextCharToken(chars, ']', i + 1, end);
+                    break;
+                case '{':
+                    i = findNextCharToken(chars, '}', i + 1, end);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return builder.build().toArray();
     }
 
     /**

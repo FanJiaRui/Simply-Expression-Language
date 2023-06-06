@@ -90,6 +90,7 @@ public class ElTest {
         Assertions.assertFalse(ELExecutor.eval("-1+1>0", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("0==-1+1", null, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("0<-1+1", null, boolean.class));
+        Assertions.assertFalse(ELExecutor.eval("'[0,  1,2]'==[0,1,2]", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("[0,  1,2]==[0,1,2]", null, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("this==[0,1,2]", new byte[]{0, 1, 2}, boolean.class));
 
@@ -263,6 +264,17 @@ public class ElTest {
         arr.putNode(ctx, "2");
         Assertions.assertEquals(arr.getNode(ctx), "2");
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"},\"2\"]}}}");
+    }
+
+    @Test
+    @DisplayName("自定义函数测试")
+    public void testFunction() {
+        ELExecutor.eval("MyUtils.noReturnNoParamFun()", null);
+        Assertions.assertEquals("5", ELExecutor.eval("(String)MyUtils.strReturnNoParamFun().length()", null));
+        Assertions.assertEquals("1", ELExecutor.eval("(String)((String)MyUtils.strReturnNoParamFun().length()).length()", null));
+        Assertions.assertEquals("9", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun('xxx').length()", null));
+        Assertions.assertEquals("hello 100", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun(a)", "{'a':100}"));
+        Assertions.assertEquals("99", ELExecutor.eval("(String)(MyUtils.strReturnOneParamFun(a).substring(6) - 1)", "{'a':100}"));
     }
 
 
