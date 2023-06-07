@@ -32,7 +32,7 @@ _**The English document comes from the translation software, please let me know 
 
 ## Documentation
 
-[**Click Here**](docs/document.md) View detailed documentation
+[**Click Here**](docs/document_en.md) View detailed documentation
 
 ## Function point introduction
 
