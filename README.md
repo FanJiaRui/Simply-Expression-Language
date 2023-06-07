@@ -7,9 +7,9 @@
 
 ## 环境&依赖
 
-JDK 1.8 </br>
-fastjson2 2.0.33</br>
-slf4j 1.7.30
+* JDK 1.8
+* fastjson2 2.0.33
+* slf4j 1.7.30
 
 ## 特性
 
