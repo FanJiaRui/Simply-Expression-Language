@@ -199,8 +199,12 @@ public class ElTest {
 
         System.out.println(req.getHead().getSerialId());
         System.out.println(req.getHead().getDate());
-        System.out.println(req.getBody().getData());
+        try{
+            // 这里会抛出空指针异常
+            System.out.println(req.getBody().getData());
+        }catch (Exception e){
 
+        }
     }
 
     /**
