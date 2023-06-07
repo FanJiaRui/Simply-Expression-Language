@@ -21,7 +21,6 @@ slf4j 1.7.30
 ### 引入配置
 
 ```xml
-
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
