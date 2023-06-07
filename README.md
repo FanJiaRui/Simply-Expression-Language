@@ -1,5 +1,12 @@
 # Simply Expression Language
+
 ##### [📖 English Documentation](README_en.md) | 📖 中文文档
+
+[![Java support](https://img.shields.io/badge/Java-8+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
+[![GitHub release](https://img.shields.io/github/release/FanJiaRui/Simply-Expression-Language)](https://github.com/FanJiaRui/Simply-Expression-Language/releases)
+[![Maven Central](https://img.shields.io/maven-central/v/org.fanjr.simplify/simplify-el?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/org.fanjr.simplify/simplify-el)
+[![License](https://img.shields.io/github/license/FanJiaRui/Simply-Expression-Language?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
+
 ## 介绍
 
 简易表达式，旨在解决判断、计算、取值、结构转换这些逻辑简单但编码繁复的工作<br>
