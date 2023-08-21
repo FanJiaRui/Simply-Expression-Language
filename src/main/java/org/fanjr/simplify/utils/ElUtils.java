@@ -81,7 +81,15 @@ public class ElUtils {
     }
 
     public static Object getFieldByPojo(Object pojo, String fieldKey) {
-        Class<?> pojoClass = pojo.getClass();
+        if (null == pojo) {
+            return null;
+        }
+        Class<?> pojoClass;
+        if (pojo instanceof Class) {
+            pojoClass = (Class<?>) pojo;
+        } else {
+            pojoClass = pojo.getClass();
+        }
 
         //从javaBean中取值
         ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
