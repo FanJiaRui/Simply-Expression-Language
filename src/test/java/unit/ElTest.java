@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.EL;
 import org.fanjr.simplify.el.ELExecutor;
 import org.fanjr.simplify.el.invoker.node.Node;
+import org.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -187,24 +188,12 @@ public class ElTest {
     @Disabled
     @DisplayName("单次测试")
     public void sigTest() {
-        // 这里用于临时测试，把测试用例追加到基础测试中
+        // TODO 新特性补充到测试用例中
         TestReq req = new TestReq();
-        ELExecutor.eval("head.serialId=123456", req);
-        ELExecutor.putNode(req, "head.date", "20230330");
+        ELExecutor.eval("body.data={'a':{'b':{'c':{'d':'d_value'}}}};head={}", req);
         System.out.println(req);
-
-        System.out.println(ELExecutor.eval("head.serialId", req));
-        System.out.println(ELExecutor.eval("head.date", req));
-        System.out.println(ELExecutor.eval("body.data", req));
-
-        System.out.println(req.getHead().getSerialId());
-        System.out.println(req.getHead().getDate());
-        try{
-            // 这里会抛出空指针异常
-            System.out.println(req.getBody().getData());
-        }catch (Exception e){
-
-        }
+        ELExecutor.eval("body.data.a.b.c.ext='extVal';head=null", req);
+        System.out.println(req);
     }
 
     /**

@@ -131,6 +131,9 @@ public class MapNodeInvoker extends NodeInvoker {
         } else {
             if (parentValue instanceof Map) {
                 ((Map<String, Object>) parentValue).put(nodeName, value);
+                if (parentNode.isChange()){
+                    parentNode.setValue(parentValue);
+                }
                 return;
             }
 
@@ -167,9 +170,10 @@ public class MapNodeInvoker extends NodeInvoker {
                 if (parentNode.isChange()) {
                     parentNode.setValue(parentValue);
                 }
-            } else {
-                ElUtils.putFieldByPojo(parentValue, nodeName, value);
             }
+//            else {
+//                ElUtils.putFieldByPojo(parentValue, nodeName, value);
+//            }
         }
     }
 
