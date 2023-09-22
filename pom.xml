@@ -21,13 +21,13 @@
         <java.version>1.8</java.version>
     </properties>
 
-    <url>https://gitee.com/fanjr/simplify-el</url>
+    <url>https://github.com/FanJiaRui/Simply-Expression-Language</url>
 
     <scm>
         <tag>master</tag>
-        <url>https://gitee.com/fanjr/simplify-el.git</url>
-        <connection>scm:git@gitee.com:fanjr/simplify-el.git</connection>
-        <developerConnection>scm:git:git@gitee.com:fanjr/simplify-el.git</developerConnection>
+        <url>https://github.com/FanJiaRui/Simply-Expression-Language.git</url>
+        <connection>scm:git@github.com:FanJiaRui/Simply-Expression-Language.git</connection>
+        <developerConnection>scm:git@github.com:FanJiaRui/Simply-Expression-Language.git</developerConnection>
     </scm>
 
     <licenses>
