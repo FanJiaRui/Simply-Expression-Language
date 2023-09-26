@@ -5,8 +5,6 @@ import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.utils.ElUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -18,8 +16,6 @@ import java.util.Map;
  * @since 2021/7/8 上午11:42
  */
 public class MapNodeInvoker extends NodeInvoker {
-
-    private static final Logger logger = LoggerFactory.getLogger(MapNodeInvoker.class);
 
     private MapNodeInvoker(String nodeName) {
         super(nodeName);
@@ -131,7 +127,7 @@ public class MapNodeInvoker extends NodeInvoker {
         } else {
             if (parentValue instanceof Map) {
                 ((Map<String, Object>) parentValue).put(nodeName, value);
-                if (parentNode.isChange()){
+                if (parentNode.isChange()) {
                     parentNode.setValue(parentValue);
                 }
                 return;

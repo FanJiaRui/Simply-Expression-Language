@@ -36,7 +36,7 @@ understand it.**_
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
 </dependency>
 ```
 
