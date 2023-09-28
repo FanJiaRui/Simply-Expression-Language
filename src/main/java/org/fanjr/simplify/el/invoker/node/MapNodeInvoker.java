@@ -1,5 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
@@ -52,17 +53,20 @@ public class MapNodeInvoker extends NodeInvoker {
             }
         } else if (parentClass == String.class) {
             String json = (String) parentValue;
-            if (json.isEmpty() || "null".equals(json)) {
+            if (ElUtils.isBlank(json) || "null".equals(json)) {
                 return null;
             }
 
             char first = json.trim().charAt(0);
             if (first == '{') {
-                try (JSONReader reader = JSONReader.of(json)) {
-                    ObjectReader<JSONObject> objectReader = reader.getObjectReader(JSONObject.class);
-                    JSONObject jsonObject = objectReader.readObject(reader, 0);
+                try {
+                    JSONObject jsonObject = JSON.parseObject(json);
                     parentNode.setChange(true);
                     return jsonObject.get(nodeName);
+                } catch (Exception e) {
+                    // 解析JSON字符串失败，不按照JSON进行解析
+                    // TODO 按临时解决方案，后续考虑更具性能的方案
+                    return null;
                 }
             }
         }
@@ -87,7 +91,7 @@ public class MapNodeInvoker extends NodeInvoker {
         if (parentClass == String.class) {
             //Parent类型为字符串，操作完后确保推送回Parent为字符串
             String json = (String) parentValue;
-            if (json.isEmpty() || "null".equals(json)) {
+            if (ElUtils.isBlank(json) || "null".equals(json)) {
                 return;
             } else {
                 char first = json.trim().charAt(0);
@@ -167,9 +171,6 @@ public class MapNodeInvoker extends NodeInvoker {
                     parentNode.setValue(parentValue);
                 }
             }
-//            else {
-//                ElUtils.putFieldByPojo(parentValue, nodeName, value);
-//            }
         }
     }
 

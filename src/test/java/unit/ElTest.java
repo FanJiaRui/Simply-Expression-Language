@@ -188,12 +188,16 @@ public class ElTest {
     @Disabled
     @DisplayName("单次测试")
     public void sigTest() {
-        // TODO 新特性补充到测试用例中
-        TestReq req = new TestReq();
-        ELExecutor.eval("body.data={'a':{'b':{'c':{'d':'d_value'}}}};head={}", req);
-        System.out.println(req);
-        ELExecutor.eval("body.data.a.b.c.ext='extVal';head=null", req);
-        System.out.println(req);
+        // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
+
+    }
+
+    @Test
+    @DisplayName("分支判断测试")
+    public void ifElseTest() {
+        Assertions.assertEquals(ELExecutor.eval("flag=1;if ( flag==1 ) { a=1 } else if(flag==2){a=2}else{a=0}x=a;++x;", JSONObject.of(), int.class), 2);
+        Assertions.assertEquals(ELExecutor.eval("flag=2;if ( flag==1 ) { a=1 } else if(flag==2){a=2}else{a=0}x=a;++x;", JSONObject.of(), int.class), 3);
+        Assertions.assertEquals(ELExecutor.eval("flag=3;if ( flag==1 ) { a=1 } else if(flag==2){a=2}else{a=0}x=a;++x;", JSONObject.of(), int.class), 1);
     }
 
     /**
@@ -235,6 +239,27 @@ public class ElTest {
     }
 
     @Test
+    @DisplayName("JAVA对象测试")
+    public void testPojo() {
+        TestReq req = new TestReq();
+        ELExecutor.eval("body.data={'a':{'b':{'c':{'d':'d_value'}}}};head={}", req);
+        System.out.println(req);
+        ELExecutor.eval("body.data.a.b.c.ext='extVal';head=null", req);
+        System.out.println(req);
+        ELExecutor.eval("body.data={'a':{'b':{'c':['arrVal0','arrVal1',{'a':'b'}]}}}", req);
+        System.out.println(req);
+        ELExecutor.eval("body.data.a.b.c[2].a='extVal'", req);
+        System.out.println(req);
+        ELExecutor.eval("body.data.a.b.c[2]='arrVal2'", req);
+        System.out.println(req);
+
+        // 数组测试
+        JSONObject context = JSONObject.of("arr", new int[3]);
+        ELExecutor.eval("arr[i++]=i;arr[i++]=i;arr[i++]=i;arr[i++]=i", context);
+        System.out.println(context);
+    }
+
+    @Test
     @DisplayName("节点测试")
     public void testNode() {
         JSONObject ctx = new JSONObject();
@@ -257,6 +282,10 @@ public class ElTest {
         arr.putNode(ctx, "2");
         Assertions.assertEquals(arr.getNode(ctx), "2");
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"},\"2\"]}}}");
+        arr.removeNode(ctx);
+        Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"}]}}}");
+
+
     }
 
     @Test
