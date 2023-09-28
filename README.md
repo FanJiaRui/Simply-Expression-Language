@@ -44,7 +44,7 @@
 
 - 简单表达式计算、占位符计算
 - 三元表达式、二元运算符、一元运算符
-- 赋值运算
+- 赋值运算、类型转换
 - 优先计算、子串表达式
 - java对象方法调用、自定义函数方法调用
 
@@ -90,3 +90,6 @@ if (req.getHead()==null){
 req.getHead().setSerialId("123456");
 System.out.println(req.getHead().getSerialId());
 ```
+
+## 后续规划
+- 增加部分可能用得上的内置分支语法，例如`if else`、`for`等

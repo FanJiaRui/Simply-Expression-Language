@@ -36,7 +36,7 @@ public class ELExecutor {
      * @return 可执行的表达式对象
      */
     public static EL compile(final String el) {
-        if (null == el) {
+        if (ElUtils.isBlank(el)) {
             // 容错处理
             return NullEL.INSTANCE;
         }
@@ -56,7 +56,7 @@ public class ELExecutor {
      * @return 可执行的节点对象
      */
     public static Node compileNode(String nodeName) {
-        if (null == nodeName) {
+        if (ElUtils.isBlank(nodeName)) {
             // 容错处理
             return NullNodeInvoker.INSTANCE;
         }
@@ -154,7 +154,7 @@ public class ELExecutor {
                 start += findHeadSpace(chars, start, end);
                 end -= findEndSpace(chars, start, end);
 
-                //匹配分隔符;
+                // 拆分当前级别复合语句和语句块
                 int nextSemicolonToken = findNextCharToken(chars, ';', start, end, false);
                 if (nextSemicolonToken != -1) {
                     List<ELInvoker> targetInvokers = new ArrayList<>();
@@ -174,9 +174,25 @@ public class ELExecutor {
                         }
                     } while ((start < end));
                     return CompositeInvoker.newInstance(targetInvokers);
+                } else {
+                    // 匹配语句块
+                    IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, start, end);
+                    if (null != ifElseBuilder) {
+                        List<ELInvoker> targetInvokers = new ArrayList<>();
+                        start = ifElseBuilder.getEnd() + 1;
+                        if (start >= end) {
+                            return ifElseBuilder.get();
+                        }
+                        targetInvokers.add(ifElseBuilder.get());
+                        ELInvoker lastInvoker = resolve(chars, start, end);
+                        if (null != lastInvoker) {
+                            targetInvokers.add(lastInvoker);
+                        }
+                        return CompositeInvoker.newInstance(targetInvokers);
+                    }
                 }
 
-                //匹配赋值指令
+                // 匹配赋值指令
                 {
                     BinocularBuilder binocularBuilder = AssignmentBuilder.matchNextBuildByOrder(chars, start, end, 0);
                     if (null != binocularBuilder) {
@@ -184,7 +200,7 @@ public class ELExecutor {
                     }
                 }
 
-                //匹配三元表达式
+                // 匹配三元表达式
                 {
                     int nextQuestion = findNextCharToken(chars, '?', start, end, false);
                     if (nextQuestion != -1) {
@@ -197,7 +213,7 @@ public class ELExecutor {
                     }
                 }
 
-                //匹配二元表达式
+                // 匹配二元表达式
                 for (int i = 1; i <= 5; i++) {
                     BinocularBuilder binocularBuilder = CalculateEnum.matchNextBuildByOrder(chars, start, end, i);
                     if (null != binocularBuilder) {
@@ -205,7 +221,7 @@ public class ELExecutor {
                     }
                 }
 
-                //匹配一元表达式 (++、--、!)
+                // 匹配一元表达式 (++、--、!)
                 if ('!' == chars[start]) {
                     //取反操作
                     builderStack.addLast(new ELInvokerBuilder(1, NegationInvoker::buildInstance));
@@ -234,7 +250,7 @@ public class ELExecutor {
                     }
                 }
 
-                //第一个有效字符为"，这是一段字符串
+                // 第一个有效字符为"，这是一段字符串
                 if ('"' == chars[start]) {
                     int nextToken = findStringEndDouble(chars, start + 1, end);
                     String value = new String(chars, start + 1, nextToken - start - 1);
@@ -247,7 +263,7 @@ public class ELExecutor {
                     continue;
                 }
 
-                //第一个有效字符为'，这是一段字符串
+                // 第一个有效字符为'，这是一段字符串
                 if ('\'' == chars[start]) {
                     int nextToken = findStringEndSingle(chars, start + 1, end);
                     String value = new String(chars, start + 1, nextToken - start - 1);
