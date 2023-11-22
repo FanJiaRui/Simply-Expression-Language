@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -36,6 +37,10 @@ public class ElUtils {
     private static final Logger logger = LoggerFactory.getLogger(ElUtils.class);
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${\\n}]*)\\}");
     private static final Map<String, String> UTILS_MAP = new HashMap<>();
+
+    static {
+        init();
+    }
 
     public static Object cast(Object obj, Type targetType) {
         if (targetType.getClass() == Class.class) {
@@ -126,6 +131,9 @@ public class ElUtils {
         return null;
     }
 
+    // Empty checks
+    //-----------------------------------------------------------------------
+
     public static List<String> groupEL(String str) {
         List<String> list = new ArrayList<>();
         Matcher matcher = PATTERN.matcher(str);
@@ -134,9 +142,6 @@ public class ElUtils {
         }
         return list;
     }
-
-    // Empty checks
-    //-----------------------------------------------------------------------
 
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
@@ -411,10 +416,6 @@ public class ElUtils {
         return str == null ? EMPTY : str.trim();
     }
 
-    static {
-        init();
-    }
-
     private synchronized static void init() {
         try {
             ClassLoader classLoader = ElUtils.class.getClassLoader();
@@ -440,5 +441,16 @@ public class ElUtils {
 
     public static String findUtils(String name) {
         return UTILS_MAP.get(name);
+    }
+
+    public static void foreachArray(Object array, Function<Object, Boolean> function) {
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            Boolean result = function.apply(Array.get(array, i));
+            if (null == result || !result) {
+                // 返回为false时打破循环，否则执行到循环结束
+                break;
+            }
+        }
     }
 }

@@ -176,19 +176,39 @@ public class ELExecutor {
                     return CompositeInvoker.newInstance(targetInvokers);
                 } else {
                     // 匹配语句块
-                    IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, start, end);
-                    if (null != ifElseBuilder) {
-                        List<ELInvoker> targetInvokers = new ArrayList<>();
-                        start = ifElseBuilder.getEnd() + 1;
-                        if (start >= end) {
-                            return ifElseBuilder.get();
+                    // 匹配IF ELSE
+                    {
+                        IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, start, end);
+                        if (null != ifElseBuilder) {
+                            List<ELInvoker> targetInvokers = new ArrayList<>();
+                            start = ifElseBuilder.getEnd() + 1;
+                            if (start >= end) {
+                                return ifElseBuilder.get();
+                            }
+                            targetInvokers.add(ifElseBuilder.get());
+                            ELInvoker lastInvoker = resolve(chars, start, end);
+                            if (null != lastInvoker) {
+                                targetInvokers.add(lastInvoker);
+                            }
+                            return CompositeInvoker.newInstance(targetInvokers);
                         }
-                        targetInvokers.add(ifElseBuilder.get());
-                        ELInvoker lastInvoker = resolve(chars, start, end);
-                        if (null != lastInvoker) {
-                            targetInvokers.add(lastInvoker);
+                    }
+                    // 匹配循环
+                    {
+                        ForEachBuilder forEachBuilder = ForEachBuilder.matchBuild(chars, start, end);
+                        if (null != forEachBuilder) {
+                            List<ELInvoker> targetInvokers = new ArrayList<>();
+                            start = forEachBuilder.getEnd() + 1;
+                            if (start >= end) {
+                                return forEachBuilder.get();
+                            }
+                            targetInvokers.add(forEachBuilder.get());
+                            ELInvoker lastInvoker = resolve(chars, start, end);
+                            if (null != lastInvoker) {
+                                targetInvokers.add(lastInvoker);
+                            }
+                            return CompositeInvoker.newInstance(targetInvokers);
                         }
-                        return CompositeInvoker.newInstance(targetInvokers);
                     }
                 }
 

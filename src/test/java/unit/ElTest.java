@@ -189,7 +189,9 @@ public class ElTest {
     @DisplayName("单次测试")
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
-
+        JSONObject of = JSONObject.of("一月填写", "{'H6':1}", "二月填写", "{'H6':2}");
+        BigDecimal eval = ELExecutor.eval("一月填写.H6+二月填写.H6+三月填写.H6", of, BigDecimal.class);
+        System.out.println(eval);
     }
 
     @Test
@@ -297,6 +299,7 @@ public class ElTest {
         Assertions.assertEquals("9", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun('xxx').length()", null));
         Assertions.assertEquals("hello 100", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun(a)", "{'a':100}"));
         Assertions.assertEquals("99", ELExecutor.eval("(String)(MyUtils.strReturnOneParamFun(a).substring(6) - 1)", "{'a':100}"));
+
     }
 
 
