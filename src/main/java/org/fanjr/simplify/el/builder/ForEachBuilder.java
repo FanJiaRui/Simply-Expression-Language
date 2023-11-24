@@ -13,9 +13,9 @@ import static org.fanjr.simplify.el.ELTokenUtils.findNextCharToken;
 
 public class ForEachBuilder implements Supplier<ELInvoker> {
 
-    private ELInvoker iteration;
-    private Node item;
-    private ELInvoker forBlock;
+    private Supplier<ELInvoker> iteration;
+    private Supplier<Node> item;
+    private Supplier<ELInvoker> forBlock;
     private int end;
 
     private ForEachBuilder() {
@@ -52,8 +52,9 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
             } else {
                 // 迭代器模式
                 int nextColonToken = findNextCharToken(chars, ':', start, forEnd, false);
-                target.item = ELExecutor.compileNode(new String(chars, start, nextColonToken - start));
-                target.iteration = ELExecutor.resolve(chars, nextColonToken + 1, forEnd);
+                int pre = start;
+                target.item = () -> ELExecutor.compileNode(new String(chars, pre, nextColonToken - pre));
+                target.iteration = () -> ELExecutor.resolve(chars, nextColonToken + 1, forEnd);
             }
             start = forEnd + 1;
         }
@@ -67,7 +68,8 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
             start += 1;
             int nextToken = findNextCharToken(chars, '}', start, end);
             target.end = nextToken;
-            target.forBlock = ELExecutor.resolve(chars, start, nextToken);
+            int pre = start;
+            target.forBlock = () -> ELExecutor.resolve(chars, pre, nextToken);
         }
 
         return target;
@@ -77,7 +79,7 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
     @Override
     public ELInvoker get() {
         // 暂时只有迭代器
-        return ForIterationStatementInvoker.buildFor(iteration, item, forBlock);
+        return ForIterationStatementInvoker.buildFor(iteration.get(), item.get(), forBlock.get());
     }
 
     public int getEnd() {

@@ -28,10 +28,11 @@ public class UnitTest {
 
     @Test
     public void forTest() {
-        Assertions.assertEquals(ELExecutor.eval("list=[1,2,3];for ( i:list ) { a+=i };a", JSONObject.of(), int.class), 6);
-        Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i };a", JSONObject.of(), String.class), "12");
-        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} };a", JSONObject.of(), int.class), 3);
-        Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i};a", JSONObject.of(), String.class), "012");
+        Assertions.assertEquals(ELExecutor.eval("list=[1,2,3];for ( i:list ) { a+=i } a;", JSONObject.of(), int.class), 6);
+        Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i } a;", JSONObject.of(), String.class), "12");
+        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} } a;", JSONObject.of(), int.class), 3);
+        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} a++; } a;", JSONObject.of(), int.class), 4);
+        Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i} a;", JSONObject.of(), String.class), "012");
     }
 
 }

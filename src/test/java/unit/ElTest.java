@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.EL;
 import org.fanjr.simplify.el.ELExecutor;
 import org.fanjr.simplify.el.invoker.node.Node;
-import org.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -202,6 +201,15 @@ public class ElTest {
         Assertions.assertEquals(ELExecutor.eval("flag=3;if ( flag==1 ) { a=1 } else if(flag==2){a=2}else{a=0}x=a;++x;", JSONObject.of(), int.class), 1);
     }
 
+    @Test
+    @DisplayName("循环测试")
+    public void forTest() {
+        Assertions.assertEquals(ELExecutor.eval("list=[1,2,3];for ( i:list ) { a+=i };a", JSONObject.of(), int.class), 6);
+        Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i };a", JSONObject.of(), String.class), "12");
+        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} };a", JSONObject.of(), int.class), 3);
+        Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i};a", JSONObject.of(), String.class), "012");
+    }
+
     /**
      * 速度测试
      */
@@ -209,21 +217,24 @@ public class ElTest {
     @DisplayName("运行效率测试")
     public void speedTest() {
         Assertions.assertEquals("3704", ELExecutor.eval("3 * (this + 1234) - this", 1, String.class));
-        long start1 = System.currentTimeMillis();
+
         int[] arr1 = new int[1000000];
         int[] arr2 = new int[1000000];
-        for (int i = 0; i < 1000000; i++) {
-            arr1[i] = 3 * (i + 1234) - i;
+        {
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 1000000; i++) {
+                arr1[i] = 3 * (i + 1234) - i;
+            }
+            long end = System.currentTimeMillis();
+            System.out.println("java代码循环百万次四则运算耗时:" + (end - start));
         }
-        long end1 = System.currentTimeMillis();
-        System.out.println(end1 - start1);
-
-        long start2 = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            arr2[i] = ELExecutor.eval("3 * (this + 1234) - this", i, int.class);
+        JSONObject context = JSONObject.of("arr", arr2);
+        {
+            long start = System.currentTimeMillis();
+            ELExecutor.eval("for(i:1000000){arr[i]=3 * (i + 1234) - i}", context);
+            long end = System.currentTimeMillis();
+            System.out.println("表达式循环百万次四则运算耗时:" + (end - start));
         }
-        long end2 = System.currentTimeMillis();
-        System.out.println(end2 - start2);
 
         //计算结果正确性断言
         Assertions.assertArrayEquals(arr1, arr2);

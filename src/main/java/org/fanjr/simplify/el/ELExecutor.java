@@ -148,69 +148,76 @@ public class ELExecutor {
     public static ELInvoker resolve(char[] chars, int start, int end) {
         try {
             checkEL(chars, start, end);
+
+            // 开始拆解当前层级复合语句块
+            {
+                int preStart = start;
+                int preEnd = end;
+                List<ELInvoker> targetInvokers = new ArrayList<>();
+                do {
+                    //trim
+                    preStart += findHeadSpace(chars, preStart, preEnd);
+                    preEnd -= findEndSpace(chars, preStart, preEnd);
+
+                    // 匹配IF ELSE
+                    IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, preStart, preEnd);
+                    if (null != ifElseBuilder) {
+                        preStart = ifElseBuilder.getEnd() + 1;
+                        targetInvokers.add(ifElseBuilder.get());
+                        if (preStart >= preEnd) {
+                            break;
+                        }
+                        continue;
+                    }
+
+                    // 匹配for循环
+                    ForEachBuilder forEachBuilder = ForEachBuilder.matchBuild(chars, preStart, preEnd);
+                    if (null != forEachBuilder) {
+                        preStart = forEachBuilder.getEnd() + 1;
+                        targetInvokers.add(forEachBuilder.get());
+                        if (preStart >= preEnd) {
+                            break;
+                        }
+                        continue;
+                    }
+
+                    int nextSemicolonToken = findNextCharToken(chars, ';', preStart, preEnd, false);
+                    if (nextSemicolonToken != -1) {
+                        ELInvoker subInvoker = resolve(chars, preStart, nextSemicolonToken);
+                        if (null != subInvoker) {
+                            targetInvokers.add(subInvoker);
+                        }
+                        preStart = nextSemicolonToken + 1;
+                        if (preStart >= preEnd) {
+                            break;
+                        }
+                    } else {
+                        if (targetInvokers.size() == 0) {
+                            // 当前层级不是复合语句，跳出复合语句解析循环，进入后续解析
+                            break;
+                        }
+                        ELInvoker subInvoker = resolve(chars, preStart, preEnd);
+                        if (null != subInvoker) {
+                            targetInvokers.add(subInvoker);
+                        }
+                        preStart = preEnd + 1;
+                    }
+                } while (preStart < preEnd);
+                if (targetInvokers.size() == 1) {
+                    // 单层直接返回第一个
+                    return targetInvokers.get(0);
+                } else if (targetInvokers.size() > 1) {
+                    // 需要拆解为复合语句，结束返回
+                    return CompositeInvoker.newInstance(targetInvokers);
+                }
+            }
+            // 结束拆解当前层级复合语句块
+
             LinkedList<Supplier<ELInvoker>> builderStack = new LinkedList<>();
             while (start < end) {
                 //trim
                 start += findHeadSpace(chars, start, end);
                 end -= findEndSpace(chars, start, end);
-
-                // 拆分当前级别复合语句和语句块
-                int nextSemicolonToken = findNextCharToken(chars, ';', start, end, false);
-                if (nextSemicolonToken != -1) {
-                    List<ELInvoker> targetInvokers = new ArrayList<>();
-                    do {
-                        ELInvoker subInvoker = resolve(chars, start, nextSemicolonToken);
-                        if (null != subInvoker) {
-                            targetInvokers.add(subInvoker);
-                        }
-                        start = nextSemicolonToken + 1;
-                        nextSemicolonToken = findNextCharToken(chars, ';', start, end, false);
-                        if (nextSemicolonToken == -1) {
-                            ELInvoker lastInvoker = resolve(chars, start, end);
-                            if (null != lastInvoker) {
-                                targetInvokers.add(lastInvoker);
-                            }
-                            break;
-                        }
-                    } while ((start < end));
-                    return CompositeInvoker.newInstance(targetInvokers);
-                } else {
-                    // 匹配语句块
-                    // 匹配IF ELSE
-                    {
-                        IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, start, end);
-                        if (null != ifElseBuilder) {
-                            List<ELInvoker> targetInvokers = new ArrayList<>();
-                            start = ifElseBuilder.getEnd() + 1;
-                            if (start >= end) {
-                                return ifElseBuilder.get();
-                            }
-                            targetInvokers.add(ifElseBuilder.get());
-                            ELInvoker lastInvoker = resolve(chars, start, end);
-                            if (null != lastInvoker) {
-                                targetInvokers.add(lastInvoker);
-                            }
-                            return CompositeInvoker.newInstance(targetInvokers);
-                        }
-                    }
-                    // 匹配循环
-                    {
-                        ForEachBuilder forEachBuilder = ForEachBuilder.matchBuild(chars, start, end);
-                        if (null != forEachBuilder) {
-                            List<ELInvoker> targetInvokers = new ArrayList<>();
-                            start = forEachBuilder.getEnd() + 1;
-                            if (start >= end) {
-                                return forEachBuilder.get();
-                            }
-                            targetInvokers.add(forEachBuilder.get());
-                            ELInvoker lastInvoker = resolve(chars, start, end);
-                            if (null != lastInvoker) {
-                                targetInvokers.add(lastInvoker);
-                            }
-                            return CompositeInvoker.newInstance(targetInvokers);
-                        }
-                    }
-                }
 
                 // 匹配赋值指令
                 {

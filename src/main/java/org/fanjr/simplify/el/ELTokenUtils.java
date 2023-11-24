@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
  * @author fanjr@vip.qq.com
  * @since 2021/7/9 上午11:50
  */
-public class ELTokenUtils {
+public abstract class ELTokenUtils {
 
     private ELTokenUtils() {
         //skip

@@ -5,6 +5,8 @@ import org.fanjr.simplify.el.ELInvoker;
 
 import java.util.List;
 
+import static org.fanjr.simplify.el.builder.KeywordBuilder.BREAK_FLAG;
+
 /**
  * 组合计算，用于支持多个语句组合的情况用分号隔开多个语句，例如 el1;el2;el3
  *
@@ -29,6 +31,10 @@ public class CompositeInvoker implements ELInvoker {
         for (ELInvoker elInvoker : subInvokers) {
             //覆盖之前的计算结果，只需要最后一个结果进行返回
             target = elInvoker.invoke(ctx);
+            // break; 直接跳过语句块后面内容
+            if (BREAK_FLAG == target) {
+                return target;
+            }
         }
         return target;
     }
