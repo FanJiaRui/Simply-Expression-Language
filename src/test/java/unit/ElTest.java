@@ -208,6 +208,7 @@ public class ElTest {
         Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i };a", JSONObject.of(), String.class), "12");
         Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} };a", JSONObject.of(), int.class), 3);
         Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i};a", JSONObject.of(), String.class), "012");
+        Assertions.assertEquals(ELExecutor.eval("for (i=0;i<10;i++) { str=str+(String)i};str", JSONObject.of(), String.class), "0123456789");
     }
 
     /**
@@ -276,15 +277,15 @@ public class ElTest {
     @DisplayName("节点测试")
     public void testNode() {
         JSONObject ctx = new JSONObject();
-        Node a = ELExecutor.compileNode("a.b.c.d");
-        Node b = ELExecutor.compileNode("a.b.c.d2");
-        Node c = ELExecutor.compileNode("a.b.c");
-        a.putNode(ctx, "testStr1");
-        b.putNode(ctx, "testStr2");
-        Assertions.assertEquals(a.getNode(ctx), "testStr1");
-        Assertions.assertEquals(b.getNode(ctx), "testStr2");
-        Assertions.assertEquals(c.getNode(ctx).toString(), "{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
-        c.removeNode(ctx);
+        Node node1 = ELExecutor.compileNode("a.b.c.d");
+        Node node2 = ELExecutor.compileNode("a.b.c.d2");
+        Node node3 = ELExecutor.compileNode("a.b.c");
+        node1.putNode(ctx, "testStr1");
+        node2.putNode(ctx, "testStr2");
+        Assertions.assertEquals(node1.getNode(ctx), "testStr1");
+        Assertions.assertEquals(node2.getNode(ctx), "testStr2");
+        Assertions.assertEquals(node3.getNode(ctx).toString(), "{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
+        node3.removeNode(ctx);
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{}}}");
 
         Node arr = ELExecutor.compileNode("a.b.arr[1]");
@@ -297,8 +298,6 @@ public class ElTest {
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"},\"2\"]}}}");
         arr.removeNode(ctx);
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"}]}}}");
-
-
     }
 
     @Test

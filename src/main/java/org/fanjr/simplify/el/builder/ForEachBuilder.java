@@ -5,6 +5,7 @@ import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.el.ELTokenUtils;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.node.Node;
+import org.fanjr.simplify.el.invoker.statement.ForIndexStatementInvoker;
 import org.fanjr.simplify.el.invoker.statement.ForIterationStatementInvoker;
 
 import java.util.function.Supplier;
@@ -13,8 +14,16 @@ import static org.fanjr.simplify.el.ELTokenUtils.findNextCharToken;
 
 public class ForEachBuilder implements Supplier<ELInvoker> {
 
+    // 迭代循环
+    private boolean iterationMode;
     private Supplier<ELInvoker> iteration;
     private Supplier<Node> item;
+
+    // 类c循环
+    private Supplier<ELInvoker> preEL;
+    private Supplier<ELInvoker> condition;
+    private Supplier<ELInvoker> endEL;
+
     private Supplier<ELInvoker> forBlock;
     private int end;
 
@@ -45,16 +54,25 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
         {
             start += 1;
             int forEnd = findNextCharToken(chars, ')', start, end);
-            int nextSemicolonToken = findNextCharToken(chars, ';', start, forEnd, false);
-            if (-1 != nextSemicolonToken) {
-                // 还不支持index模式
-                throw new ElException("暂时不支持for index模式");
-            } else {
+            int firstSemicolonToken = findNextCharToken(chars, ';', start, forEnd, false);
+            if (-1 == firstSemicolonToken) {
                 // 迭代器模式
+                target.iterationMode = true;
                 int nextColonToken = findNextCharToken(chars, ':', start, forEnd, false);
                 int pre = start;
                 target.item = () -> ELExecutor.compileNode(new String(chars, pre, nextColonToken - pre));
                 target.iteration = () -> ELExecutor.resolve(chars, nextColonToken + 1, forEnd);
+
+            } else {
+                // 类c模式
+                int secondSemicolonToken = findNextCharToken(chars, ';', firstSemicolonToken + 1, forEnd, false);
+                if (secondSemicolonToken == -1) {
+                    throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常，for语句中语法错误，应该为for(x;y;z){...}或者for(a:b){...}");
+                }
+                int pre = start;
+                target.preEL = () -> ELExecutor.resolve(chars, pre, firstSemicolonToken);
+                target.condition = () -> ELExecutor.resolve(chars, firstSemicolonToken + 1, secondSemicolonToken);
+                target.endEL = () -> ELExecutor.resolve(chars, secondSemicolonToken + 1, forEnd);
             }
             start = forEnd + 1;
         }
@@ -78,8 +96,12 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
 
     @Override
     public ELInvoker get() {
-        // 暂时只有迭代器
-        return ForIterationStatementInvoker.buildFor(iteration.get(), item.get(), forBlock.get());
+        if (iterationMode) {
+            // 暂时只有迭代器
+            return ForIterationStatementInvoker.buildFor(iteration.get(), item.get(), forBlock.get());
+        } else {
+            return ForIndexStatementInvoker.buildFor(preEL.get(), condition.get(), endEL.get(), forBlock.get());
+        }
     }
 
     public int getEnd() {
