@@ -15,7 +15,7 @@
 ## 环境&依赖
 
 * JDK 1.8
-* fastjson2 2.0.33
+* fastjson2 2.0.42
 * slf4j 1.7.30
 
 ## 特性
@@ -32,64 +32,135 @@
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.0.7</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 ## 文档
-
-[**点这里**](docs/document.md)查看详细文档
+**↓↓↓↓↓**<br>
+[**点这里**](docs/document.md)查看详细文档<br>
+**↑↑↑↑↑**
 
 ## 功能点介绍
 
-- 简单表达式计算、占位符计算
-- 三元表达式、二元运算符、一元运算符
-- 赋值运算、类型转换
-- 优先计算、子串表达式
-- java对象方法调用、自定义函数方法调用
+- 简单表达式计算、占位符计算、四则运算
+- 支持赋值运算、类型转换，可支撑JSON格式转换等场景
+- 支持复杂语句，多语句复合混用
+- 支持java对象方法调用、自定义函数方法调用
+- 支持条件分支、三元表达式、循环
 
-## 常用API-取值&计算
-
+## 表达式调用样例
 ``` java
-// 从上下文对象context中取head中的serialId属性
-ELExecutor.eval("head.serialId", context);
+// 基本调用样例
+boolean result = ELExecutor.eval(
+        // 表达式字符串，复合语句用;隔开，返回最后执行的语句结果
+        "a==100",
+        // 预期计算的上下文或者对象，主要支持javabean、Map、字符串等等
+        "{'a':100}",
+        // 预期返回类型，支持泛型
+        boolean.class);
+Assertions.assertTrue(result);
 
-// 从上下文中取a、b、c、d并进行四则运算
-ELExecutor.eval("2 * a - (b + c) * d", context);
+// 四则运算样例
+int result = ELExecutor.eval("2 * a - (b + c) * d", "{'a':1,'b':2,'c':3,'d':4}", int.class);
+// 2*1-(2+3)*4 = -18
+Assertions.assertEquals(-18, result);
 
-// 支持直接调用java方法
-ELExecutor.eval("head.serialId.length()", context);
+// 赋值&计算样例
+Map<String, Object> context = new HashMap<>();
+context.put("val", 10);
+ELExecutor.eval("a=10;val=val+1;val++;result=a+val;", context);
+// a=10;
+Assertions.assertEquals(10, ElUtils.cast(context.get("a"), int.class));
+// val=val+1;val++;
+Assertions.assertEquals(12, ElUtils.cast(context.get("val"), int.class));
+// result=a+val;
+Assertions.assertEquals(22, ElUtils.cast(context.get("result"), int.class));
 
-// 通过占位符进行拼接字符串(也支持用运算符'+'拼接)
-ELExecutor.eval("${head.serialId}XXXX${head.userName}", context);
-
-// 其中上下文context支持多种形式
-// 计算用的上下文支持Map(及其子类)，例如fastjson提供的JSONObject
-Object context = new JSONObject();
-// 或者使用POJO
-Object context = new TestReq();
-// 或者使用JSON字符串
-Object context = "{'head':{'serialId':'TESTID'}}}";
-// 若不需要使用上下文变量也可以使用null
-Object context = null;
-```
-
-## 常用API-赋值
-
-``` java
 // 通过表达式给POJO中子对象属性赋值
 TestReq req = new TestReq();
-ELExecutor.eval("head.serialId=123456", req);
+ELExecutor.eval("head.serialId='123456'", req);
 System.out.println(req.getHead().getSerialId());
 
-// 等价于下面的写法
-TestReq req = new TestReq();
-if (req.getHead()==null){
-    req.setHead(new TestReqHead());
+// 调用java方法
+Map<String, Object> context = new HashMap<>();
+context.put("val", "010");
+// 将字符串"010"转换为int类型，调用toString()方法，再调用length()方法，预期返回值为2
+Assertions.assertEquals(2, ELExecutor.eval("((int)val).toString().length()", context, int.class));
+
+```
+
+## 三元表达式
+
+``` java
+Map<String, Object> context = new HashMap<>();
+context.put("flag", 100);
+context.put("val", 10);
+// flag满足大于等于100，返回val*10，这里结果是100
+Assertions.assertEquals(100, ELExecutor.eval("flag>=100?val*10:val/10", context, int.class));
+// flag不满足小于100，返回val/10，这里结果是1
+Assertions.assertEquals(1, ELExecutor.eval("flag<100?val*10:val/10", context, int.class));
+```
+
+## if-else分支语法
+
+``` java
+// 创建计算用的上下文
+Map<String, Object> context = new HashMap<>();
+
+// 分支1(IF)  a=1
+context.put("flag", 1);
+ELExecutor.eval("if(flag==1){\n a=1;\n }", context);
+Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 1);
+context.clear();
+
+// 分支2(IF-ELSE-IF) a=3
+context.put("flag", 2);
+ELExecutor.eval("if(flag==1){a=1; }else if(flag==2){ a=2;a++; }", context);
+Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 3);
+context.clear();
+
+// 分支3(IF-ELSE-IF-ELSE) a=0
+context.put("flag", 3);
+ELExecutor.eval("if(flag==1){\n a=1;\n }else if(flag==2){ a=2;a++; }else{ a=0; }", context);
+Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 0);
+context.clear();
+```
+
+## for循环语法
+
+``` java
+// 对照组：java代码循环
+int[] arr = new int[10];
+for (int i = 0; i < 10; i++) {
+    arr[i] = 3 * (i + 1234) - i;
 }
-req.getHead().setSerialId("123456");
-System.out.println(req.getHead().getSerialId());
+
+// 创建计算用的上下文
+Map<String, Object> context = new HashMap<>();
+
+// 类C模式
+ELExecutor.eval("for(i=0;i<10;i++){arr[i]=3 * (i + 1234) - i}", context);
+// 计算结果正确性断言
+Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+context.clear();
+
+// 迭代器模式，可以遍历数组、List、Map等等
+context.put("num", new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+ELExecutor.eval("for(i:num){arr[i]=3 * (i + 1234) - i}", context);
+// 计算结果正确性断言
+Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+context.clear();
+
+// 数字模式 等价于i=0;i<1000;i++
+ELExecutor.eval("for(i:10){arr[i]=3 * (i + 1234) - i}", context);
+// 计算结果正确性断言
+Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+context.clear();
 ```
 
 ## 后续规划
-- 增加部分可能用得上的内置分支语法，例如`if else`、`for`等
+
+- 支持日志（或控制台输出）等内置函数
+- 分析JAVA自带库方法，考虑部分可能经常使用的方法集成到内置函数中
+- 新增正则匹配运算符

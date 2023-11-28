@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.EL;
 import org.fanjr.simplify.el.ELExecutor;
 import org.fanjr.simplify.el.invoker.node.Node;
+import org.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 enum TestEnum {
     SERIAL_ID("SERIAL_ID", "流水号"),
@@ -188,9 +190,11 @@ public class ElTest {
     @DisplayName("单次测试")
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
-        JSONObject of = JSONObject.of("一月填写", "{'H6':1}", "二月填写", "{'H6':2}");
-        BigDecimal eval = ELExecutor.eval("一月填写.H6+二月填写.H6+三月填写.H6", of, BigDecimal.class);
-        System.out.println(eval);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("val", "010");
+        Assertions.assertEquals(2, ELExecutor.eval("((int)val).toString().length()", context, int.class));
+
     }
 
     @Test
@@ -204,11 +208,32 @@ public class ElTest {
     @Test
     @DisplayName("循环测试")
     public void forTest() {
-        Assertions.assertEquals(ELExecutor.eval("list=[1,2,3];for ( i:list ) { a+=i };a", JSONObject.of(), int.class), 6);
-        Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i };a", JSONObject.of(), String.class), "12");
-        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} };a", JSONObject.of(), int.class), 3);
-        Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i};a", JSONObject.of(), String.class), "012");
-        Assertions.assertEquals(ELExecutor.eval("for (i=0;i<10;i++) { str=str+(String)i};str", JSONObject.of(), String.class), "0123456789");
+        // 对照组：java代码循环
+        int[] arr = new int[10];
+        for (int i = 0; i < 10; i++) {
+            arr[i] = 3 * (i + 1234) - i;
+        }
+
+        Map<String, Object> context = new HashMap<>();
+
+        // 类C模式
+        ELExecutor.eval("for(i=0;i<10;i++){arr[i]=3 * (i + 1234) - i}", context);
+        // 计算结果正确性断言
+        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        context.clear();
+
+        // 迭代器模式，可以遍历数组、List、Map等等
+        context.put("num", new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+        ELExecutor.eval("for(i:num){arr[i]=3 * (i + 1234) - i}", context);
+        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        // 计算结果正确性断言
+        context.clear();
+
+        // 数字模式 等价于i=0;i<1000;i++
+        ELExecutor.eval("for(i:10){arr[i]=3 * (i + 1234) - i}", context);
+        // 计算结果正确性断言
+        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        context.clear();
     }
 
     /**

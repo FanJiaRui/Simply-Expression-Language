@@ -18,7 +18,7 @@ understand it.**_
 ## Environment & Dependencies
 
 * JDK 1.8
-* fastjson2 2.0.33
+* fastjson2 2.0.42
 * slf4j 1.7.30
 
 ## Characteristic
@@ -36,7 +36,7 @@ understand it.**_
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.0.7</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 

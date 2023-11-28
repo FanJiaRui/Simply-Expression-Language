@@ -595,6 +595,7 @@ public class ELExecutor {
 
     private static NodeInvoker doCompileNode(char[] chars, int start, int end) {
         String nodeName = new String(chars, start, end - start);
+        checkEL(chars, start, end);
         synchronized (LOCK_KEY + nodeName) {
             NodeInvoker node = COMPILES_NODE.get(nodeName);
             if (null != node) {
@@ -765,8 +766,6 @@ public class ELExecutor {
     }
 
     private static NodeInvoker resolveNode(char[] chars, int start, int end) {
-        checkEL(chars, start, end);
-
         //判断是否为数组
         int nextToken = findNextCharToken(chars, '[', start, end, false);
         String nodeName = new String(chars, start, end - start);
