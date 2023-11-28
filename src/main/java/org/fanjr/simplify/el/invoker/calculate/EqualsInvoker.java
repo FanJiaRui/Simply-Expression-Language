@@ -6,17 +6,19 @@ import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.fanjr.simplify.el.builder.KeywordBuilder.BLANK_FLAG;
+import static org.fanjr.simplify.el.builder.KeywordBuilder.EMPTY_FLAG;
 
 /**
  * @author fanjr@vip.qq.com
  * @since 2021/6/28 下午4:38
  */
 public class EqualsInvoker extends BinocularInvoker {
-
-    public static final String BLANK_FLAG = "FLAG#BLANK";
-
-    public static final String EMPTY_FLAG = "FLAG#EMPTY";
 
     private EqualsInvoker() {
         //skip

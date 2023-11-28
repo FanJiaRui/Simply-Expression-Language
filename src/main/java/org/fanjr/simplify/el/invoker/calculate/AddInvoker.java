@@ -23,10 +23,15 @@ public class AddInvoker extends BinocularInvoker {
 
     @Override
     protected Object doOperation(Object val1, Object val2) {
-        //左右两边均为数值或一边为数值一边为NULL时按数值加法计算，其他情况均按字符串拼接处理。
-        if ((val1 instanceof Number && val2 instanceof Number)
-                || (val1 == null && val2 instanceof Number)
-                || (val2 == null && val1 instanceof Number)) {
+        if (null == val1) {
+            return val2;
+        }
+        if (null == val2) {
+            return val1;
+        }
+
+        //左右两边均为数值时按数值加法计算，其他情况均按字符串拼接处理。
+        if (val1 instanceof Number && val2 instanceof Number) {
             BigDecimal num1 = ElUtils.castToBigDecimal(val1);
             BigDecimal num2 = ElUtils.castToBigDecimal(val2);
             return num1.add(num2);

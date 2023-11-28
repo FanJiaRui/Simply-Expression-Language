@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.EL;
 import org.fanjr.simplify.el.ELExecutor;
 import org.fanjr.simplify.el.invoker.node.Node;
-import org.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -189,7 +188,9 @@ public class ElTest {
     @DisplayName("单次测试")
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
-
+        JSONObject of = JSONObject.of("一月填写", "{'H6':1}", "二月填写", "{'H6':2}");
+        BigDecimal eval = ELExecutor.eval("一月填写.H6+二月填写.H6+三月填写.H6", of, BigDecimal.class);
+        System.out.println(eval);
     }
 
     @Test
@@ -200,6 +201,16 @@ public class ElTest {
         Assertions.assertEquals(ELExecutor.eval("flag=3;if ( flag==1 ) { a=1 } else if(flag==2){a=2}else{a=0}x=a;++x;", JSONObject.of(), int.class), 1);
     }
 
+    @Test
+    @DisplayName("循环测试")
+    public void forTest() {
+        Assertions.assertEquals(ELExecutor.eval("list=[1,2,3];for ( i:list ) { a+=i };a", JSONObject.of(), int.class), 6);
+        Assertions.assertEquals(ELExecutor.eval("list=['1','2'];for ( i:list ) { a=a+i };a", JSONObject.of(), String.class), "12");
+        Assertions.assertEquals(ELExecutor.eval("for ( i:[1,2,3,4]) { a+=i;if(i==2){break;} };a", JSONObject.of(), int.class), 3);
+        Assertions.assertEquals(ELExecutor.eval("for (i:3) { a=a+(String)i};a", JSONObject.of(), String.class), "012");
+        Assertions.assertEquals(ELExecutor.eval("for (i=0;i<10;i++) { str=str+(String)i};str", JSONObject.of(), String.class), "0123456789");
+    }
+
     /**
      * 速度测试
      */
@@ -207,21 +218,24 @@ public class ElTest {
     @DisplayName("运行效率测试")
     public void speedTest() {
         Assertions.assertEquals("3704", ELExecutor.eval("3 * (this + 1234) - this", 1, String.class));
-        long start1 = System.currentTimeMillis();
+
         int[] arr1 = new int[1000000];
         int[] arr2 = new int[1000000];
-        for (int i = 0; i < 1000000; i++) {
-            arr1[i] = 3 * (i + 1234) - i;
+        {
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 1000000; i++) {
+                arr1[i] = 3 * (i + 1234) - i;
+            }
+            long end = System.currentTimeMillis();
+            System.out.println("java代码循环百万次四则运算耗时:" + (end - start));
         }
-        long end1 = System.currentTimeMillis();
-        System.out.println(end1 - start1);
-
-        long start2 = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            arr2[i] = ELExecutor.eval("3 * (this + 1234) - this", i, int.class);
+        JSONObject context = JSONObject.of("arr", arr2);
+        {
+            long start = System.currentTimeMillis();
+            ELExecutor.eval("for(i:1000000){arr[i]=3 * (i + 1234) - i}", context);
+            long end = System.currentTimeMillis();
+            System.out.println("表达式循环百万次四则运算耗时:" + (end - start));
         }
-        long end2 = System.currentTimeMillis();
-        System.out.println(end2 - start2);
 
         //计算结果正确性断言
         Assertions.assertArrayEquals(arr1, arr2);
@@ -263,15 +277,15 @@ public class ElTest {
     @DisplayName("节点测试")
     public void testNode() {
         JSONObject ctx = new JSONObject();
-        Node a = ELExecutor.compileNode("a.b.c.d");
-        Node b = ELExecutor.compileNode("a.b.c.d2");
-        Node c = ELExecutor.compileNode("a.b.c");
-        a.putNode(ctx, "testStr1");
-        b.putNode(ctx, "testStr2");
-        Assertions.assertEquals(a.getNode(ctx), "testStr1");
-        Assertions.assertEquals(b.getNode(ctx), "testStr2");
-        Assertions.assertEquals(c.getNode(ctx).toString(), "{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
-        c.removeNode(ctx);
+        Node node1 = ELExecutor.compileNode("a.b.c.d");
+        Node node2 = ELExecutor.compileNode("a.b.c.d2");
+        Node node3 = ELExecutor.compileNode("a.b.c");
+        node1.putNode(ctx, "testStr1");
+        node2.putNode(ctx, "testStr2");
+        Assertions.assertEquals(node1.getNode(ctx), "testStr1");
+        Assertions.assertEquals(node2.getNode(ctx), "testStr2");
+        Assertions.assertEquals(node3.getNode(ctx).toString(), "{\"d\":\"testStr1\",\"d2\":\"testStr2\"}");
+        node3.removeNode(ctx);
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{}}}");
 
         Node arr = ELExecutor.compileNode("a.b.arr[1]");
@@ -284,8 +298,6 @@ public class ElTest {
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"},\"2\"]}}}");
         arr.removeNode(ctx);
         Assertions.assertEquals(ctx.toString(), "{\"a\":{\"b\":{\"arr\":[{\"x\":\"1\"}]}}}");
-
-
     }
 
     @Test
@@ -297,6 +309,7 @@ public class ElTest {
         Assertions.assertEquals("9", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun('xxx').length()", null));
         Assertions.assertEquals("hello 100", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun(a)", "{'a':100}"));
         Assertions.assertEquals("99", ELExecutor.eval("(String)(MyUtils.strReturnOneParamFun(a).substring(6) - 1)", "{'a':100}"));
+
     }
 
 

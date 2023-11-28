@@ -16,9 +16,9 @@ import static org.fanjr.simplify.el.ELTokenUtils.findNextCharToken;
  */
 public class IfElseBuilder implements Supplier<ELInvoker> {
 
-    private ELInvoker exp;
-    private ELInvoker ifBlock;
-    private ELInvoker elseBlock;
+    private Supplier<ELInvoker> exp;
+    private Supplier<ELInvoker> ifBlock;
+    private Supplier<ELInvoker> elseBlock;
     private int firstEnd;
     private int end;
 
@@ -47,7 +47,10 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
         {
             start += 1;
             int nextToken = findNextCharToken(chars, ')', start, end);
-            target.exp = ELExecutor.resolve(chars, start, nextToken);
+            {
+                int pre = start;
+                target.exp = () -> ELExecutor.resolve(chars, pre, nextToken);
+            }
             start = nextToken + 1;
         }
         // 解析第一段执行语句
@@ -59,7 +62,10 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
             start += 1;
             int nextToken = findNextCharToken(chars, '}', start, end);
             target.firstEnd = nextToken;
-            target.ifBlock = ELExecutor.resolve(chars, start, nextToken);
+            {
+                int pre = start;
+                target.ifBlock = () -> ELExecutor.resolve(chars, pre, nextToken);
+            }
             start = nextToken + 1;
         }
         // 解析else
@@ -92,14 +98,17 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
             if (chars[start] == '{') {
                 start += 1;
                 int nextToken = findNextCharToken(chars, '}', start, end);
-                target.elseBlock = ELExecutor.resolve(chars, start, nextToken);
+                {
+                    int pre = start;
+                    target.elseBlock = () -> ELExecutor.resolve(chars, pre, nextToken);
+                }
                 target.end = nextToken;
                 return target;
             } else if (chars[start] == 'i' && chars[start + 1] == 'f') {
                 IfElseBuilder ifElseBuilder = IfElseBuilder.matchBuild(chars, start, end);
                 if (null != ifElseBuilder) {
                     target.end = ifElseBuilder.getEnd();
-                    target.elseBlock = ifElseBuilder.get();
+                    target.elseBlock = ifElseBuilder;
                     return target;
                 }
             }
@@ -113,9 +122,9 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
     @Override
     public ELInvoker get() {
         if (null == elseBlock) {
-            return IfElseStatementInvoker.buildIf(exp, ifBlock);
+            return IfElseStatementInvoker.buildIf(exp.get(), ifBlock.get());
         } else {
-            return IfElseStatementInvoker.buildIfElse(exp, ifBlock, elseBlock);
+            return IfElseStatementInvoker.buildIfElse(exp.get(), ifBlock.get(), elseBlock.get());
         }
     }
 

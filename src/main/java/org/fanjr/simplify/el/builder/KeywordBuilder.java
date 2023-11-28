@@ -3,7 +3,6 @@ package org.fanjr.simplify.el.builder;
 
 import org.fanjr.simplify.el.ELInvoker;
 import org.fanjr.simplify.el.invoker.ConstantInvoker;
-import org.fanjr.simplify.el.invoker.calculate.EqualsInvoker;
 import org.fanjr.simplify.el.invoker.node.RootNodeInvoker;
 
 import java.util.Map;
@@ -19,11 +18,19 @@ import java.util.function.Supplier;
  */
 public class KeywordBuilder {
 
+    public static final String BLANK_FLAG = "FLAG#BLANK";
+
+    public static final String EMPTY_FLAG = "FLAG#EMPTY";
+
+    public static final String BREAK_FLAG = "FLAG#BREAK";
+
+
     private static final Map<String, Supplier<ELInvoker>> POOL = new ConcurrentHashMap<>();
 
     static {
-        addBuilder("blank", () -> ConstantInvoker.newInstance("blank", EqualsInvoker.BLANK_FLAG));
-        addBuilder("empty", () -> ConstantInvoker.newInstance("empty", EqualsInvoker.EMPTY_FLAG));
+        addBuilder("break", () -> ConstantInvoker.newInstance("break", BREAK_FLAG));
+        addBuilder("blank", () -> ConstantInvoker.newInstance("blank", BLANK_FLAG));
+        addBuilder("empty", () -> ConstantInvoker.newInstance("empty", EMPTY_FLAG));
         addBuilder("null", () -> ConstantInvoker.newInstance("null", null));
         addBuilder("true", () -> ConstantInvoker.newInstance("true", true));
         addBuilder("false", () -> ConstantInvoker.newInstance("false", false));
