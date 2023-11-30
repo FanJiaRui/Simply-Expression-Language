@@ -22,8 +22,10 @@
 
 - 支持层级结构：快速操作、转换JSON或各类POJO等</br>
 - 安全取值：告别频繁繁琐的空判断</br>
-- 直接方法调用：可以直接调用对象方法，支持自定义工具方法</br>
+- 分支逻辑：支持复杂的复合语句，支持if else/for等相关分支语法</br>
+- 方法调用：可以直接调用对象方法，支持自定义工具方法</br>
 - 使用便捷：无需额外构建上下文对象进行运算，直接通过API计算原生对象</br>
+
 
 ## 引入配置
 
@@ -152,7 +154,7 @@ ELExecutor.eval("for(i:num){arr[i]=3 * (i + 1234) - i}", context);
 Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
 context.clear();
 
-// 数字模式 等价于i=0;i<1000;i++
+// 数字模式 等价于i=0;i<10;i++
 ELExecutor.eval("for(i:10){arr[i]=3 * (i + 1234) - i}", context);
 // 计算结果正确性断言
 Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));

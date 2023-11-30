@@ -40,7 +40,7 @@ public class RootNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ElException("不可设置ROOT(this)节点值！");
+        throw new ElException("上下文根节点不可被赋值或为常量！");
     }
 
     @Override
