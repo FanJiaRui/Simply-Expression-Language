@@ -13,7 +13,7 @@ Simple expression language designed to simplify tasks involving logic, calculati
 <br>Main Application Scenarios: Dynamic rule calculation scenarios, type adaptation (message conversion).
 <br>
 <br>
-_**The English document comes from the translation software, please let me know if there is any problem or you can't
+_**The English document comes from the ChatGPT, please let me know if there is any problem or you can't
 understand it.**_
 
 ## Environment & Dependencies
@@ -33,7 +33,6 @@ understand it.**_
 ## Introduce the configuration
 
 ```xml
-
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
