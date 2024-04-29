@@ -71,6 +71,11 @@ public class ElUtils {
             }
             return null;
         }
+
+        if (obj instanceof byte[] && targetClass == String.class) {
+            return (T) new String((byte[]) obj);
+        }
+
         return TypeUtils.cast(obj, targetClass);
     }
 
