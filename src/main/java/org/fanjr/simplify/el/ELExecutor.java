@@ -2,6 +2,7 @@ package org.fanjr.simplify.el;
 
 
 import org.fanjr.simplify.el.builder.*;
+import org.fanjr.simplify.el.cache.ELCacheManager;
 import org.fanjr.simplify.el.invoker.*;
 import org.fanjr.simplify.el.invoker.calculate.*;
 import org.fanjr.simplify.el.invoker.node.*;
@@ -26,8 +27,6 @@ import static org.fanjr.simplify.el.ELTokenUtils.*;
  */
 public class ELExecutor {
     private static final String LOCK_KEY = "E_L_KEY.";
-    private static final Map<String, EL> COMPILES_EL = new ConcurrentHashMap<>();
-    private static final Map<String, NodeInvoker> COMPILES_NODE = new ConcurrentHashMap<>();
 
     /**
      * 生成表达式对象
@@ -41,7 +40,7 @@ public class ELExecutor {
             return NullEL.INSTANCE;
         }
 
-        EL target = COMPILES_EL.get(el);
+        EL target = ELCacheManager.getEL(el);
         if (null != target) {
             return target;
         }
@@ -61,7 +60,7 @@ public class ELExecutor {
             return NullNodeInvoker.INSTANCE;
         }
 
-        Node target = COMPILES_NODE.get(nodeName);
+        Node target = ELCacheManager.getNode(nodeName);
         if (null != target) {
             return target;
         }
@@ -506,7 +505,7 @@ public class ELExecutor {
 
     private static EL doCompile(String el) {
         synchronized (LOCK_KEY + el) {
-            EL elInstance = COMPILES_EL.get(el);
+            EL elInstance = ELCacheManager.getEL(el);
             if (null != elInstance) {
                 return elInstance;
             }
@@ -524,22 +523,22 @@ public class ELExecutor {
 
             if (start >= end) {
                 elInstance = NullEL.INSTANCE;
-                COMPILES_EL.put(el, elInstance);
+                ELCacheManager.putEL(el, elInstance);
                 return elInstance;
             }
             String trimStr = new String(chars, start, end - start);
-            elInstance = COMPILES_EL.get(trimStr);
+            elInstance = ELCacheManager.getEL(trimStr);
             if (null != elInstance) {
-                COMPILES_EL.put(el, elInstance);
+                ELCacheManager.putEL(el, elInstance);
                 return elInstance;
             }
 
             int elStart = findElStart(chars, start, end);
             if (-1 == elStart) {
                 elInstance = new SimpleEL(resolve(chars, start, end));
-                COMPILES_EL.put(el, elInstance);
+                ELCacheManager.putEL(el, elInstance);
                 if (trim) {
-                    COMPILES_EL.put(trimStr, elInstance);
+                    ELCacheManager.putEL(trimStr, elInstance);
                 }
                 return elInstance;
             }
@@ -553,9 +552,9 @@ public class ELExecutor {
                 } else {
                     throw new ElException("解析错误！错误的token:" + chars[elStart] + "{");
                 }
-                COMPILES_EL.put(el, elInstance);
+                ELCacheManager.putEL(el, elInstance);
                 if (trim) {
-                    COMPILES_EL.put(trimStr, elInstance);
+                    ELCacheManager.putEL(trimStr, elInstance);
                 }
                 return elInstance;
             }
@@ -585,9 +584,9 @@ public class ELExecutor {
                 }
             }
             elInstance = new SpliceEL(targets);
-            COMPILES_EL.put(el, elInstance);
+            ELCacheManager.putEL(el, elInstance);
             if (trim) {
-                COMPILES_EL.put(trimStr, elInstance);
+                ELCacheManager.putEL(trimStr, elInstance);
             }
             return elInstance;
         }
@@ -597,7 +596,7 @@ public class ELExecutor {
         String nodeName = new String(chars, start, end - start);
         checkEL(chars, start, end);
         synchronized (LOCK_KEY + nodeName) {
-            NodeInvoker node = COMPILES_NODE.get(nodeName);
+            NodeInvoker node = ELCacheManager.getNode(nodeName);
             if (null != node) {
                 return node;
             }
@@ -611,13 +610,13 @@ public class ELExecutor {
 
             if (start >= end) {
                 node = NullNodeInvoker.INSTANCE;
-                COMPILES_NODE.put(nodeName, node);
+                ELCacheManager.putNode(nodeName, node);
                 return NullNodeInvoker.INSTANCE;
             }
             String trimStr = new String(chars, start, end - start);
-            node = COMPILES_NODE.get(trimStr);
+            node = ELCacheManager.getNode(trimStr);
             if (null != node) {
-                COMPILES_NODE.put(nodeName, node);
+                ELCacheManager.putNode(nodeName, node);
                 return node;
             }
 
@@ -626,9 +625,9 @@ public class ELExecutor {
             if (nextDot == -1) {
                 //没有.分割
                 node = resolveNode(chars, start, end);
-                COMPILES_NODE.put(nodeName, node);
+                ELCacheManager.putNode(nodeName, node);
                 if (trim) {
-                    COMPILES_NODE.put(trimStr, node);
+                    ELCacheManager.putNode(trimStr, node);
                 }
                 return node;
             }
@@ -658,9 +657,9 @@ public class ELExecutor {
                 start = nextDot + 1;
             } while (start < end);
 
-            COMPILES_NODE.put(nodeName, node);
+            ELCacheManager.putNode(nodeName, node);
             if (trim) {
-                COMPILES_NODE.put(trimStr, node);
+                ELCacheManager.putNode(trimStr, node);
             }
             return node;
         }
