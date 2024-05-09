@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * 缓存参考自tomcat ConcurrentCache，增加了computeIfAbsent方法
+ * 缓存参考自tomcat org.apache.el.util.ConcurrentCache，做了一点改进适配当前场景
  * 并发非常频繁的时候,可能导致短时间内实际容量超过
  *
- * @see org.apache.el.util.ConcurrentCache
+ * @author fanjr@vip.qq.com
  */
 public final class ConcurrentCache<K, V> {
 

@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 
 /**
  * 内部函数，表达式通过$.方法名来调用，例如$.println(xxx)
- *
+ * 在这里配置 /src/main/resources/META-INF/simplify-el.functions
  * @author fanjr@vip.qq.com
- * @see /src/main/resources/META-INF/simplify-el.functions
+ *
  * @since 2024年4月17日 12:14:07
  */
 public class InnerFunctions {
