@@ -19,7 +19,7 @@ understand it.**_
 ## Environment & Dependencies
 
 * JDK 1.8
-* fastjson2 2.0.42
+* fastjson2 2.0.49
 * slf4j 1.7.30
 
 ## Characteristic
