@@ -2,7 +2,6 @@ package org.fanjr.simplify.utils;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONFactory;
-import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.reader.FieldReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
 import com.alibaba.fastjson2.reader.ObjectReaderProvider;
@@ -42,23 +41,35 @@ public class ElUtils {
         init();
     }
 
-    public static Object cast(Object obj, Type targetType) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> T cast(Object obj, Type targetType) {
         if (targetType.getClass() == Class.class) {
-            return cast(obj, (Class<?>) targetType);
+            return (T) cast(obj, (Class<?>) targetType);
         }
         if (null == obj) {
             return null;
         }
+
         ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
+        if (obj instanceof Collection) {
+            return (T) provider.getObjectReader(targetType)
+                    .createInstance((Collection) obj);
+        }
+
+        if (obj instanceof Map) {
+            return (T) provider.getObjectReader(targetType)
+                    .createInstance((Map) obj, 0L);
+        }
         Class<?> objClass = obj.getClass();
         Function typeConvert = provider.getTypeConvert(objClass, targetType);
         if (typeConvert != null) {
-            return typeConvert.apply(obj);
+            return (T) typeConvert.apply(obj);
         }
+
         if (String.class == objClass) {
             return JSON.parseObject((String) obj, targetType);
         } else {
-            return JSON.parseObject(JSONObject.toJSONString(obj), targetType);
+            return JSON.parseObject(JSON.toJSONString(obj), targetType);
         }
     }
 
@@ -71,11 +82,17 @@ public class ElUtils {
             }
             return null;
         }
-
-        if (obj instanceof byte[] && targetClass == String.class) {
-            return (T) new String((byte[]) obj);
+        if (targetClass == String.class) {
+            if (obj instanceof byte[]) {
+                return (T) new String((byte[]) obj);
+            }
+            if (obj instanceof char[]) {
+                return (T) new String((char[]) obj);
+            }
         }
-
+        if (targetClass.isInstance(obj)) {
+            return (T) obj;
+        }
         return TypeUtils.cast(obj, targetClass);
     }
 
@@ -436,16 +453,18 @@ public class ElUtils {
             for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
                 final String utilsName = ((String) entry.getKey()).trim();
                 final String utilsClassName = ((String) entry.getValue()).trim();
+                try {
+                    ELMethodInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(utilsClassName));
+                } catch (Exception e) {
+                    // SKIP
+                    logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+                }
                 UTILS_MAP.put(utilsName, utilsClassName);
             }
         } catch (IOException e) {
             // SKIP
             logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
         }
-    }
-
-    public static String findUtils(String name) {
-        return UTILS_MAP.get(name);
     }
 
     public static void foreachArray(Object array, Function<Object, Boolean> function) {

@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.cache.ConcurrentCache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2021/6/28 下午4:27
  */
 public class StringInvoker implements ELInvoker {
-    private static final Map<String, StringInvoker> POOL = new ConcurrentHashMap<>();
+    private static final ConcurrentCache<String, StringInvoker> POOL = new ConcurrentCache<>(10000);
 
     private final String value;
 

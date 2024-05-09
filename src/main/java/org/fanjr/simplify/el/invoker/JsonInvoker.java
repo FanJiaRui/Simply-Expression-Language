@@ -3,6 +3,7 @@ package org.fanjr.simplify.el.invoker;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.cache.ConcurrentCache;
 import org.fanjr.simplify.utils.Pair;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2021/7/6 下午1:51
  */
 public class JsonInvoker implements ELInvoker {
-    private static final Map<String, JsonInvoker> POOL = new ConcurrentHashMap<>();
+    private static final ConcurrentCache<String, JsonInvoker> POOL = new ConcurrentCache<>(10000);
     private final List<Pair<ELInvoker, ELInvoker>> itemInvokers;
     private final String elString;
 

@@ -6,6 +6,7 @@ import org.fanjr.simplify.el.cache.ELCacheManager;
 import org.fanjr.simplify.el.invoker.*;
 import org.fanjr.simplify.el.invoker.calculate.*;
 import org.fanjr.simplify.el.invoker.node.*;
+import org.fanjr.simplify.utils.ELMethodInvokeUtils;
 import org.fanjr.simplify.utils.ElUtils;
 import org.fanjr.simplify.utils.Pair;
 
@@ -13,8 +14,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import static org.fanjr.simplify.el.ELTokenUtils.*;
@@ -416,10 +415,9 @@ public class ELExecutor {
                         if (dots.length == 1) {
                             // 已判断形式为XX.fun(...)形式，进一步判断是否为注册的function
                             String functionUtilsName = String.valueOf(chars, start, dots[0] - start);
-                            String className = ElUtils.findUtils(functionUtilsName);
-                            if (null != className) {
+                            if (ELMethodInvokeUtils.hasUtils(functionUtilsName)){
                                 String methodName = String.valueOf(chars, dots[0] + 1, nextFunctionToken - dots[0] - 1);
-                                parent = FunctionMethodNodeInvoker.newInstance(className, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
+                                parent = FunctionMethodNodeInvoker.newInstance(functionUtilsName, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
                                 // 位移到方法后
                                 start = nextFunctionEnd + 1;
                                 if (start >= end) {

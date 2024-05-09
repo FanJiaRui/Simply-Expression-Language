@@ -175,6 +175,7 @@ public class ElTest {
         System.out.println(ELExecutor.eval("this", context, String.class));
 
         ELExecutor.putNode(context, "pojo", new TestPojo());
+
         ELExecutor.eval("pojo.abc=123", context);
         ELExecutor.eval("p.pojo=pojo", context);
         Assertions.assertEquals("123456", ELExecutor.eval("pojo.abc=123456;pojo.abc", context, String.class));
@@ -183,6 +184,14 @@ public class ElTest {
 
         ELExecutor.putNode(context, "arr", new String[]{"1", null, "3"});
         Assertions.assertEquals("3", ELExecutor.eval("arr.size()", context, String.class));
+
+        ELExecutor.eval("tt.testArrAdd=[]",context);
+        ELExecutor.eval("tt.testArrAdd.add('1')",context);
+        ELExecutor.eval("tt.testArrAdd.add('2')",context);
+        ELExecutor.eval("tt.testArrAdd.add('3')",context);
+        ELExecutor.eval("tt.testArrAdd.add('4')",context);
+        ELExecutor.eval("tt.testArrAdd",context);
+
     }
 
     @Test
@@ -190,11 +199,17 @@ public class ElTest {
     @DisplayName("单次测试")
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
-
         Map<String, Object> context = new HashMap<>();
-        context.put("val", "010");
-        Assertions.assertEquals(2, ELExecutor.eval("((int)val).toString().length()", context, int.class));
+        ELExecutor.eval("tt.testMapAdd={}",context);
+        ELExecutor.eval("tt.testMapAdd.put('x','v')",context);
 
+        ELExecutor.eval("tt.testArrAdd=[]",context);
+        ELExecutor.eval("tt.testArrAdd.add('x')",context);
+        ELExecutor.eval("tt.testArrAdd.add('y')",context);
+        ELExecutor.eval("tt.testArrAdd.add('z')",context);
+        ELExecutor.eval("tt.testArrAdd.add('q')",context);
+        ELExecutor.eval("tt.testArrAdd.remove('q')",context);
+        System.out.println(context);
     }
 
     @Test
@@ -335,6 +350,13 @@ public class ElTest {
         Assertions.assertEquals("hello 100", ELExecutor.eval("(String)MyUtils.strReturnOneParamFun(a)", "{'a':100}"));
         Assertions.assertEquals("99", ELExecutor.eval("(String)(MyUtils.strReturnOneParamFun(a).substring(6) - 1)", "{'a':100}"));
 
+        JSONObject of = JSONObject.of("a", 100);
+        ELExecutor.eval("$.log(a++)",of);
+        ELExecutor.eval("$.println(a++)",of);
+        ELExecutor.eval("$.println(a++)",of);
+        ELExecutor.eval("$.println(a++)",of);
+        ELExecutor.eval("$.println($.max(a+10,1))",of);
+        ELExecutor.eval("$.println($.min(a,10))",of);
     }
 
 

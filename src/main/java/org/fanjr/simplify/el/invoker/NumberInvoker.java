@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.cache.ConcurrentCache;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2021/6/29 上午10:58
  */
 public class NumberInvoker implements ELInvoker {
-    private static final Map<String, NumberInvoker> POOL = new ConcurrentHashMap<>();
+    private static final ConcurrentCache<String, NumberInvoker> POOL = new ConcurrentCache<>(10000);
 
     private final BigDecimal value;
 

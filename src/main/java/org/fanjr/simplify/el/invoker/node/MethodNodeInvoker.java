@@ -1,15 +1,13 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import com.alibaba.fastjson2.util.BeanUtils;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,55 +46,6 @@ public class MethodNodeInvoker extends NodeInvoker {
 
     public static MethodNodeInvoker newInstance(String nodeName, String methodName, ArrayInvoker parameterEl) {
         return new MethodNodeInvoker(nodeName, methodName, parameterEl);
-    }
-
-    @Override
-    Object getValueByParent(Object ctx, NodeHolder parentNode) {
-        if (null == parentNode) {
-            return null;
-        }
-        Object parentValue = parentNode.getValue();
-        if (null == parentValue) {
-            return null;
-        }
-
-        try {
-            Object[] parameters = parameterEl.invoke(ctx).toArray();
-            Class<?> type;
-            if (parentValue instanceof Class) {
-                type = (Class<?>) parentValue;
-            } else {
-                type = parentValue.getClass();
-            }
-            Method method = findMethod(type, methodName, parameters.length);
-            if (parameters.length == 0) {
-                if (ARRAY_LENGTH_METHOD == method) {
-                    // 计算数组长度
-                    return Array.getLength(parentValue);
-                } else {
-                    return method.invoke(parentValue);
-                }
-            } else {
-                Type[] types = method.getGenericParameterTypes();
-                for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = ElUtils.cast(parameters[i], types[i]);
-                }
-                return method.invoke(parentValue, parameters);
-            }
-        } catch (Exception e) {
-            throw new ElException(methodName + "执行失败！", e);
-        }
-    }
-
-    @Override
-    void removeValueByParent(NodeHolder parentNode, int index) {
-        // skip
-        logger.info("移除【{}】操作无效，无需移除！", this);
-    }
-
-    @Override
-    void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
     private static Method findMethod(Class<?> type, String methodName, int argNum) {
@@ -156,6 +105,59 @@ public class MethodNodeInvoker extends NodeInvoker {
                 };
             }
         }).get();
+    }
+
+    @Override
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
+        if (null == parentNode) {
+            return null;
+        }
+        Object parentValue = parentNode.getValue();
+        if (null == parentValue) {
+            return null;
+        }
+
+        try {
+            Object[] parameters = parameterEl.invoke(ctx).toArray();
+            Class<?> type;
+            if (parentValue instanceof Class) {
+                type = (Class<?>) parentValue;
+            } else {
+                type = parentValue.getClass();
+            }
+            Method method = findMethod(type, methodName, parameters.length);
+            if (parameters.length == 0) {
+                if (ARRAY_LENGTH_METHOD == method) {
+                    // 计算数组长度
+                    return Array.getLength(parentValue);
+                } else {
+                    return method.invoke(parentValue);
+                }
+            } else {
+                Type[] types = method.getGenericParameterTypes();
+                for (int i = 0; i < parameters.length; i++) {
+                    if (types[i] instanceof TypeVariable) {
+                        parameters[i] = ElUtils.cast(parameters[i], BeanUtils.getRawType(types[i]));
+                    } else {
+                        parameters[i] = ElUtils.cast(parameters[i], types[i]);
+                    }
+                }
+                return method.invoke(parentValue, parameters);
+            }
+        } catch (Exception e) {
+            throw new ElException(methodName + "执行失败！", e);
+        }
+    }
+
+    @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        // skip
+        logger.info("移除【{}】操作无效，无需移除！", this);
+    }
+
+    @Override
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
+        throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
 }

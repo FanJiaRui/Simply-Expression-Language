@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.cache.ConcurrentCache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConstantInvoker implements ELInvoker {
 
-    private static final Map<String, ConstantInvoker> POOL = new ConcurrentHashMap<>();
+    private static final ConcurrentCache<String, ConstantInvoker> POOL = new ConcurrentCache<>(10000);
 
     private final Object constant;
 

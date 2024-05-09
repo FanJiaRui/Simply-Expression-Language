@@ -2,13 +2,13 @@ package org.fanjr.simplify.el.invoker.node;
 
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
-import org.fanjr.simplify.utils.ElUtils;
+import org.fanjr.simplify.utils.ELFunction;
+import org.fanjr.simplify.utils.ELMethodInvokeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,65 +29,18 @@ public class FunctionMethodNodeInvoker extends NodeInvoker {
 
     //用于获取方法参数的EL，返回结果必须是数组
     private final ArrayInvoker parameterEl;
+    private final String utilName;
     private final String methodName;
 
-    private final Class<?> invokeInstance;
-
-    private FunctionMethodNodeInvoker(String className, String methodName, ArrayInvoker parameterEl) {
-        super(className);
-        Class<?> instance;
-        try {
-            instance = Class.forName(className);
-        } catch (Exception e) {
-            instance = null;
-        }
-        this.invokeInstance = instance;
-        this.methodName = methodName;
+    private FunctionMethodNodeInvoker(String utilName, String functionName, ArrayInvoker parameterEl) {
+        super(utilName);
+        this.utilName = utilName;
+        this.methodName = functionName;
         this.parameterEl = parameterEl;
     }
 
     public static FunctionMethodNodeInvoker newInstance(String className, String methodName, ArrayInvoker parameterEl) {
         return new FunctionMethodNodeInvoker(className, methodName, parameterEl);
-    }
-
-    @Override
-    public NodeHolder getNodeHolder(Object ctx) {
-        if (null == invokeInstance) {
-            return NodeHolder.newNodeHolder(null, null, this);
-        }
-        try {
-            Object[] parameters = parameterEl.invoke(ctx).toArray();
-            Method method = findMethod(invokeInstance, methodName, parameters.length);
-            if (parameters.length == 0) {
-                return NodeHolder.newNodeHolder(method.invoke(invokeInstance), null, this);
-            } else {
-                Type[] types = method.getGenericParameterTypes();
-                for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = ElUtils.cast(parameters[i], types[i]);
-                }
-                return NodeHolder.newNodeHolder(method.invoke(invokeInstance, parameters), null, this);
-            }
-        } catch (Exception e) {
-            throw new ElException(methodName + "执行失败！", e);
-        }
-    }
-
-    @Override
-    @Deprecated
-    Object getValueByParent(Object ctx, NodeHolder parentNode) {
-        //SKIP
-        return null;
-    }
-
-    @Override
-    void removeValueByParent(NodeHolder parentNode, int index) {
-        // skip
-        logger.info("移除【{}】操作无效，无需移除！", this);
-    }
-
-    @Override
-    void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
     private static Method findMethod(Class<?> type, String methodName, int argNum) {
@@ -142,6 +95,34 @@ public class FunctionMethodNodeInvoker extends NodeInvoker {
                 };
             }
         }).get();
+    }
+
+    @Override
+    public NodeHolder getNodeHolder(Object ctx) {
+        Object[] parameters = parameterEl.invoke(ctx).toArray();
+        ELFunction function = ELMethodInvokeUtils.findFunction(utilName, methodName, parameters);
+        if (null == function) {
+            return NodeHolder.newNodeHolder(null, null, this);
+        }
+        return NodeHolder.newNodeHolder(function.invoke(parameters), null, this);
+    }
+
+    @Override
+    @Deprecated
+    Object getValueByParent(Object ctx, NodeHolder parentNode) {
+        //SKIP
+        return null;
+    }
+
+    @Override
+    void removeValueByParent(NodeHolder parentNode, int index) {
+        // skip
+        logger.info("移除【{}】操作无效，无需移除！", this);
+    }
+
+    @Override
+    void setValueByParent(NodeHolder parentNode, Object value, int index) {
+        throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
     @Override
