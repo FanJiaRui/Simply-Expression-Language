@@ -31,7 +31,16 @@ understand it.**_
 - Convenient to use: No need to build additional context objects for calculations; directly calculate native objects through the API.
 
 ## Introduce the configuration
-
+Since org domain name is not easy to renew in China, the subsequent versions are replaced by net domain name.
+#### New dependencies (after 1.1.1)
+```xml
+<dependency>
+    <groupId>net.fanjr.simplify</groupId>
+    <artifactId>simplify-el</artifactId>
+    <version>1.1.1</version>
+</dependency>
+```
+#### Old dependencies (before 1.1.0)
 ```xml
 <dependency>
     <groupId>org.fanjr.simplify</groupId>

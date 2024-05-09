@@ -28,16 +28,23 @@
 
 
 ## 引入配置
-
+由于org域名国内不大好续期，后续版本均更换为net域名
+#### 新版本依赖(1.1.1之后)
 ```xml
-
+<dependency>
+    <groupId>net.fanjr.simplify</groupId>
+    <artifactId>simplify-el</artifactId>
+    <version>1.1.1</version>
+</dependency>
+```
+#### 老版本依赖（1.1.0之前）
+```xml
 <dependency>
     <groupId>org.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
     <version>1.1.0</version>
 </dependency>
 ```
-
 ## 文档
 **↓↓↓↓↓**<br>
 [**点这里**](docs/document.md)查看详细文档<br>
