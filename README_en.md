@@ -4,7 +4,7 @@
 
 [![Java support](https://img.shields.io/badge/Java-8+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
 [![GitHub release](https://img.shields.io/github/release/FanJiaRui/Simply-Expression-Language)](https://github.com/FanJiaRui/Simply-Expression-Language/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/org.fanjr.simplify/simplify-el?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/org.fanjr.simplify/simplify-el)
+[![Maven Central](https://img.shields.io/maven-central/v/net.fanjr.simplify/simplify-el?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/net.fanjr.simplify/simplify-el)
 [![License](https://img.shields.io/github/license/FanJiaRui/Simply-Expression-Language?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Introduction
@@ -37,7 +37,7 @@ Since org domain name is not easy to renew in China, the subsequent versions are
 <dependency>
     <groupId>net.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 #### Old dependencies (before 1.1.0)
@@ -55,7 +55,7 @@ Since org domain name is not easy to renew in China, the subsequent versions are
 ↑↑↑↑↑↑↑↑↑↑
 ## Feature Overview
 
-- Simple expression calculation, placeholder calculation, and arithmetic operations.
+- Simple expression calculation, placeholder calculation, four operations, regular matching.
 - Support assignment operations, type conversion, and scenarios such as JSON format conversion.
 - Support complex statements and the mixed use of multiple statements.
 - Support calling Java object methods and custom function method calls.
@@ -172,4 +172,3 @@ context.clear();
 ## Future Plans
 - Support logging (or console output) and other built-in functions.
 - Analyze Java's built-in library methods and consider integrating some frequently used methods into built-in functions.
-- Add regular expression matching operators.

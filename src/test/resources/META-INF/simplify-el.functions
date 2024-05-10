@@ -1,2 +1,2 @@
 #工具名=类全限定名
-MyUtils=unit.MyFunctions
+MyUtils=unit.functions.MyFunctions,unit.functions.MyFunctions2

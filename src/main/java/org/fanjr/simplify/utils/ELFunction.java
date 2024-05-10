@@ -3,8 +3,11 @@ package org.fanjr.simplify.utils;
 import com.alibaba.fastjson2.JSON;
 import org.fanjr.simplify.el.ElException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -19,12 +22,14 @@ public class ELFunction implements Comparable<ELFunction> {
     private final Method method;
     private final Type[] genericParameterTypes;
     private final Class<?>[] parameterTypes;
+    private final List<Class<? extends RuntimeException>> userDefinedExceptions;
     private final int order;
     private final String instanceName;
     private final String methodName;
 
     public ELFunction(Object instance, Method method) {
         this(instance, method, 0);
+
     }
 
     public ELFunction(Object instance, Method method, int order) {
@@ -32,6 +37,10 @@ public class ELFunction implements Comparable<ELFunction> {
     }
 
     public ELFunction(String instanceName, String methodName, Object instance, Method method, int order) {
+        this(instanceName, methodName, instance, method, order, new ArrayList<>());
+    }
+
+    public ELFunction(String instanceName, String methodName, Object instance, Method method, int order, List<Class<? extends RuntimeException>> userDefinedExceptions) {
         Pair<Class<?>[], Type[]> pair = ELMethodInvokeUtils.getMethodParameters(method);
         this.methodName = methodName;
         this.instanceName = instanceName;
@@ -40,7 +49,9 @@ public class ELFunction implements Comparable<ELFunction> {
         this.method = method;
         this.instance = instance;
         this.order = order;
+        this.userDefinedExceptions = userDefinedExceptions;
     }
+
 
     public int getOrder() {
         return order;
@@ -81,7 +92,24 @@ public class ELFunction implements Comparable<ELFunction> {
             }
             return method.invoke(instance, target);
         } catch (Exception e) {
-            throw new ElException(instanceName + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", e);
+            // 这里需要计算是否需要包装异常
+            Throwable throwTarget;
+            if (e instanceof InvocationTargetException) {
+                Throwable targetException = ((InvocationTargetException) e).getTargetException();
+                if (targetException instanceof RuntimeException) {
+                    for (Class<? extends Exception> ue : userDefinedExceptions) {
+                        if (ue.isInstance(targetException)) {
+                            // 用户自定义异常，跳过
+                            throw (RuntimeException) targetException;
+                        }
+                    }
+                }
+                throwTarget = ((InvocationTargetException) e).getTargetException();
+            } else {
+                throwTarget = e;
+            }
+
+            throw new ElException(instanceName + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", throwTarget);
         }
     }
 

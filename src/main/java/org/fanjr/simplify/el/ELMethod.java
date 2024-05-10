@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD})
 public @interface ELMethod {
 
     /**
@@ -19,5 +19,16 @@ public @interface ELMethod {
      * 注册的方法名称，若为空值，则以实际方法名为准
      */
     String functionName() default "";
+
+    /**
+     * 用于跳过不想注册成function的方法
+     */
+    boolean skip() default false;
+
+    /**
+     * 若抛出的异常为指定异常或其子类时，不再封装为ELException异常
+     * 由于处理复杂度问题，目前只支持RuntimeException
+     */
+    Class<? extends RuntimeException>[] userDefinedExceptions() default {};
 
 }

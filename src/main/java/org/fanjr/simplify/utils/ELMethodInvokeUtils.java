@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,25 +29,32 @@ public class ELMethodInvokeUtils {
         synchronized ("EL_F_K_L" + utilsName) {
             Method[] allMethods = clazz.getMethods();
             for (Method m : allMethods) {
-                if (Modifier.isStatic(m.getModifiers())) {
-                    ELFunction elFunction;
-                    org.fanjr.simplify.el.ELMethod annotation = BeanUtils.findAnnotation(m, org.fanjr.simplify.el.ELMethod.class);
-                    if (null != annotation) {
-                        String methodName;
-                        if (ElUtils.isBlank(annotation.functionName())) {
-                            methodName = m.getName();
-                        } else {
-                            methodName = annotation.functionName();
-                        }
-                        elFunction = new ELFunction(utilsName, methodName, clazz, m, annotation.order());
-                    } else {
-                        elFunction = new ELFunction(utilsName, m.getName(), clazz, m, 0);
-                    }
-
-                    Map<String, Set<ELFunction>> utilsMapping = FUNCTION_MAPPING.computeIfAbsent(utilsName, (k) -> new ConcurrentHashMap<>());
-                    Set<ELFunction> pairs = utilsMapping.computeIfAbsent(elFunction.getMethodName(), (k) -> new TreeSet<>());
-                    pairs.add(elFunction);
+                if (!Modifier.isStatic(m.getModifiers())) {
+                    // 跳过非类方法注册
+                    continue;
                 }
+                ELFunction elFunction;
+                org.fanjr.simplify.el.ELMethod annotation = BeanUtils.findAnnotation(m, org.fanjr.simplify.el.ELMethod.class);
+                if (null != annotation) {
+                    if (annotation.skip()) {
+                        // 跳过该方法注册
+                        continue;
+                    }
+                    String methodName;
+                    if (ElUtils.isBlank(annotation.functionName())) {
+                        methodName = m.getName();
+                    } else {
+                        methodName = annotation.functionName();
+                    }
+                    elFunction = new ELFunction(utilsName, methodName, clazz, m, annotation.order(), Arrays.asList(annotation.userDefinedExceptions()));
+                } else {
+                    elFunction = new ELFunction(utilsName, m.getName(), clazz, m, 0);
+                }
+
+                Map<String, Set<ELFunction>> utilsMapping = FUNCTION_MAPPING.computeIfAbsent(utilsName, (k) -> new ConcurrentHashMap<>());
+                Set<ELFunction> pairs = utilsMapping.computeIfAbsent(elFunction.getMethodName(), (k) -> new TreeSet<>());
+                pairs.add(elFunction);
+
             }
         }
     }

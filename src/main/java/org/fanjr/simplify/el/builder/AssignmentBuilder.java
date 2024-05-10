@@ -59,6 +59,7 @@ public class AssignmentBuilder {
                     chars[index - 1] == '!' ||
                             chars[index - 1] == '=' ||
                             chars[index - 1] == '+' ||
+                            chars[index - 1] == '~' ||
                             chars[index - 1] == '-' ||
                             chars[index - 1] == '*' ||
                             chars[index - 1] == '/' ||

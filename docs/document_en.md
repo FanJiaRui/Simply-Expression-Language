@@ -228,7 +228,7 @@ In the context, the root node (this), the result of method execution, constants 
 The correct assignable nodes include context nodes or arrays, POJO objects with set methods, and so on. The correct assignment is generally written as follows:
 
 -  `a=1`
--  `a="字符串"`
+-  `a="strXXX"`
 -  `i=0;a[i++]=i; a[i++]=i; a[i++]=i`
 
 ### Ternary expression
@@ -246,18 +246,19 @@ For example
 
 Calculations that require two parameters to participate in are binary calculations. Currently, all supported binary operators are shown below. The semantics are the same as those in java syntax.
 
-1. `&&`、`||`
-2.  `==`、 `!=`、 `>=`、 `<=`、 `>`、 `<`
-3. `+`、`-`
-4. `*`、`/`、`%`
-5. `+=`、`-=`、`*=`、`/=`
+1. `&&` `||`
+2. `==`  `!=` `~=` `>=` `<=` `>` `<`
+3. `+` `-`
+4. `*` `/` `%`
+5. `+=` `-=` `*=` `/=`
 
 Binary calculation has the following calculation rules:
 
 - In the absence of parentheses, the larger the serial number, the higher the priority of calculation, and in the presence of parentheses, the overall calculation in parentheses.
--  `&&` The and `||` operators require both arguments to be Boolean or convertible to Boolean.
--  `==` The and `!=` operators compare references and then convert to strings or, if numeric, to numeric values.
--  `+` The operator supports string concatenation.
+- The `&&` and `||` operators require both arguments to be Boolean or convertible to Boolean.
+- The `==` and `!=` operators compare references and then convert to strings or, if numeric, to numeric values.
+- The `~=` operator is a regular operator that converts the left and right sides to strings, where the left side is the string to be matched and the right side is a regular expression, and evaluates to false if the string to be matched or the regular expression is null.
+- The `+` operator supports string concatenation.
 - The `-`, `*`, `/` calculation will convert the two input parameters into numerical values for calculation. If the input value is null, it will be resolved to 0. If it cannot be converted into a numerical value, an exception will be thrown.
 - The division `/` calculation sets the precision to 8 digits after the decimal because the division may not be able to divide completely and throw an exception.
 
@@ -266,9 +267,11 @@ For example
 - If a = 1, then the `true&&1+a*2<2` result is false.
 - Suppose a = 1, then `-a` the result of the calculation is -1 (the result of 0-1).
 - The expression `4/2` evaluates to 2. 00000000.
-- Expression `4/2==2` evaluates to true
-- Expression `123456=="123456"` evaluates to true
-- Expression `false&&true==false` evaluates to false
+- Expression `4/2 == 2` evaluates to true
+- Expression `123456 == "123456"` evaluates to true
+- Expression `false&&true == false` evaluates to false
+- Expression `"18888888888" ~= "^[0-9]{11}$"` evaluates to true
+- Expression `phone=18888888888; phone ~= "^[0-9]{11}$"` evaluates to true
 
 ### Unary computation
 

@@ -1,4 +1,7 @@
-package unit;
+package unit.functions;
+
+import org.fanjr.simplify.el.ELMethod;
+import org.fanjr.simplify.el.ElException;
 
 public class MyFunctions {
 
@@ -11,13 +14,18 @@ public class MyFunctions {
         System.out.println("a=" + a);
     }
 
+    @ELMethod(order = Integer.MAX_VALUE)
     public static void noReturnTwoParamFun(int a, int b) {
-        System.out.println("hello noReturnOneParamFun");
-        System.out.println("a=" + a);
-        System.out.println("b=" + b);
+        throw new ElException("不应该调用低优先级的方法");
     }
 
+
     public static String strReturnNoParamFun() {
+        throw new ElException("不应该调用低优先级的方法");
+    }
+
+    @ELMethod(order = -2, functionName = "strReturnNoParamFun")
+    public static String strReturnNoParamFun2() {
         return "hello";
     }
 

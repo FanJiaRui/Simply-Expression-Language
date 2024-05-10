@@ -185,12 +185,12 @@ public class ElTest {
         ELExecutor.putNode(context, "arr", new String[]{"1", null, "3"});
         Assertions.assertEquals("3", ELExecutor.eval("arr.size()", context, String.class));
 
-        ELExecutor.eval("tt.testArrAdd=[]",context);
-        ELExecutor.eval("tt.testArrAdd.add('1')",context);
-        ELExecutor.eval("tt.testArrAdd.add('2')",context);
-        ELExecutor.eval("tt.testArrAdd.add('3')",context);
-        ELExecutor.eval("tt.testArrAdd.add('4')",context);
-        ELExecutor.eval("tt.testArrAdd",context);
+        ELExecutor.eval("tt.testArrAdd=[]", context);
+        ELExecutor.eval("tt.testArrAdd.add('1')", context);
+        ELExecutor.eval("tt.testArrAdd.add('2')", context);
+        ELExecutor.eval("tt.testArrAdd.add('3')", context);
+        ELExecutor.eval("tt.testArrAdd.add('4')", context);
+        ELExecutor.eval("tt.testArrAdd", context);
 
     }
 
@@ -200,15 +200,15 @@ public class ElTest {
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
         Map<String, Object> context = new HashMap<>();
-        ELExecutor.eval("tt.testMapAdd={}",context);
-        ELExecutor.eval("tt.testMapAdd.put('x','v')",context);
+        ELExecutor.eval("tt.testMapAdd={}", context);
+        ELExecutor.eval("tt.testMapAdd.put('x','v')", context);
 
-        ELExecutor.eval("tt.testArrAdd=[]",context);
-        ELExecutor.eval("tt.testArrAdd.add('x')",context);
-        ELExecutor.eval("tt.testArrAdd.add('y')",context);
-        ELExecutor.eval("tt.testArrAdd.add('z')",context);
-        ELExecutor.eval("tt.testArrAdd.add('q')",context);
-        ELExecutor.eval("tt.testArrAdd.remove('q')",context);
+        ELExecutor.eval("tt.testArrAdd=[]", context);
+        ELExecutor.eval("tt.testArrAdd.add('x')", context);
+        ELExecutor.eval("tt.testArrAdd.add('y')", context);
+        ELExecutor.eval("tt.testArrAdd.add('z')", context);
+        ELExecutor.eval("tt.testArrAdd.add('q')", context);
+        ELExecutor.eval("tt.testArrAdd.remove('q')", context);
         System.out.println(context);
     }
 
@@ -351,12 +351,20 @@ public class ElTest {
         Assertions.assertEquals("99", ELExecutor.eval("(String)(MyUtils.strReturnOneParamFun(a).substring(6) - 1)", "{'a':100}"));
 
         JSONObject of = JSONObject.of("a", 100);
-        ELExecutor.eval("$.log(a++)",of);
-        ELExecutor.eval("$.println(a++)",of);
-        ELExecutor.eval("$.println(a++)",of);
-        ELExecutor.eval("$.println(a++)",of);
-        ELExecutor.eval("$.println($.max(a+10,1))",of);
-        ELExecutor.eval("$.println($.min(a,10))",of);
+        ELExecutor.eval("$.log(a++)", of);
+        ELExecutor.eval("$.println(a++)", of);
+        ELExecutor.eval("$.println(a++)", of);
+        ELExecutor.eval("$.println(a++)", of);
+        ELExecutor.eval("$.println($.max(a+10,1))", of);
+        ELExecutor.eval("$.println($.min(a,10))", of);
+    }
+
+    @Test
+    @DisplayName("正则表达式测试")
+    public void testRegExp() {
+        Assertions.assertEquals(true, ELExecutor.eval("18888888888 ~= '^[0-9]{11}$'", null, boolean.class));
+        Assertions.assertEquals(true, ELExecutor.eval("'18888888888' ~= '^[0-9]{11}$'", null, boolean.class));
+        Assertions.assertEquals(false, ELExecutor.eval("'18888xx8888' ~= '^[0-9]{11}$'", null, boolean.class));
     }
 
 

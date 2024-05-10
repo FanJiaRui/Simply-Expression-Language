@@ -4,7 +4,7 @@
 
 [![Java support](https://img.shields.io/badge/Java-8+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
 [![GitHub release](https://img.shields.io/github/release/FanJiaRui/Simply-Expression-Language)](https://github.com/FanJiaRui/Simply-Expression-Language/releases)
-[![Maven Central](https://img.shields.io/maven-central/v/org.fanjr.simplify/simplify-el?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/org.fanjr.simplify/simplify-el)
+[![Maven Central](https://img.shields.io/maven-central/v/net.fanjr.simplify/simplify-el?logo=apache-maven&logoColor=white)](https://search.maven.org/artifact/net.fanjr.simplify/simplify-el)
 [![License](https://img.shields.io/github/license/FanJiaRui/Simply-Expression-Language?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## 介绍
@@ -34,7 +34,7 @@
 <dependency>
     <groupId>net.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 #### 老版本依赖（1.1.0之前）
@@ -52,7 +52,7 @@
 
 ## 功能点介绍
 
-- 简单表达式计算、占位符计算、四则运算
+- 简单表达式计算、占位符计算、四则运算、正则匹配
 - 支持赋值运算、类型转换，可支撑JSON格式转换等场景
 - 支持复杂语句，多语句复合混用
 - 支持java对象方法调用、自定义函数方法调用
@@ -172,4 +172,3 @@ context.clear();
 
 - 支持日志（或控制台输出）等内置函数
 - 分析JAVA自带库方法，考虑部分可能经常使用的方法集成到内置函数中
-- 新增正则匹配运算符

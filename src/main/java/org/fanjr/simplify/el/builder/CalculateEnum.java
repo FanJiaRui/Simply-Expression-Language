@@ -29,6 +29,7 @@ public enum CalculateEnum {
                 if (index > start && (
                         chars[index - 1] == '!' ||
                                 chars[index - 1] == '=' ||
+                                chars[index - 1] == '~' ||
                                 chars[index - 1] == '+' ||
                                 chars[index - 1] == '-' ||
                                 chars[index - 1] == '*' ||
@@ -50,6 +51,8 @@ public enum CalculateEnum {
     UNEQUAL(2, "!=", EqualsInvoker::buildNegationInstance),
 
     EQUAL(2, "==", EqualsInvoker::buildInstance),
+
+    REGEXP(2, "~=", RegExpInvoker::buildInstance),
 
     EQUAL_OR_GREATER(2, ">=", EqualOrGreaterInvoker::buildInstance),
 

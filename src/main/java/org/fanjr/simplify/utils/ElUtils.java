@@ -34,8 +34,10 @@ public class ElUtils {
     public static final String EMPTY = "";
     private static final String SIMPLIFY_EL_FUNCTIONS = "META-INF/simplify-el.functions";
     private static final Logger logger = LoggerFactory.getLogger(ElUtils.class);
-    private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${\\n}]*)\\}");
-    private static final Map<String, String> UTILS_MAP = new HashMap<>();
+    /**
+     * 匹配#{xxx}和${xxx}两种形式的字符串
+     */
+    private static final Pattern PATTERN = Pattern.compile("[\\#\\$]\\{([^#{\\n}]*)([^${\\n}]*)\\}");
 
     static {
         init();
@@ -443,23 +445,25 @@ public class ElUtils {
             ClassLoader classLoader = ElUtils.class.getClassLoader();
             final Enumeration<URL> functionsUrl =
                     classLoader.getResources(SIMPLIFY_EL_FUNCTIONS);
-            Properties functionsProperties = new Properties();
+
             while (functionsUrl.hasMoreElements()) {
+                Properties functionsProperties = new Properties();
                 final URL url = functionsUrl.nextElement();
                 try (InputStream inputStream = url.openStream()) {
                     functionsProperties.load(inputStream);
                 }
-            }
-            for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
-                final String utilsName = ((String) entry.getKey()).trim();
-                final String utilsClassName = ((String) entry.getValue()).trim();
-                try {
-                    ELMethodInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(utilsClassName));
-                } catch (Exception e) {
-                    // SKIP
-                    logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+                for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
+                    final String utilsName = ((String) entry.getKey()).trim();
+                    final String utilsClassName = ((String) entry.getValue()).trim();
+                    for (String s : utilsClassName.split(",")) {
+                        try {
+                            ELMethodInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(s));
+                        } catch (Exception e) {
+                            // SKIP
+                            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+                        }
+                    }
                 }
-                UTILS_MAP.put(utilsName, utilsClassName);
             }
         } catch (IOException e) {
             // SKIP
