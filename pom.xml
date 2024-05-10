@@ -80,16 +80,16 @@
 
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.sonatype.central</groupId>-->
-<!--                <artifactId>central-publishing-maven-plugin</artifactId>-->
-<!--                <version>0.3.0</version>-->
-<!--                <extensions>true</extensions>-->
-<!--                <configuration>-->
-<!--                    <publishingServerId>OSSRH-RELEASE</publishingServerId>-->
-<!--                    <tokenAuth>true</tokenAuth>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.3.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>OSSRH-RELEASE</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -169,17 +169,4 @@
             </testResource>
         </testResources>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>central</id>
-            <name>RTF-releases</name>
-            <url>http://124.71.166.122:14101/repository/nebula-release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>RTF-snapshots</name>
-            <url>http://124.71.166.122:14101/repository/nebula-snapshot/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
