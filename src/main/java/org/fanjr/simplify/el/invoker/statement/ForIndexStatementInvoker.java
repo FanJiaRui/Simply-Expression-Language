@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker.statement;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.utils.ElUtils;
 
 import static org.fanjr.simplify.el.builder.KeywordBuilder.BREAK_FLAG;
@@ -32,6 +33,16 @@ public class ForIndexStatementInvoker implements ELInvoker {
         }
         // 循环结束统一返回 null
         return null;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)){
+            preEL.accept(visitor);
+            condition.accept(visitor);
+            endEL.accept(visitor);
+            forBlock.accept(visitor);
+        }
     }
 
 }

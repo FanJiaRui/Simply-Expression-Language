@@ -1,10 +1,10 @@
 package unit;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.fanjr.simplify.el.ELExecutor;
-import org.fanjr.simplify.el.ELTokenUtils;
+import org.fanjr.simplify.el.*;
 import org.fanjr.simplify.el.cache.ConcurrentCache;
 import org.fanjr.simplify.el.cache.ELCacheManager;
+import org.fanjr.simplify.el.invoker.node.Node;
 import org.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +66,7 @@ public class UnitTest {
         ConcurrentCache<String, String> pool = ELCacheManager.getPool(String.class, 1000);
         String tmp = "T1+0";
         CountDownLatch latch = new CountDownLatch(3);
-        pool.put(tmp,"0");
+        pool.put(tmp, "0");
         new Thread(() -> {
             for (int i = 1; i < 10000; i++) {
 //                pool.put("T1+" + i, String.valueOf(i));
@@ -97,6 +97,31 @@ public class UnitTest {
         System.out.println(pool.get("T1+999"));
         System.out.println(pool.get("T2+0"));
         System.out.println(pool.get("T2+999"));
+    }
+
+    @Test
+    public void testVisitor() {
+        EL compile = ELExecutor.compile("((String)a+(String)b).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length");
+        compile.accept(new ELVisitor() {
+            @Override
+            public boolean visit(EL el) {
+                return true;
+            }
+
+            @Override
+            public boolean visit(ELInvoker invoker) {
+                if (invoker instanceof Node) {
+                    if (((Node) invoker).isVariable()) {
+                        System.out.println("变量:" + invoker);
+                        return false;
+                    }
+                }
+                System.out.println("可执行表达式、常量表达式:" + invoker);
+                return true;
+            }
+        });
+
+        System.out.println(compile);
     }
 
 

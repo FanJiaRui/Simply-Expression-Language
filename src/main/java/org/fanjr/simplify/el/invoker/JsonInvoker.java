@@ -3,6 +3,7 @@ package org.fanjr.simplify.el.invoker;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.cache.ConcurrentCache;
 import org.fanjr.simplify.utils.Pair;
 
@@ -48,5 +49,15 @@ public class JsonInvoker implements ELInvoker {
     @Override
     public String toString() {
         return elString;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            for (Pair<ELInvoker, ELInvoker> entry : itemInvokers) {
+                entry.k.accept(visitor);
+                entry.v.accept(visitor);
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
@@ -92,5 +93,16 @@ public class NewObjectNodeInvoker extends NodeInvoker {
     void removeValueByParent(NodeHolder parentNode, int index) {
         // skip
         logger.info("移除【{}】操作无效，无需移除！", this);
+    }
+
+    @Override
+    public boolean isVariable() {
+        // 动作、方法类为非变量
+        return false;
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
+        parameterEl.accept(visitor);
     }
 }

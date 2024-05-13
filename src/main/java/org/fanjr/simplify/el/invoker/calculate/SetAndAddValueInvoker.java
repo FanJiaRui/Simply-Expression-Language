@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.invoker.node.NodeHolder;
 import org.fanjr.simplify.el.invoker.node.NodeInvoker;
 import org.fanjr.simplify.utils.ElUtils;
@@ -40,7 +41,15 @@ public class SetAndAddValueInvoker implements ELInvoker {
     }
 
     @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            nodeInvoker.accept(visitor);
+            elInvoker.accept(visitor);
+        }
+    }
+
+    @Override
     public String toString() {
-        return nodeInvoker.toString() + " = (" + nodeInvoker.toString() + " + " + elInvoker.toString() + ")";
+        return nodeInvoker.toString() + " = (" + nodeInvoker + " + " + elInvoker.toString() + ")";
     }
 }

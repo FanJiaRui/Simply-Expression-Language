@@ -1,7 +1,9 @@
 package org.fanjr.simplify.el.invoker;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.cache.ConcurrentCache;
+import org.fanjr.simplify.utils.Pair;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -32,5 +34,10 @@ public class NumberInvoker implements ELInvoker {
     @Override
     public String toString() {
         return value.toString();
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        visitor.visit(this);
     }
 }

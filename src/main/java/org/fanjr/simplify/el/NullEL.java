@@ -15,4 +15,9 @@ public class NullEL implements EL {
         return null;
     }
 
+    @Override
+    public void accept(ELVisitor visitor) {
+        // 访问自身
+        visitor.visit(this);
+    }
 }

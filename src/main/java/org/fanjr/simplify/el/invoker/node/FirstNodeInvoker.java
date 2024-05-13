@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker.node;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,4 +54,15 @@ public class FirstNodeInvoker extends NodeInvoker {
         return ctx;
     }
 
+
+    @Override
+    public boolean isVariable() {
+        // 动作、方法类为非变量
+        return false;
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
+        el.accept(visitor);
+    }
 }

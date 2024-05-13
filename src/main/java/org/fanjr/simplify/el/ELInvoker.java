@@ -8,4 +8,5 @@ public interface ELInvoker {
 
     Object invoke(Object ctx);
 
+    void accept(ELVisitor visitor);
 }

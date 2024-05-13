@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.statement;
 
 import com.alibaba.fastjson2.util.TypeUtils;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 
 public class IfElseStatementInvoker implements ELInvoker {
 
@@ -35,6 +36,17 @@ public class IfElseStatementInvoker implements ELInvoker {
                 return null;
             }
             return elseBlock.invoke(ctx);
+        }
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            exp.accept(visitor);
+            ifBlock.accept(visitor);
+            if (elseBlock != null) {
+                elseBlock.accept(visitor);
+            }
         }
     }
 

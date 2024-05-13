@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.utils.ElUtils;
 import org.fanjr.simplify.el.invoker.node.NodeHolder;
 import org.fanjr.simplify.el.invoker.node.NodeInvoker;
@@ -33,6 +34,13 @@ public class DecrementInvoker implements ELInvoker {
         nodeHolder.setValue(target);
         //i--操作返回的是i的原值，先返回然后在自增
         return oldVal;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)){
+            nodeInvoker.accept(visitor);
+        }
     }
 
     @Override

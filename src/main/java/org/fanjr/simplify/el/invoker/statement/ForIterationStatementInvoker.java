@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.statement;
 
 import com.alibaba.fastjson2.JSONArray;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.invoker.node.Node;
 import org.fanjr.simplify.utils.ElUtils;
 
@@ -79,5 +80,14 @@ public class ForIterationStatementInvoker implements ELInvoker {
 
         // 循环结束统一返回 null
         return null;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)){
+            iteration.accept(visitor);
+            item.accept(visitor);
+            forBlock.accept(visitor);
+        }
     }
 }

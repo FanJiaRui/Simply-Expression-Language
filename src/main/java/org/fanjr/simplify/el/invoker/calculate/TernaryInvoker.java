@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 import com.alibaba.fastjson2.util.TypeUtils;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 
 import java.util.LinkedList;
 
@@ -41,5 +42,14 @@ public class TernaryInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "(" + exp.toString() + "?" + first.toString() + ":" + second.toString() + ")";
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            exp.accept(visitor);
+            first.accept(visitor);
+            second.accept(visitor);
+        }
     }
 }

@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 /**
  * 缓存参考自tomcat org.apache.el.util.ConcurrentCache，做了一点改进适配当前场景
- * 并发非常频繁的时候,可能导致短时间内实际容量超过
+ * 并发非常频繁且大量增加的时候，可能导致短时间内实际容量超过指定大小，但这不重要
  *
  * @author fanjr@vip.qq.com
  */

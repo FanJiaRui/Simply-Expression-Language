@@ -1,5 +1,7 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import org.fanjr.simplify.el.ELVisitor;
+
 /**
  * 代表一个指定的节点
  *
@@ -30,4 +32,11 @@ public interface Node {
      * @param ctx 对象
      */
     void removeNode(Object ctx);
+
+    /**
+     * 是否为变量
+     */
+    boolean isVariable();
+
+    void accept(ELVisitor visitor);
 }

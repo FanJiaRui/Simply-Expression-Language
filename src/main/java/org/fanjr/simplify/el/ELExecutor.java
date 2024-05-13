@@ -6,7 +6,7 @@ import org.fanjr.simplify.el.cache.ELCacheManager;
 import org.fanjr.simplify.el.invoker.*;
 import org.fanjr.simplify.el.invoker.calculate.*;
 import org.fanjr.simplify.el.invoker.node.*;
-import org.fanjr.simplify.utils.ELMethodInvokeUtils;
+import org.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
 import org.fanjr.simplify.utils.ElUtils;
 import org.fanjr.simplify.utils.Pair;
 
@@ -405,17 +405,16 @@ public class ELExecutor {
                         start = nextDot + 1;
                     } while (start < end);
                 } else {
-
                     // 判断是否包含自定义函数  eg : XX.fun(...)
                     int nextFunctionToken = findNextCharToken(chars, '(', start, end, false);
                     if (nextFunctionToken > 0) {
                         int nextFunctionEnd = findNextCharToken(chars, ')', nextFunctionToken + 1, end, true);
                         // 是方法，需要判断是否为自定义函数
-                        int[] dots = countCharToken(chars, '.', start, nextFunctionToken);
+                        int[] dots = findAllCharToken(chars, '.', start, nextFunctionToken);
                         if (dots.length == 1) {
                             // 已判断形式为XX.fun(...)形式，进一步判断是否为注册的function
                             String functionUtilsName = String.valueOf(chars, start, dots[0] - start);
-                            if (ELMethodInvokeUtils.hasUtils(functionUtilsName)){
+                            if (ELFunctionInvokeUtils.hasUtils(functionUtilsName)){
                                 String methodName = String.valueOf(chars, dots[0] + 1, nextFunctionToken - dots[0] - 1);
                                 parent = FunctionMethodNodeInvoker.newInstance(functionUtilsName, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
                                 // 位移到方法后
@@ -663,33 +662,6 @@ public class ELExecutor {
         }
     }
 
-    private static int findChar(char[] chars, char c, int start, int end) {
-        for (int i = start; i < end; i++) {
-            if (c == chars[i]) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * 用于寻找 ${ 或者 #{
-     *
-     * @return $ 或者 # 的index
-     */
-    private static int findElStart(char[] chars, int start, int end) {
-        // 通过下一个花括号位置来判断是否存在 ${ 或者 #{
-        int nextCurly = findChar(chars, '{', start, end);
-        if (nextCurly == -1) {
-            return -1;
-        } else {
-            if (nextCurly > start && nextCurly < end && ('$' == chars[nextCurly - 1] || '#' == chars[nextCurly - 1])) {
-                return nextCurly - 1;
-            } else {
-                return findElStart(chars, nextCurly + 2, end);
-            }
-        }
-    }
 
     private static void pushNotBuild(LinkedList<Supplier<ELInvoker>> builderStack, ELInvoker invoker) {
         if (null == invoker) {

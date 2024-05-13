@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.cache.ConcurrentCache;
 
 import java.util.Map;
@@ -35,5 +36,10 @@ public class StringInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "\"" + value + "\"";
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -3,7 +3,7 @@ package unit.functions;
 import org.fanjr.simplify.el.ELMethod;
 import org.fanjr.simplify.el.ElException;
 
-public class MyFunctions {
+class MyFunctions {
 
     public static void noReturnNoParamFun() {
         System.out.println("hello noReturnNoParamFun");

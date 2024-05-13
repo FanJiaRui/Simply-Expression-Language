@@ -16,9 +16,9 @@ public @interface ELMethod {
     int order() default -1;
 
     /**
-     * 注册的方法名称，若为空值，则以实际方法名为准
+     * 注册的方法名称，若为空值，则以实际方法名为准，可以是多个，这样会将多个名称都映射指向到这个方法
      */
-    String functionName() default "";
+    String[] functionName() default {};
 
     /**
      * 用于跳过不想注册成function的方法

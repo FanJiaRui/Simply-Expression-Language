@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.node;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 
 /**
  * 节点执行器，用于获取或设置节点
@@ -84,5 +85,18 @@ public abstract class NodeInvoker implements ELInvoker, Node {
         }
         return nodeName;
     }
+
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            if (null != parentNodeInvoker) {
+                parentNodeInvoker.accept(visitor);
+            }
+            acceptChild(visitor);
+        }
+    }
+
+    protected abstract void acceptChild(ELVisitor visitor);
 
 }

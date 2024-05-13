@@ -1,5 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,5 +48,21 @@ public class RootNodeInvoker extends NodeInvoker {
     void removeValueByParent(NodeHolder parentNode, int index) {
         // skip
         logger.info("移除【{}】操作无效，无需移除！", this);
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
+
+    }
+
+    @Override
+    public boolean isVariable() {
+        // root根点认为为常量
+        return false;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        visitor.visit(this);
     }
 }

@@ -3,6 +3,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 import com.alibaba.fastjson2.JSONFactory;
 import com.alibaba.fastjson2.reader.ObjectReaderProvider;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.ELInvoker;
 
@@ -47,5 +48,12 @@ public class NegationInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "(!" + subInvoker.toString() + ")";
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            subInvoker.accept(visitor);
+        }
     }
 }

@@ -31,4 +31,15 @@ public class SpliceEL implements EL {
         }
         return sb.toString();
     }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        // 访问自身
+        if (visitor.visit(this)) {
+            for (ELInvoker invoker : invokers) {
+                // 访问子节点
+                invoker.accept(visitor);
+            }
+        }
+    }
 }

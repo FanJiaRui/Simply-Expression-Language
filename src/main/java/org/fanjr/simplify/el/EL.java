@@ -41,4 +41,10 @@ public interface EL {
     default <T> T invoke(Object ctx, Class<T> type) {
         return ElUtils.cast(invoke(ctx), type);
     }
+
+
+    default void accept(ELVisitor visitor) {
+        // 默认只访问自身，不访问子节点
+        visitor.visit(this);
+    }
 }

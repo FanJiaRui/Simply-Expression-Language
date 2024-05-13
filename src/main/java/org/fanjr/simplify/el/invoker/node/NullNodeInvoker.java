@@ -1,5 +1,6 @@
 package org.fanjr.simplify.el.invoker.node;
 
+import org.fanjr.simplify.el.ELVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,12 @@ public class NullNodeInvoker extends NodeInvoker implements Node {
     }
 
     @Override
+    public boolean isVariable() {
+        // null是常量
+        return false;
+    }
+
+    @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
 
     }
@@ -43,6 +50,11 @@ public class NullNodeInvoker extends NodeInvoker implements Node {
 
     @Override
     void removeValueByParent(NodeHolder parentNode, int index) {
+
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
 
     }
 

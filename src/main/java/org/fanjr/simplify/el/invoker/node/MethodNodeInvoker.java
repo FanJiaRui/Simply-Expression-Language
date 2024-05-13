@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker.node;
 
 import com.alibaba.fastjson2.util.BeanUtils;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.el.invoker.ArrayInvoker;
 import org.fanjr.simplify.utils.ElUtils;
@@ -160,4 +161,14 @@ public class MethodNodeInvoker extends NodeInvoker {
         throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
+    @Override
+    public boolean isVariable() {
+        // 动作、方法类为非变量
+        return false;
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
+        parameterEl.accept(visitor);
+    }
 }

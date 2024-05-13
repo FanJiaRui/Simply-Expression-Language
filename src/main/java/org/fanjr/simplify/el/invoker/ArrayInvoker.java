@@ -3,6 +3,7 @@ package org.fanjr.simplify.el.invoker;
 
 import com.alibaba.fastjson2.JSONArray;
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.cache.ConcurrentCache;
 
 import java.util.ArrayList;
@@ -47,5 +48,13 @@ public class ArrayInvoker implements ELInvoker {
         return elString;
     }
 
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            for (ELInvoker itemInvoker : itemInvokers){
+                itemInvoker.accept(visitor);
+            }
+        }
+    }
 
 }

@@ -1,6 +1,7 @@
 package org.fanjr.simplify.el.invoker.calculate;
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.invoker.node.NodeHolder;
 import org.fanjr.simplify.el.invoker.node.NodeInvoker;
 import org.fanjr.simplify.utils.ElUtils;
@@ -38,6 +39,14 @@ public class SetAndDivideValueInvoker implements ELInvoker {
         BigDecimal target = num1.divide(num2, 8, BigDecimal.ROUND_HALF_UP);
         nodeHolder.setValue(target);
         return target;
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            nodeInvoker.accept(visitor);
+            elInvoker.accept(visitor);
+        }
     }
 
     @Override

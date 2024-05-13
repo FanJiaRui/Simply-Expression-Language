@@ -140,8 +140,7 @@ public abstract class ELTokenUtils {
      * @param end   结束index（不包括）
      */
     public static void checkEL(char[] chars, int start, int end) {
-        for (int i = 0; i < 3; i++) {
-            char c = ")]}".charAt(i);
+        for (char c : ")]}".toCharArray()) {
             int index = findNextCharToken(chars, c, start, end, false);
             if (-1 != index) {
                 throw new ElException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【" + c + "】");
@@ -237,7 +236,7 @@ public abstract class ELTokenUtils {
         }
     }
 
-    public static int[] countCharToken(char[] chars, char c, int start, int end) {
+    public static int[] findAllCharToken(char[] chars, char c, int start, int end) {
         IntStream.Builder builder = IntStream.builder();
         for (int i = start; i < end; i++) {
             if (chars[i] == c) {
@@ -422,6 +421,37 @@ public abstract class ELTokenUtils {
             }
         }
         return s;
+    }
+
+    /**
+     * 用于寻找 ${ 或者 #{
+     *
+     * @return $ 或者 # 的index
+     */
+    public static int findElStart(char[] chars, int start, int end) {
+        // 通过下一个花括号位置来判断是否存在 ${ 或者 #{
+        int nextCurly = findChar(chars, '{', start, end);
+        if (nextCurly == -1) {
+            return -1;
+        } else {
+            if (nextCurly > start && nextCurly < end && ('$' == chars[nextCurly - 1] || '#' == chars[nextCurly - 1])) {
+                return nextCurly - 1;
+            } else {
+                return findElStart(chars, nextCurly + 2, end);
+            }
+        }
+    }
+
+    /**
+     * 直接找某个字符串，非token标准
+     */
+    public static int findChar(char[] chars, char c, int start, int end) {
+        for (int i = start; i < end; i++) {
+            if (c == chars[i]) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

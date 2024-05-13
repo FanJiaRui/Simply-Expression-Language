@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Type;
@@ -37,5 +38,12 @@ public class ConversionInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "(" + keyword + " " + subInvoker.toString() + ")";
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            subInvoker.accept(visitor);
+        }
     }
 }

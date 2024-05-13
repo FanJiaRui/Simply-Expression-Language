@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 
 import java.util.LinkedList;
 
@@ -11,11 +12,11 @@ import java.util.LinkedList;
  */
 public abstract class BinocularInvoker implements ELInvoker {
 
-    private ELInvoker el1;
+    protected ELInvoker el1;
 
-    private ELInvoker el2;
+    protected ELInvoker el2;
 
-    private String optStr;
+    protected String optStr;
 
     public static BinocularInvoker buildInstance(String optStr, LinkedList<ELInvoker> stack, BinocularInvoker binocularInvoker) {
         binocularInvoker.el1 = stack.pollFirst();
@@ -42,5 +43,13 @@ public abstract class BinocularInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "(" + el1.toString() + " " + optStr + " " + el2.toString() + ")";
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            el1.accept(visitor);
+            el2.accept(visitor);
+        }
     }
 }

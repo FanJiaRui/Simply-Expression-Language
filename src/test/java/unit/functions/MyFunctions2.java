@@ -3,7 +3,7 @@ package unit.functions;
 import org.fanjr.simplify.el.ELMethod;
 import org.fanjr.simplify.el.ElException;
 
-public class MyFunctions2 {
+class MyFunctions2 {
 
     @ELMethod(order = Integer.MAX_VALUE)
     public static void noReturnOneParamFun(int a) {

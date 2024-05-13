@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.el.ElException;
 import org.fanjr.simplify.utils.ElUtils;
 
@@ -172,6 +173,22 @@ public class MapNodeInvoker extends NodeInvoker {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isVariable() {
+        if (null == parentNodeInvoker || parentNodeInvoker instanceof RootNodeInvoker) {
+            // 没有上层节点，或者上层节点为ROOT节点，说明当前节点为变量
+            return true;
+        }
+
+        // 上级节点为变量则当前节点也为变量
+        return parentNodeInvoker.isVariable();
+    }
+
+    @Override
+    protected void acceptChild(ELVisitor visitor) {
+        // skip
     }
 
 }

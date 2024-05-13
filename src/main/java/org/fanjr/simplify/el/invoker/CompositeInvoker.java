@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 
 import java.util.List;
 
@@ -46,6 +47,15 @@ public class CompositeInvoker implements ELInvoker {
             sb.append(elInvoker.toString()).append(';');
         }
         return sb.toString();
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            for (ELInvoker itemInvoker : subInvokers){
+                itemInvoker.accept(visitor);
+            }
+        }
     }
 
 }

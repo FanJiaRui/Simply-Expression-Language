@@ -2,6 +2,7 @@ package org.fanjr.simplify.el.invoker.calculate;
 
 
 import org.fanjr.simplify.el.ELInvoker;
+import org.fanjr.simplify.el.ELVisitor;
 import org.fanjr.simplify.utils.ElUtils;
 import org.fanjr.simplify.el.invoker.node.NodeHolder;
 import org.fanjr.simplify.el.invoker.node.NodeInvoker;
@@ -38,5 +39,12 @@ public class PreIncrementInvoker implements ELInvoker {
     @Override
     public String toString() {
         return "++" + nodeInvoker.toString();
+    }
+
+    @Override
+    public void accept(ELVisitor visitor) {
+        if (visitor.visit(this)) {
+            nodeInvoker.accept(visitor);
+        }
     }
 }

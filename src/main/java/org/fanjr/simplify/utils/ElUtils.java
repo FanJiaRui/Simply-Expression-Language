@@ -9,6 +9,7 @@ import com.alibaba.fastjson2.util.TypeUtils;
 import com.alibaba.fastjson2.writer.FieldWriter;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
+import org.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -457,7 +458,7 @@ public class ElUtils {
                     final String utilsClassName = ((String) entry.getValue()).trim();
                     for (String s : utilsClassName.split(",")) {
                         try {
-                            ELMethodInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(s));
+                            ELFunctionInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(s));
                         } catch (Exception e) {
                             // SKIP
                             logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
