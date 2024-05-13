@@ -42,4 +42,13 @@ public class SpliceEL implements EL {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (ELInvoker invoker : invokers) {
+            sb.append("[EL: ").append(invoker.toString()).append("]");
+        }
+        return sb.toString();
+    }
 }

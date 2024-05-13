@@ -101,7 +101,7 @@ public class UnitTest {
 
     @Test
     public void testVisitor() {
-        EL compile = ELExecutor.compile("((String)a+(String)b).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length");
+        EL compile = ELExecutor.compile("BEFORE${((String)a+(String)b).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length}AFTER");
         compile.accept(new ELVisitor() {
             @Override
             public boolean visit(EL el) {

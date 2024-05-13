@@ -20,4 +20,9 @@ public class NullEL implements EL {
         // 访问自身
         visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return "[EL: null]";
+    }
 }

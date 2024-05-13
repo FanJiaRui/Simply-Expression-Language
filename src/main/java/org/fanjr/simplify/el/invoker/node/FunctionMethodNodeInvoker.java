@@ -23,15 +23,15 @@ public class FunctionMethodNodeInvoker extends NodeInvoker {
     private final String utilName;
     private final String methodName;
 
-    private FunctionMethodNodeInvoker(String utilName, String functionName, ArrayInvoker parameterEl) {
-        super(utilName);
+    private FunctionMethodNodeInvoker(String nodeName, String utilName, String functionName, ArrayInvoker parameterEl) {
+        super(nodeName);
         this.utilName = utilName;
         this.methodName = functionName;
         this.parameterEl = parameterEl;
     }
 
-    public static FunctionMethodNodeInvoker newInstance(String className, String methodName, ArrayInvoker parameterEl) {
-        return new FunctionMethodNodeInvoker(className, methodName, parameterEl);
+    public static FunctionMethodNodeInvoker newInstance(String nodeName, String className, String methodName, ArrayInvoker parameterEl) {
+        return new FunctionMethodNodeInvoker(nodeName, className, methodName, parameterEl);
     }
 
     @Override
@@ -60,11 +60,6 @@ public class FunctionMethodNodeInvoker extends NodeInvoker {
     @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
         throw new ElException("不可对【" + this + "】方法执行结果重新赋值！");
-    }
-
-    @Override
-    public String toString() {
-        return "Function:" + super.toString();
     }
 
     @Override

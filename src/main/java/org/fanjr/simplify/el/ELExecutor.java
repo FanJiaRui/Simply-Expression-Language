@@ -414,9 +414,9 @@ public class ELExecutor {
                         if (dots.length == 1) {
                             // 已判断形式为XX.fun(...)形式，进一步判断是否为注册的function
                             String functionUtilsName = String.valueOf(chars, start, dots[0] - start);
-                            if (ELFunctionInvokeUtils.hasUtils(functionUtilsName)){
+                            if (ELFunctionInvokeUtils.hasUtils(functionUtilsName)) {
                                 String methodName = String.valueOf(chars, dots[0] + 1, nextFunctionToken - dots[0] - 1);
-                                parent = FunctionMethodNodeInvoker.newInstance(functionUtilsName, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
+                                parent = FunctionMethodNodeInvoker.newInstance(new String(chars, start, nextFunctionEnd + 1 - start), functionUtilsName, methodName, resolveList(chars, nextFunctionToken, nextFunctionEnd + 1));
                                 // 位移到方法后
                                 start = nextFunctionEnd + 1;
                                 if (start >= end) {

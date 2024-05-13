@@ -27,4 +27,9 @@ public class SimpleEL implements EL {
             invoker.accept(visitor);
         }
     }
+
+    @Override
+    public String toString() {
+        return "[EL: " + invoker.toString() + "]";
+    }
 }
