@@ -743,7 +743,11 @@ public class ELExecutor {
                 throw new ElException("解析错误！错误的节点:" + nodeName);
             } else {
                 int lastArrayIndex = findLastCharToken(chars, '[', start, end - 1, false);
-                NodeInvoker parent = resolveNode(chars, start, lastArrayIndex);
+                NodeInvoker parent = null;
+                if (start != lastArrayIndex) {
+                    // 没有上一级，可能是多维数组
+                    parent = resolveNode(chars, start, lastArrayIndex);
+                }
                 ELInvoker indexEl = resolve(chars, lastArrayIndex + 1, end - 1);
                 if (indexEl instanceof StringInvoker) {
                     return IndexMapNodeInvoker.newInstance(nodeName, parent, (String) indexEl.invoke(null));

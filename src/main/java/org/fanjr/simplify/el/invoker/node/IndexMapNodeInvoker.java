@@ -28,6 +28,15 @@ public class IndexMapNodeInvoker extends NodeInvoker {
     }
 
     @Override
+    public void setParentNodeInvoker(NodeInvoker parentNodeInvoker) {
+        if (this.parentNodeInvoker == null) {
+            this.parentNodeInvoker = parentNodeInvoker;
+        } else {
+            this.parentNodeInvoker.setParentNodeInvoker(parentNodeInvoker);
+        }
+    }
+
+    @Override
     Object getValueByParent(Object ctx, NodeHolder parentNode) {
         String nodeName = this.indexNodeName;
         if (null == parentNode) {

@@ -107,7 +107,13 @@ public class ElTest {
         Assertions.assertEquals("t1", ELExecutor.eval("a.b.c.d=='1234567890'?'t1':'t2'", context, String.class));
         Assertions.assertEquals("t1", ELExecutor.eval("a.b.c.d=='1234567890'?\"t1\":\"t2\"", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.boo=true", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.b.c.boo", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.b.c['boo']", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.b.['c']['boo']", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.['b']['c'].boo", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.arr[3][1]=true", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.b.c.arr[3][1]", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.b.c.['arr'][3][1]", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index=1", context, String.class));
         Assertions.assertEquals("{\"d\":\"", ELExecutor.eval("a.b.c.toString().substring(\"0\",6)", context, String.class));
         Assertions.assertEquals("{\"c\":{\"d\":\"1234567890\",\"boo\":true,\"arr\":[null,null,null,[null,true]]}}", ELExecutor.eval("a.b", context, String.class));
@@ -124,6 +130,7 @@ public class ElTest {
         Assertions.assertEquals("6", ELExecutor.eval("a.index = (a.index + 5)", context, String.class));
         Assertions.assertEquals("11", ELExecutor.eval("+ a.index += 5", context, String.class));
         Assertions.assertEquals("11", ELExecutor.eval("a.index2[a.index] = a.index", context, String.class));
+        Assertions.assertEquals("true", ELExecutor.eval("a.index2[a.index] == a.index", context, String.class));
         Assertions.assertEquals("6", ELExecutor.eval("a.index = (a.index - 5)", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index -= 5", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index2[this.a.index] = a.index", context, String.class));

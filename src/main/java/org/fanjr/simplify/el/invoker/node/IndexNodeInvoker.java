@@ -8,7 +8,6 @@ import org.fanjr.simplify.utils.ElUtils;
 
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @author fanjr@vip.qq.com
@@ -30,7 +29,11 @@ public class IndexNodeInvoker extends NodeInvoker {
 
     @Override
     public void setParentNodeInvoker(NodeInvoker parentNodeInvoker) {
-        this.parentNodeInvoker.setParentNodeInvoker(parentNodeInvoker);
+        if (this.parentNodeInvoker == null) {
+            this.parentNodeInvoker = parentNodeInvoker;
+        } else {
+            this.parentNodeInvoker.setParentNodeInvoker(parentNodeInvoker);
+        }
     }
 
     private int getIndex(Object ctx) {
