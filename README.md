@@ -34,7 +34,7 @@
 <dependency>
     <groupId>net.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 #### 老版本依赖（1.1.0之前）

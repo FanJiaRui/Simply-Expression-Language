@@ -37,7 +37,7 @@ Since org domain name is not easy to renew in China, the subsequent versions are
 <dependency>
     <groupId>net.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 #### Old dependencies (before 1.1.0)
