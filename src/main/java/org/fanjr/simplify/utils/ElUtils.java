@@ -9,6 +9,8 @@ import com.alibaba.fastjson2.util.TypeUtils;
 import com.alibaba.fastjson2.writer.FieldWriter;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
+import org.fanjr.simplify.el.EL;
+import org.fanjr.simplify.el.ELExecutor;
 import org.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,13 +161,26 @@ public class ElUtils {
     // Empty checks
     //-----------------------------------------------------------------------
 
-    public static List<String> groupEL(String str) {
-        List<String> list = new ArrayList<>();
-        Matcher matcher = PATTERN.matcher(str);
-        while (matcher.find()) {
-            list.add(matcher.group(1));
-        }
-        return list;
+    /**
+     * 获取表达式所有的变量节点名(不包括方法、常量、根节点等)
+     *
+     * @param el 表达式字符串
+     * @return 变量列表
+     */
+    public static Set<String> getVariants(String el) {
+        return getVariants(ELExecutor.compile(el));
+    }
+
+    /**
+     * 获取表达式所有的变量节点名(不包括方法、常量、根节点等)
+     *
+     * @param el 表达式对象
+     * @return 变量列表
+     */
+    public static Set<String> getVariants(EL el) {
+        ELVariantsVisitor visitor = new ELVariantsVisitor();
+        el.accept(visitor);
+        return visitor.getVars();
     }
 
     /**

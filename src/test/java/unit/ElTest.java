@@ -111,7 +111,7 @@ public class ElTest {
         Assertions.assertEquals("1", ELExecutor.eval("a.index=1", context, String.class));
         Assertions.assertEquals("{\"d\":\"", ELExecutor.eval("a.b.c.toString().substring(\"0\",6)", context, String.class));
         Assertions.assertEquals("{\"c\":{\"d\":\"1234567890\",\"boo\":true,\"arr\":[null,null,null,[null,true]]}}", ELExecutor.eval("a.b", context, String.class));
-        Assertions.assertFalse(ELExecutor.eval("str1=\"123456\";strClass=(class)\"org.fanjr.simplify.utils.ElUtils\";strClass.isBlank(str1)", context, boolean.class));
+//        Assertions.assertFalse(ELExecutor.eval("str1=\"123456\";strClass=(class)\"org.fanjr.simplify.utils.ElUtils\";strClass.isBlank(str1)", context, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("a.b.c.boo?true:false", context, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("!a.b.c.boo?true:false", context, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"1234567890\"==(((a).b).c).d", context, boolean.class));
@@ -163,6 +163,7 @@ public class ElTest {
         Assertions.assertEquals("1", ELExecutor.eval("num=1;", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("${num}", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("#{num}", context, String.class));
+        Assertions.assertEquals("1", ELExecutor.eval("this['num']", context, String.class));
         Assertions.assertEquals("1-1x11", ELExecutor.eval("#{num}${-num}x#{num}${num++}", context, String.class));
         Assertions.assertEquals("2xxx", ELExecutor.eval("${num}xxx", context, String.class));
         Assertions.assertEquals("2xxx", ELExecutor.eval("#{num}xxx", context, String.class));
@@ -288,8 +289,12 @@ public class ElTest {
     @DisplayName("枚举测试")
     public void testEnum() {
         JSONObject context = new JSONObject();
-        Assertions.assertEquals("SERIAL_ID", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.NODE_NAME", context, Object.class));
-        Assertions.assertEquals("流水号", ELExecutor.eval("((class) \"unit.TestEnum\").SERIAL_ID.TITLE", context, Object.class));
+        context.put("ENUM_OBJ", TestEnum.SERIAL_ID);
+        context.put("ENUM_CLASS", TestEnum.class);
+        Assertions.assertEquals("SERIAL_ID", ELExecutor.eval("$.getEnumMap(\"unit.TestEnum\").SERIAL_ID.NODE_NAME", context, Object.class));
+        Assertions.assertEquals("流水号", ELExecutor.eval("$.getEnumMap(\"unit.TestEnum\").SERIAL_ID.TITLE", context, Object.class));
+        Assertions.assertEquals("流水号", ELExecutor.eval("$.getEnumMap(ENUM_OBJ).SERIAL_ID.TITLE", context, Object.class));
+        Assertions.assertEquals("流水号", ELExecutor.eval("$.getEnumMap(ENUM_CLASS).SERIAL_ID.TITLE", context, Object.class));
     }
 
     @Test

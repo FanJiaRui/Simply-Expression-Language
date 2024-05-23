@@ -101,50 +101,32 @@ public class UnitTest {
 
     @Test
     public void testVisitor() {
-        EL compile = ELExecutor.compile("BEFORE${((String)a+(String)b).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length}AFTER");
-        compile.accept(new ELVisitor() {
-            @Override
-            public boolean visit(EL el) {
-                return true;
-            }
+        Set<String> variants = ElUtils.getVariants("BEFORE${((String)a+(String)b['a+c']).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length}AFTER");
+        System.out.println(variants);
 
-            @Override
-            public boolean visit(ELInvoker invoker) {
-                if (invoker instanceof Node) {
-                    if (((Node) invoker).isVariable()) {
-                        System.out.println("变量:" + invoker);
-                        return false;
-                    }
-                }
-                System.out.println("可执行表达式、常量表达式:" + invoker);
-                return true;
-            }
-        });
-
-        System.out.println(compile);
     }
 
 
     //    @Test
-    public void drawLots() {
-        Random rand = new Random();
-        LinkedList<String> queue = new LinkedList<>();
-        List<String> target = new ArrayList<>();
-
-        //添加名单
-
-        // 随机取出人员放置到目标
-        while (queue.size() > 0) {
-            int nextIndex = rand.nextInt(queue.size());
-            String name = queue.remove(nextIndex);
-            target.add(name);
-        }
-
-        // 输出结果
-        System.out.println("优先级:");
-        for (int i = 0; i < target.size(); i++) {
-            System.out.println((i + 1) + ": " + target.get(i));
-        }
-    }
+//    public void drawLots() {
+//        Random rand = new Random();
+//        LinkedList<String> queue = new LinkedList<>();
+//        List<String> target = new ArrayList<>();
+//
+//        //添加名单
+//
+//        // 随机取出人员放置到目标
+//        while (queue.size() > 0) {
+//            int nextIndex = rand.nextInt(queue.size());
+//            String name = queue.remove(nextIndex);
+//            target.add(name);
+//        }
+//
+//        // 输出结果
+//        System.out.println("优先级:");
+//        for (int i = 0; i < target.size(); i++) {
+//            System.out.println((i + 1) + ": " + target.get(i));
+//        }
+//    }
 
 }

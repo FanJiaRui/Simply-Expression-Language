@@ -31,13 +31,21 @@ public abstract class ELBaseFunction implements Comparable<ELBaseFunction> {
         this.instanceName = null;
         this.parameterTypes = pair.k;
         this.genericParameterTypes = pair.v;
-        this.order = 0;
+
         this.method = method;
         this.userDefinedExceptions = new ArrayList<>();
 
+        int mod = method.getModifiers();
+        if (Modifier.isFinal(mod)) {
+            // final标识的方法优先级较高
+            this.order = -1;
+        } else {
+            this.order = 0;
+        }
+
         // 可能存在方法为非public或方法所在类为非public的情况，需要强行设置accessible
         // 这里不关注是否为私有方法或者私有对象，使用这个类时根据实际情况进行判断是否将方法转换为ELFunction
-        if (!Modifier.isPublic(method.getModifiers()) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+        if (!Modifier.isPublic(mod) || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
             method.setAccessible(true);
         }
     }
@@ -140,6 +148,16 @@ public abstract class ELBaseFunction implements Comparable<ELBaseFunction> {
 
     @Override
     public int compareTo(ELBaseFunction o) {
-        return Integer.compare(this.order, o.order);
+        if (this.equals(o)) {
+            // 结果比较相等，返回0
+            return 0;
+        }
+        // 按排序
+        int compare = Integer.compare(this.order, o.order);
+        if (compare == 0) {
+            // 排序相等时后面的覆盖前面的
+            return 1;
+        }
+        return compare;
     }
 }

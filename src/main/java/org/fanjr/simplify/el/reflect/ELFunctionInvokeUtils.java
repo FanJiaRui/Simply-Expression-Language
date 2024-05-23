@@ -1,6 +1,8 @@
 package org.fanjr.simplify.el.reflect;
 
 import com.alibaba.fastjson2.util.BeanUtils;
+import org.fanjr.simplify.el.ElException;
+import org.fanjr.simplify.el.cache.ConcurrentCache;
 import org.fanjr.simplify.utils.Pair;
 
 import java.lang.reflect.Method;
@@ -16,14 +18,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ELFunctionInvokeUtils {
 
     /**
-     * 用于存储内置函数的映射关系
+     * 用于存储内置函数的映射关系，内置函数不适用缓存，原则上内置函数不被垃圾回收，也不应该存在类加载器被卸载的情况
      */
     private static final Map<String, Map<String, Set<ELInnerFunction>>> FUNCTION_MAPPING = new ConcurrentHashMap<>();
 
     /**
      * 用于存储类与其方法的映射关系
      */
-    private static final Map<Class<?>, Map<String, Set<ELInnerFunction>>> CLASS_MAPPING = new ConcurrentHashMap<>();
+    private static final ConcurrentCache<Class<?>, Map<String, Set<ELObjectFunction>>> CLASS_METHOD_MAPPING = new ConcurrentCache<>(10000);
+
+    /**
+     * 方法映射
+     */
+    private static final ConcurrentCache<Method, ELObjectFunction> METHOD_MAPPING = new ConcurrentCache<>(10000);
 
 
     /**
@@ -69,8 +76,76 @@ public class ELFunctionInvokeUtils {
         }
     }
 
+    /**
+     * 判断是否存在该工具
+     *
+     * @param utilName 工具名词
+     * @return 返回true时表示存在，否则不存在
+     */
     public static boolean hasUtils(String utilName) {
         return FUNCTION_MAPPING.containsKey(utilName);
+    }
+
+    public static ELObjectFunction getObjectFunction(Object instance, String methodName, Object... args) {
+        if (null == instance) {
+            return null;
+        }
+
+        Class<?> clazz = instance.getClass();
+        Map<String, Set<ELObjectFunction>> targetMapping = CLASS_METHOD_MAPPING.get(clazz);
+        if (null == targetMapping) {
+            synchronized ("EL_M_K_L" + clazz.getName()) {
+                targetMapping = CLASS_METHOD_MAPPING.get(clazz);
+                if (null == targetMapping) {
+                    targetMapping = new ConcurrentHashMap<>();
+                    Method[] methods = clazz.getMethods();
+                    for (Method method : methods) {
+                        int mod = method.getModifiers();
+                        if (Modifier.isAbstract(mod)) {
+                            // 抽象方法，跳过
+                            continue;
+                        }
+                        if (Modifier.isStatic(mod)) {
+                            // 出于安全考虑，类方法也跳过
+                            continue;
+                        }
+
+                        ELObjectFunction function = METHOD_MAPPING.computeIfAbsent(method, ELObjectFunction::new);
+                        Set<ELObjectFunction> functions = targetMapping.computeIfAbsent(method.getName(), (k) -> new TreeSet<>());
+                        functions.add(function);
+                    }
+
+                    CLASS_METHOD_MAPPING.put(clazz, targetMapping);
+                }
+            }
+        }
+
+
+        Set<ELObjectFunction> elObjectFunctions = targetMapping.get(methodName);
+
+        if (null == elObjectFunctions) {
+            return null;
+        }
+
+        if (elObjectFunctions.size() == 0) {
+            return null;
+        }
+
+        for (ELObjectFunction method : elObjectFunctions) {
+            // 找到第一个参数匹配上的方法
+            if (method.match(args)) {
+                return method;
+            }
+        }
+
+        for (ELObjectFunction method : elObjectFunctions) {
+            // 找到第一个参数个数匹配上的方法
+            if (method.getParameterCount() == args.length) {
+                return method;
+            }
+        }
+
+        return null;
     }
 
     public static ELInnerFunction findFunction(String utilName, String functionName, Object... args) {
@@ -84,6 +159,9 @@ public class ELFunctionInvokeUtils {
             return null;
         }
 
+        if (elInnerFunctions.size() == 0) {
+            return null;
+        }
 
         for (ELInnerFunction method : elInnerFunctions) {
             if (method.match(args)) {
@@ -91,11 +169,14 @@ public class ELFunctionInvokeUtils {
             }
         }
 
-        if (elInnerFunctions.size() == 0) {
-            return null;
+        for (ELInnerFunction method : elInnerFunctions) {
+            // 找到第一个参数个数匹配上的方法
+            if (method.getParameterCount() == args.length) {
+                return method;
+            }
         }
 
-        return elInnerFunctions.iterator().next();
+        return null;
     }
 
     public static Pair<Class<?>[], Type[]> getMethodParameters(Method m) {

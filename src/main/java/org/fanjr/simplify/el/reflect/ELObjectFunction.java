@@ -12,10 +12,10 @@ public class ELObjectFunction extends ELBaseFunction {
     /**
      * 执行方法
      *
-     * @param instance
-     * @param ctx
-     * @param args
-     * @return
+     * @param instance 执行方法的实例
+     * @param ctx      上下文
+     * @param args     调用方法的参数
+     * @return 执行结果
      */
     public Object invoke(Object instance, Object ctx, Object... args) {
         return invokeByInstance(instance, ctx, args);
@@ -25,12 +25,13 @@ public class ELObjectFunction extends ELBaseFunction {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ELObjectFunction)) return false;
-        ELObjectFunction elInnerFunction = (ELObjectFunction) o;
-        return Objects.equals(method, elInnerFunction.method);
+        return Objects.equals(method, ((ELObjectFunction) o).method);
     }
+
 
     @Override
     public int hashCode() {
-        return Objects.hash(method);
+        return Objects.hash(method.toGenericString());
     }
+
 }

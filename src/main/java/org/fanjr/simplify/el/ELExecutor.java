@@ -744,7 +744,12 @@ public class ELExecutor {
             } else {
                 int lastArrayIndex = findLastCharToken(chars, '[', start, end - 1, false);
                 NodeInvoker parent = resolveNode(chars, start, lastArrayIndex);
-                return IndexNodeInvoker.newInstance(nodeName, parent, resolve(chars, lastArrayIndex + 1, end - 1));
+                ELInvoker indexEl = resolve(chars, lastArrayIndex + 1, end - 1);
+                if (indexEl instanceof StringInvoker) {
+                    return IndexMapNodeInvoker.newInstance(nodeName, parent, (String) indexEl.invoke(null));
+                } else {
+                    return IndexNodeInvoker.newInstance(nodeName, parent, indexEl);
+                }
             }
         }
 
@@ -758,8 +763,12 @@ public class ELExecutor {
             }
         }
 
+        if ("this".equals(nodeName)) {
+            // this关键字
+            return RootNodeInvoker.INSTANCE;
+        }
+
         //其他情况为普通取节点值
         return MapNodeInvoker.newInstance(nodeName);
     }
-
 }

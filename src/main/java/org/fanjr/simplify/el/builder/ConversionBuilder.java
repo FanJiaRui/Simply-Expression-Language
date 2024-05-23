@@ -32,7 +32,8 @@ public class ConversionBuilder {
         addBuilderByType("(double)", double.class);
         addBuilderByType("(String)", String.class);
         addBuilderByType("(BigDecimal)", BigDecimal.class);
-        addBuilder("(class)", () -> new ELInvokerBuilder(1, ClassInvoker::buildInstance));
+        // 出于安全考虑，不再内置提供将字符串转换为class的方法
+//        addBuilder("(class)", () -> new ELInvokerBuilder(1, ClassInvoker::buildInstance));
     }
 
     public static Supplier<ELInvoker> matchBuild(char[] chars, int start, int end) {
