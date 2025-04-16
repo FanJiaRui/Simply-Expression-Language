@@ -10,12 +10,12 @@
 ## 介绍
 
 简易表达式，旨在解决判断、计算、取值、结构转换这些逻辑简单但编码繁复的工作<br>
-主要应用场景：动态规则的计算场景、类型适配（报文转换）
+主要应用场景：动态规则的计算场景、类型适配（报文转换），可以配合调度类、流程类引擎的动态计算
 
 ## 环境&依赖
 
 * JDK 1.8
-* fastjson2 2.0.49
+* fastjson2 2.0.56
 * slf4j 1.7.30
 
 ## 特性
@@ -34,7 +34,7 @@
 <dependency>
     <groupId>net.fanjr.simplify</groupId>
     <artifactId>simplify-el</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 #### 老版本依赖（1.1.0之前）
@@ -111,6 +111,14 @@ Assertions.assertEquals(100, ELExecutor.eval("flag>=100?val*10:val/10", context,
 Assertions.assertEquals(1, ELExecutor.eval("flag<100?val*10:val/10", context, int.class));
 ```
 
+## 正则匹配
+
+``` java
+Assertions.assertTrue(ELExecutor.eval("18888888888 ~= '^[0-9]{11}$'", null, boolean.class));
+Assertions.assertTrue(ELExecutor.eval("phone ~= '^[0-9]{11}$'", JSONObject.of("phone","18888888888"), boolean.class));
+Assertions.assertFalse(ELExecutor.eval("phone ~= '^[0-9]{11}$'", JSONObject.of("phone","18888xx8888"), boolean.class));
+```
+
 ## if-else分支语法
 
 ``` java
@@ -166,9 +174,58 @@ ELExecutor.eval("for(i:10){arr[i]=3 * (i + 1234) - i}", context);
 // 计算结果正确性断言
 Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
 context.clear();
+
+// 嵌套循环将结果输出到控制台，输出九九乘法表
+ELExecutor.eval("   " +
+        "for(i=1;i<=9;i++){" +
+        "   for(j=1;j<=9;j++){" +
+        "       $.printf(i+'*'+j+'='+(i*j)+'\t');" +
+        "   }" +
+        "   $.printf('\n')" +
+        "}" , 
+        new HashMap<>());
 ```
+
+## 自定义函数&内置函数
+
+### 自定义函数扩展
+
+```properties
+# 在META-INF目录下新建simplify-el.functions，添加Function挂载
+# 工具名=类全限定名，多个类用','隔开，会将这些类中所有public static方法收集并挂载到工具名下
+# 同一个工具名下方法名+参数表相同的方法根据@ELMethod中的order属性进行排序生效，order数字小的优先级高
+$=InnerFunctions
+```
+
+以下为`InnerFunctions`内容，表达式中通过工具名+方法名对其调用。<br>
+例如:`$.println('hello world')`
+
+```java
+public class InnerFunctions {
+    // 省略了一些不重要的内容
+
+    /**
+     * 控制台输出
+     * $.println(xxxxx)
+     */
+    @ELMethod(order = Integer.MAX_VALUE)
+    public static void println(Object object) {
+        System.out.println(object);
+    }
+}
+```
+
+### 内置函数
+
+- `$.println(xxxx)` 将传入对象输出到控制台
+- `$.printf(xxxx)` 将传入对象输出到控制台(结尾不换行)
+- `$.log(xxxx)` 将传入对象用日志框架输出到控制台和日志文件
+- `$.max(a,b)` 比较a,b的大小，返回更大的
+- `$.min(a,b)` 比较a,b的大小，返回更小的
+- `$.merge([map1,map2,map3...])` 深度合并多个map
+- `$.getEnumMap(xx)` 获取枚举映射MAP
 
 ## 后续规划
 
-- 支持日志（或控制台输出）等内置函数
 - 分析JAVA自带库方法，考虑部分可能经常使用的方法集成到内置函数中
+- 持续优化使用方式，考虑添加部分工具类

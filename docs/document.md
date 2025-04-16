@@ -14,7 +14,7 @@
 
 ## 主要API
 
-这里介绍类`org.fanjr.simplify.el.ELExecutor`中的API
+这里介绍类`ELExecutor`中的API
 
 ``` java
 

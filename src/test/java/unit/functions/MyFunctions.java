@@ -1,7 +1,7 @@
 package unit.functions;
 
-import org.fanjr.simplify.el.ELMethod;
-import org.fanjr.simplify.el.ElException;
+import net.fanjr.simplify.el.ELMethod;
+import net.fanjr.simplify.utils.SimplifyException;
 
 class MyFunctions {
 
@@ -16,12 +16,12 @@ class MyFunctions {
 
     @ELMethod(order = Integer.MAX_VALUE)
     public static void noReturnTwoParamFun(int a, int b) {
-        throw new ElException("不应该调用低优先级的方法");
+        throw new SimplifyException("不应该调用低优先级的方法");
     }
 
 
     public static String strReturnNoParamFun() {
-        throw new ElException("不应该调用低优先级的方法");
+        throw new SimplifyException("不应该调用低优先级的方法");
     }
 
     @ELMethod(order = -2, functionName = "strReturnNoParamFun")

@@ -1,10 +1,11 @@
 package unit;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import org.fanjr.simplify.el.EL;
-import org.fanjr.simplify.el.ELExecutor;
-import org.fanjr.simplify.el.invoker.node.Node;
-import org.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.el.EL;
+import net.fanjr.simplify.el.ELExecutor;
+import net.fanjr.simplify.el.invoker.node.Node;
+import net.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -115,9 +116,11 @@ public class ElTest {
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.arr[3][1]", context, String.class));
         Assertions.assertEquals("true", ELExecutor.eval("a.b.c.['arr'][3][1]", context, String.class));
         Assertions.assertEquals("1", ELExecutor.eval("a.index=1", context, String.class));
+        Assertions.assertFalse(ELExecutor.eval("-a.index!=0-a.index", context, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("-a.index==0-a.index", context, boolean.class));
         Assertions.assertEquals("{\"d\":\"", ELExecutor.eval("a.b.c.toString().substring(\"0\",6)", context, String.class));
         Assertions.assertEquals("{\"c\":{\"d\":\"1234567890\",\"boo\":true,\"arr\":[null,null,null,[null,true]]}}", ELExecutor.eval("a.b", context, String.class));
-//        Assertions.assertFalse(ELExecutor.eval("str1=\"123456\";strClass=(class)\"org.fanjr.simplify.utils.ElUtils\";strClass.isBlank(str1)", context, boolean.class));
+//        Assertions.assertFalse(ELExecutor.eval("str1=\"123456\";strClass=(class)\"ElUtils\";strClass.isBlank(str1)", context, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("a.b.c.boo?true:false", context, boolean.class));
         Assertions.assertFalse(ELExecutor.eval("!a.b.c.boo?true:false", context, boolean.class));
         Assertions.assertTrue(ELExecutor.eval("\"1234567890\"==(((a).b).c).d", context, boolean.class));
@@ -199,7 +202,7 @@ public class ElTest {
         ELExecutor.eval("tt.testArrAdd.add('3')", context);
         ELExecutor.eval("tt.testArrAdd.add('4')", context);
         ELExecutor.eval("tt.testArrAdd", context);
-
+        Assertions.assertEquals(ELExecutor.getNode(context, "tt.testArrAdd"), JSONArray.of("1", "2", "3", "4"));
     }
 
     @Test
@@ -208,15 +211,19 @@ public class ElTest {
     public void sigTest() {
         // 新功能开发后先在这里进行编写测试，之后再补充到测试用例中
         Map<String, Object> context = new HashMap<>();
-        ELExecutor.eval("tt.testMapAdd={}", context);
-        ELExecutor.eval("tt.testMapAdd.put('x','v')", context);
-
-        ELExecutor.eval("tt.testArrAdd=[]", context);
-        ELExecutor.eval("tt.testArrAdd.add('x')", context);
-        ELExecutor.eval("tt.testArrAdd.add('y')", context);
-        ELExecutor.eval("tt.testArrAdd.add('z')", context);
-        ELExecutor.eval("tt.testArrAdd.add('q')", context);
-        ELExecutor.eval("tt.testArrAdd.remove('q')", context);
+//        ELExecutor.eval("tt.testMapAdd={}", context);
+//        ELExecutor.eval("tt.testMapAdd.put('x','v')", context);
+//
+//        ELExecutor.eval("tt.testArrAdd=[]", context);
+//        ELExecutor.eval("tt.testArrAdd.add('x')", context);
+//        ELExecutor.eval("tt.testArrAdd.add('y')", context);
+//        ELExecutor.eval("tt.testArrAdd.add('z')", context);
+//        ELExecutor.eval("tt.testArrAdd.add('q')", context);
+//        ELExecutor.eval("tt.testArrAdd.remove('q')", context);
+        ELExecutor.putNode(context, "req.arr[0][0].a", "00");
+        ELExecutor.putNode(context, "req.arr[0][1].a", "01");
+        ELExecutor.putNode(context, "req.arr[1][0].a", "10");
+        ELExecutor.putNode(context, "req.arr[1][1].a", "11");
         System.out.println(context);
     }
 
@@ -369,14 +376,17 @@ public class ElTest {
         ELExecutor.eval("$.println(a++)", of);
         ELExecutor.eval("$.println($.max(a+10,1))", of);
         ELExecutor.eval("$.println($.min(a,10))", of);
+
+        ELExecutor.eval("$.println($.new('java.util.ArrayList'))", of);
+
     }
 
     @Test
     @DisplayName("正则表达式测试")
     public void testRegExp() {
-        Assertions.assertEquals(true, ELExecutor.eval("18888888888 ~= '^[0-9]{11}$'", null, boolean.class));
-        Assertions.assertEquals(true, ELExecutor.eval("'18888888888' ~= '^[0-9]{11}$'", null, boolean.class));
-        Assertions.assertEquals(false, ELExecutor.eval("'18888xx8888' ~= '^[0-9]{11}$'", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("18888888888 ~= '^[0-9]{11}$'", null, boolean.class));
+        Assertions.assertTrue(ELExecutor.eval("phone ~= '^[0-9]{11}$'", JSONObject.of("phone", "18888888888"), boolean.class));
+        Assertions.assertFalse(ELExecutor.eval("phone ~= '^[0-9]{11}$'", JSONObject.of("phone", "18888xx8888"), boolean.class));
     }
 
 

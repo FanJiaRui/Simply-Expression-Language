@@ -1,16 +1,18 @@
 package unit;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.fanjr.simplify.el.*;
-import org.fanjr.simplify.el.cache.ConcurrentCache;
-import org.fanjr.simplify.el.cache.ELCacheManager;
-import org.fanjr.simplify.el.invoker.node.Node;
-import org.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.el.ELExecutor;
+import net.fanjr.simplify.el.ELTokenUtils;
+import net.fanjr.simplify.el.cache.ConcurrentCache;
+import net.fanjr.simplify.el.cache.ELCacheManager;
+import net.fanjr.simplify.utils.ElUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 @DisplayName("内部方法单元测试")
@@ -101,11 +103,22 @@ public class UnitTest {
 
     @Test
     public void testVisitor() {
-        Set<String> variants = ElUtils.getVariants("BEFORE${((String)a+(String)b['a+c']).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length}AFTER");
+        Set<String> variants = ElUtils.getVariants("BEFORE${((String)a+(String)b['a+c']).substring(map.len)+$.toDate('2014'+map.mon+map.day).toString().length+array[index].bcd}AFTER");
         System.out.println(variants);
 
     }
 
+    @Test
+    public void testFor() {
+        ELExecutor.eval("   " +
+                "for(i=1;i<=9;i++){" +
+                "   for(j=1;j<=9;j++){" +
+                "       $.printf(i+'*'+j+'='+(i*j)+'\t');" +
+                "   }" +
+                "   $.printf('\n')" +
+                "}" +
+                "   ", new HashMap<>());
+    }
 
     //    @Test
 //    public void drawLots() {

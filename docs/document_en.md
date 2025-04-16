@@ -14,7 +14,7 @@ Main application scenarios: dynamic rule calculation scenario and type adaptatio
 
 ## Primary API
 
-The API in the class `org.fanjr.simplify.el.ELExecutor` is introduced here.
+The API in the class `ELExecutor` is introduced here.
 
 
 ``` java
