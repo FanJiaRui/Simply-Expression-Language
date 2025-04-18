@@ -173,7 +173,7 @@ ELExecutor.eval("for(i=1;i<=9;i++){" +
 
 ```properties
 # Create META-INF/simplify-el.functions
-$=InnerFunctions
+$=net.fanjr.simplify.el.InnerFunctions
 ```
 
 Sample inner functions (`InnerFunctions`):

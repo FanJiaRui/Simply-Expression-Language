@@ -4,7 +4,7 @@ import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.node.NodeHolder;
 import net.fanjr.simplify.el.invoker.node.NodeInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -34,8 +34,8 @@ public class SetAndSubtractValueInvoker implements ELInvoker {
         Object val2 = elInvoker.invoke(ctx);
         NodeHolder nodeHolder = nodeInvoker.getNodeHolder(ctx);
         Object val1 = nodeHolder.getValue();
-        BigDecimal num1 = ElUtils.castToBigDecimal(val1);
-        BigDecimal num2 = ElUtils.castToBigDecimal(val2);
+        BigDecimal num1 = $.castToBigDecimal(val1);
+        BigDecimal num2 = $.castToBigDecimal(val2);
         BigDecimal target = num1.subtract(num2);
         nodeHolder.setValue(target);
         return target;

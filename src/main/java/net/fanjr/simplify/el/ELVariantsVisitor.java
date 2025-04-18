@@ -1,8 +1,5 @@
-package net.fanjr.simplify.utils;
+package net.fanjr.simplify.el;
 
-import net.fanjr.simplify.el.EL;
-import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.node.Node;
 
 import java.util.LinkedHashMap;
@@ -11,6 +8,7 @@ import java.util.Set;
 
 /**
  * 检索变量Visitor
+ * @author fanjr@vip.qq.com
  */
 public class ELVariantsVisitor implements ELVisitor {
 

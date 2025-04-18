@@ -1,10 +1,10 @@
 package net.fanjr.simplify.el.builder;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELTokenUtils;
 import net.fanjr.simplify.el.invoker.statement.IfElseStatementInvoker;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.util.function.Supplier;
 
@@ -55,7 +55,7 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
         {
             start += ELTokenUtils.findHeadSpace(chars, start, end);
             if (chars[start] != '{') {
-                throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，if语句后缺少可执行语句，应该为if(...){...}");
+                throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，if语句后缺少可执行语句，应该为if(...){...}");
             }
             start += 1;
             int nextToken = ELTokenUtils.findNextCharToken(chars, '}', start, end);
@@ -91,7 +91,7 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
             start += 4;
             start += ELTokenUtils.findHeadSpace(chars, start, end);
             if (start >= end || end - start < 2) {
-                throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，else语句后缺少可执行语句，应该为else{...}或else if(...){...}");
+                throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，else语句后缺少可执行语句，应该为else{...}或else if(...){...}");
             }
             if (chars[start] == '{') {
                 start += 1;
@@ -112,7 +112,7 @@ public class IfElseBuilder implements Supplier<ELInvoker> {
             }
 
 
-            throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，else语句后缺少可执行语句，应该为else{...}或else if(...){...}");
+            throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，else语句后缺少可执行语句，应该为else{...}或else if(...){...}");
         }
     }
 

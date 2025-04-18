@@ -1,8 +1,6 @@
 package net.fanjr.simplify.el;
 
 
-import net.fanjr.simplify.utils.SimplifyException;
-
 import java.util.stream.IntStream;
 
 /**
@@ -171,7 +169,7 @@ public abstract class ELTokenUtils {
         for (char c : ")]}".toCharArray()) {
             int index = findNextCharToken(chars, c, start, end, false);
             if (-1 != index) {
-                throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【" + c + "】");
+                throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【" + c + "】");
             }
         }
     }
@@ -212,7 +210,7 @@ public abstract class ELTokenUtils {
             }
         }
         if (throwException) {
-            throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
+            throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
         } else {
             return -1;
         }
@@ -240,7 +238,7 @@ public abstract class ELTokenUtils {
      * @param end            结束位置（不包括）
      * @param throwException 找不到char抛出异常
      * @return 返回找到的字符的索引，如果没有找到并且throwException为false，则返回-1
-     * @throws SimplifyException 如果没有找到指定的字符且throwException为true时抛出此异常
+     * @throws ELException 如果没有找到指定的字符且throwException为true时抛出此异常
      */
     public static int findLastCharToken(char[] chars, char c, int start, int end, boolean throwException) {
         for (int i = end - 1; i >= start; i--) {
@@ -268,7 +266,7 @@ public abstract class ELTokenUtils {
             }
         }
         if (throwException) {
-            throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
+            throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，缺少【" + c + "】");
         } else {
             return -1;
         }
@@ -329,7 +327,7 @@ public abstract class ELTokenUtils {
                 }
             }
         }
-        throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
+        throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
     }
 
     /**
@@ -349,7 +347,7 @@ public abstract class ELTokenUtils {
                 }
             }
         }
-        throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
+        throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，未关闭的字符串！开启index:" + start);
     }
 
     /**
@@ -380,7 +378,7 @@ public abstract class ELTokenUtils {
                 }
             }
         }
-        throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
+        throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
     }
 
     /**
@@ -411,7 +409,7 @@ public abstract class ELTokenUtils {
                 }
             }
         }
-        throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
+        throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，未找到字符串起始位置！关闭index:" + end);
     }
 
     /**

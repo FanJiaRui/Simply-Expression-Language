@@ -2,21 +2,20 @@ package net.fanjr.simplify.el.cache;
 
 import net.fanjr.simplify.el.EL;
 import net.fanjr.simplify.el.invoker.node.NodeInvoker;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 缓存集中管理
- * TODO 后续考虑把缓存大小做成可配置化
- *
  * @author fanjr@vip.qq.com
  */
-public class ELCacheManager {
+public class CacheManager {
 
-    private static final ConcurrentCache<String, EL> COMPILES_EL = new ConcurrentCache<>(10000);
-    private static final ConcurrentCache<String, NodeInvoker> COMPILES_NODE = new ConcurrentCache<>(10000);
-    private static final Map<Class<?>, ConcurrentCache<String, ?>> POOL = new ConcurrentHashMap<>();
+    private static final SimplifyCache<String, EL> COMPILES_EL = new SimplifyCache<>(10000);
+    private static final SimplifyCache<String, NodeInvoker> COMPILES_NODE = new SimplifyCache<>(10000);
+    private static final Map<Class<?>, SimplifyCache<String, ?>> POOL = new ConcurrentHashMap<>();
     public static EL getEL(String el) {
         return COMPILES_EL.get(el);
     }
@@ -33,12 +32,12 @@ public class ELCacheManager {
         COMPILES_NODE.put(node, instance);
     }
 
-    public static <T> ConcurrentCache<String, T> getPool(Class<T> type) {
-        return cast(POOL.computeIfAbsent(type, (i) -> new ConcurrentCache<String, T>(10000)));
+    public static <T> SimplifyCache<String, T> getPool(Class<T> type) {
+        return cast(POOL.computeIfAbsent(type, (i) -> new SimplifyCache<String, T>(10000)));
     }
 
-    public static <T> ConcurrentCache<String, T> getPool(Class<T> type, int size) {
-        return cast(POOL.computeIfAbsent(type, (i) -> new ConcurrentCache<String, T>(size)));
+    public static <T> SimplifyCache<String, T> getPool(Class<T> type, int size) {
+        return cast(POOL.computeIfAbsent(type, (i) -> new SimplifyCache<String, T>(size)));
     }
 
     private static <T> T cast(Object o) {

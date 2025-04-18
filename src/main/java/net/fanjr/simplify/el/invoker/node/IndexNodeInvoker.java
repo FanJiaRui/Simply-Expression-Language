@@ -1,10 +1,10 @@
 package net.fanjr.simplify.el.invoker.node;
 
 import com.alibaba.fastjson2.JSONArray;
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.ElUtils;
-import net.fanjr.simplify.utils.SimplifyException;
+import net.fanjr.simplify.utils.$;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -37,7 +37,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     }
 
     private int getIndex(Object ctx) {
-        return ElUtils.cast(indexEl.invoke(ctx), int.class);
+        return $.cast(indexEl.invoke(ctx), int.class);
     }
 
     public NodeHolder getNodeHolder(Object ctx) {
@@ -54,7 +54,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
         if (null == parentNode) {
-            throw new SimplifyException("不可对【" + this + "】进行赋值！");
+            throw new ELException("不可对【" + this + "】进行赋值！");
         }
         Object parentValue = parentNode.getValue();
         if (parentValue == null) {
@@ -85,7 +85,7 @@ public class IndexNodeInvoker extends NodeInvoker {
         if (parentValueClass.isArray()) {
             int arrayLen = Array.getLength(parentValue);
             if (index < arrayLen) {
-                Array.set(parentValue, index, ElUtils.cast(value, parentValueClass.getComponentType()));
+                Array.set(parentValue, index, $.cast(value, parentValueClass.getComponentType()));
                 if (parentNode.isChange()) {
                     parentNode.setValue(parentValue);
                 }
@@ -111,7 +111,7 @@ public class IndexNodeInvoker extends NodeInvoker {
     @Override
     void removeValueByParent(NodeHolder parentNode, int index) {
         if (null == parentNode) {
-            throw new SimplifyException("不可对【" + this + "】进行赋值！");
+            throw new ELException("不可对【" + this + "】进行赋值！");
         }
         Object parentValue = parentNode.getValue();
         if (parentValue == null) {

@@ -2,7 +2,7 @@ package net.fanjr.simplify.el.invoker.calculate;
 
 import com.alibaba.fastjson2.JSON;
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -50,7 +50,7 @@ public class EqualsInvoker extends BinocularInvoker {
         if (null == obj || EMPTY_FLAG == obj || BLANK_FLAG == obj) {
             return true;
         }
-        return ElUtils.isBlank(String.valueOf(obj));
+        return $.isBlank(String.valueOf(obj));
     }
 
     @Override
@@ -85,11 +85,11 @@ public class EqualsInvoker extends BinocularInvoker {
         } else {
             str2 = JSON.toJSONString(eq2);
         }
-        if (ElUtils.isNumber(str1)
-                && ElUtils.isNumber(str2)) {
+        if ($.isNumber(str1)
+                && $.isNumber(str2)) {
             //数字不比较精度
-            BigDecimal bigDecimal1 = ElUtils.castToBigDecimal(eq1);
-            BigDecimal bigDecimal2 = ElUtils.castToBigDecimal(eq2);
+            BigDecimal bigDecimal1 = $.castToBigDecimal(eq1);
+            BigDecimal bigDecimal2 = $.castToBigDecimal(eq2);
             return bigDecimal1.compareTo(bigDecimal2) == 0;
         }
         return Objects.equals(str1, str2);

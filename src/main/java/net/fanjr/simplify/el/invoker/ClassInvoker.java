@@ -1,9 +1,9 @@
 package net.fanjr.simplify.el.invoker;
 
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.util.LinkedList;
 
@@ -29,7 +29,7 @@ public class ClassInvoker implements ELInvoker {
         try {
             return Class.forName(className);
         } catch (Exception e) {
-            throw new SimplifyException("找不到类：" + className, e);
+            throw new ELException("找不到类：" + className, e);
         }
     }
 

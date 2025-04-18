@@ -1,9 +1,9 @@
 package net.fanjr.simplify.el.reflect;
 
 import com.alibaba.fastjson2.JSON;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.el.ELException;
+import net.fanjr.simplify.utils.$;
 import net.fanjr.simplify.utils.Pair;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -79,7 +79,7 @@ public abstract class ELBaseFunction implements Comparable<ELBaseFunction> {
         try {
             Object[] target = new Object[args.length];
             for (int i = 0; i < args.length; i++) {
-                target[i] = ElUtils.cast(args[i], genericParameterTypes[i]);
+                target[i] = $.cast(args[i], genericParameterTypes[i]);
             }
             return method.invoke(instance, target);
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public abstract class ELBaseFunction implements Comparable<ELBaseFunction> {
 
             // 判断是否指定了名称，未指定则信息以反射为准
             if (null != instanceName) {
-                throw new SimplifyException(instanceName + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", throwTarget);
+                throw new ELException(instanceName + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", throwTarget);
             } else {
                 String name;
                 if (instance instanceof Class) {
@@ -110,7 +110,7 @@ public abstract class ELBaseFunction implements Comparable<ELBaseFunction> {
                 } else {
                     name = instance.getClass().getName();
                 }
-                throw new SimplifyException(name + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", throwTarget);
+                throw new ELException(name + '.' + methodName + "(" + JSON.toJSONString(parameterTypes) + ")" + "执行失败！", throwTarget);
             }
         }
     }

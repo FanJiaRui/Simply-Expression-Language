@@ -1,11 +1,13 @@
 package unit;
 
 import com.alibaba.fastjson2.JSONObject;
+import net.fanjr.simplify.context.SContext;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.ELTokenUtils;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
-import net.fanjr.simplify.el.cache.ELCacheManager;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.el.ElUtils;
+import net.fanjr.simplify.el.cache.CacheManager;
+import net.fanjr.simplify.utils.$;
+import net.fanjr.simplify.utils.SimplifyCache;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,17 +41,17 @@ public class UnitTest {
 
         context.put("flag", 1);
         ELExecutor.eval("if(flag==1){\n a=1;\n }else if(flag==2){ a=2;a++; }else{ a=0; }", context);
-        Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 1);
+        Assertions.assertEquals($.cast(context.get("a"), int.class), 1);
         context.clear();
 
         context.put("flag", 2);
         ELExecutor.eval("if(flag==1){\n a=1;\n }else if(flag==2){ a=2;a++; }else{ a=0; }", context);
-        Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 3);
+        Assertions.assertEquals($.cast(context.get("a"), int.class), 3);
         context.clear();
 
         context.put("flag", 3);
         ELExecutor.eval("if(flag==1){\n a=1;\n }else if(flag==2){ a=2;a++; }else{ a=0; }", context);
-        Assertions.assertEquals(ElUtils.cast(context.get("a"), int.class), 0);
+        Assertions.assertEquals($.cast(context.get("a"), int.class), 0);
         context.clear();
     }
 
@@ -65,7 +67,7 @@ public class UnitTest {
 
     @Test
     public void testCache() throws InterruptedException {
-        ConcurrentCache<String, String> pool = ELCacheManager.getPool(String.class, 1000);
+        SimplifyCache<String, String> pool = CacheManager.getPool(String.class, 1000);
         String tmp = "T1+0";
         CountDownLatch latch = new CountDownLatch(3);
         pool.put(tmp, "0");
@@ -120,26 +122,31 @@ public class UnitTest {
                 "   ", new HashMap<>());
     }
 
-    //    @Test
-//    public void drawLots() {
-//        Random rand = new Random();
-//        LinkedList<String> queue = new LinkedList<>();
-//        List<String> target = new ArrayList<>();
-//
-//        //添加名单
-//
-//        // 随机取出人员放置到目标
-//        while (queue.size() > 0) {
-//            int nextIndex = rand.nextInt(queue.size());
-//            String name = queue.remove(nextIndex);
-//            target.add(name);
-//        }
-//
-//        // 输出结果
-//        System.out.println("优先级:");
-//        for (int i = 0; i < target.size(); i++) {
-//            System.out.println((i + 1) + ": " + target.get(i));
-//        }
-//    }
+    @Test
+    public void testContext() {
+        {
+            TestPojo pojo = new TestPojo();
+            pojo.setAbc("1234");
+            SContext context = SContext.of("pojo", pojo);
+            Assertions.assertEquals("1234", context.getNode("pojo.abc"));
+        }
+
+        {
+            TestPojo pojo = new TestPojo();
+            pojo.setAbc("1234");
+            Object a = SContext.toContext(pojo).getNode("abc");
+            Assertions.assertEquals("1234", a);
+        }
+
+        {
+            SContext context = SContext.of();
+            context.putNode("abc.xxx.yyy", "1234");
+            Object b = context.getNode("abc.xxx.yyy");
+            Assertions.assertEquals("{\"yyy\":\"1234\"}", context.getNode("abc.xxx").toString());
+            Assertions.assertEquals("{\"xxx\":{\"yyy\":\"1234\"}}", context.getNode("abc").toString());
+            Assertions.assertEquals("1234", b);
+        }
+
+    }
 
 }

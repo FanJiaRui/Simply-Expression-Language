@@ -1,8 +1,8 @@
 package net.fanjr.simplify.el.builder;
 
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.util.LinkedList;
 import java.util.function.Function;
@@ -39,7 +39,7 @@ public class ELInvokerBuilder implements Supplier<ELInvoker> {
         if (check()) {
             return buildFunction.apply(currStack);
         }
-        throw new SimplifyException("解析表达式发生异常！");
+        throw new ELException("解析表达式发生异常！");
     }
 
 }

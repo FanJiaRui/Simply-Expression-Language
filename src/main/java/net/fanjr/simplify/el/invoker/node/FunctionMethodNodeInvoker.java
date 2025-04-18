@@ -1,10 +1,10 @@
 package net.fanjr.simplify.el.invoker.node;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.ArrayInvoker;
 import net.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
 import net.fanjr.simplify.el.reflect.ELInnerFunction;
-import net.fanjr.simplify.utils.SimplifyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class FunctionMethodNodeInvoker extends NodeInvoker {
 
     @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new SimplifyException("不可对【" + this + "】方法执行结果重新赋值！");
+        throw new ELException("不可对【" + this + "】方法执行结果重新赋值！");
     }
 
     @Override

@@ -4,9 +4,9 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.reader.ObjectReader;
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.ElUtils;
-import net.fanjr.simplify.utils.SimplifyException;
+import net.fanjr.simplify.utils.$;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class IndexMapNodeInvoker extends NodeInvoker {
             }
         } else if (parentClass == String.class) {
             String json = (String) parentValue;
-            if (ElUtils.isBlank(json) || "null".equals(json)) {
+            if ($.isBlank(json) || "null".equals(json)) {
                 return null;
             }
 
@@ -82,7 +82,7 @@ public class IndexMapNodeInvoker extends NodeInvoker {
             }
         }
 
-        return ElUtils.getFieldByPojo(parentValue, nodeName);
+        return $.getFieldByPojo(parentValue, nodeName);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class IndexMapNodeInvoker extends NodeInvoker {
         if (parentClass == String.class) {
             //Parent类型为字符串，操作完后确保推送回Parent为字符串
             String json = (String) parentValue;
-            if (ElUtils.isBlank(json) || "null".equals(json)) {
+            if ($.isBlank(json) || "null".equals(json)) {
                 return;
             } else {
                 char first = json.trim().charAt(0);
@@ -126,19 +126,19 @@ public class IndexMapNodeInvoker extends NodeInvoker {
             return;
         }
 
-        ElUtils.putFieldByPojo(parentValue, nodeName, null);
+        $.putFieldByPojo(parentValue, nodeName, null);
     }
 
     @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
         String nodeName = this.indexNodeName;
         if (null == parentNode) {
-            throw new SimplifyException("不可对【" + this + "】进行赋值！");
+            throw new ELException("不可对【" + this + "】进行赋值！");
         }
         Object parentValue = parentNode.getValue();
         if (null == parentValue) {
             if (parentNode.isRoot()) {
-                throw new SimplifyException("ROOT节点为空！不可对【" + this + "】进行赋值！");
+                throw new ELException("ROOT节点为空！不可对【" + this + "】进行赋值！");
             }
             parentNode.setValue(JSONObject.of(nodeName, value));
         } else {
@@ -179,7 +179,7 @@ public class IndexMapNodeInvoker extends NodeInvoker {
                 return;
             }
 
-            if (ElUtils.putFieldByPojo(parentValue, nodeName, value)) {
+            if ($.putFieldByPojo(parentValue, nodeName, value)) {
                 if (parentNode.isChange()) {
                     parentNode.setValue(parentValue);
                 }

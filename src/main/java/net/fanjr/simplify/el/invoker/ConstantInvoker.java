@@ -2,7 +2,7 @@ package net.fanjr.simplify.el.invoker;
 
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 /**
  * @author fanjr@vip.qq.com
@@ -10,7 +10,7 @@ import net.fanjr.simplify.el.cache.ConcurrentCache;
  */
 public class ConstantInvoker implements ELInvoker {
 
-    private static final ConcurrentCache<String, ConstantInvoker> POOL = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<String, ConstantInvoker> POOL = new SimplifyCache<>(10000);
 
     private final Object constant;
 

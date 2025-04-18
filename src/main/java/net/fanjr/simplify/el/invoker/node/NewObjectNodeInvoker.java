@@ -1,9 +1,9 @@
 package net.fanjr.simplify.el.invoker.node;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.ArrayInvoker;
-import net.fanjr.simplify.utils.ElUtils;
-import net.fanjr.simplify.utils.SimplifyException;
+import net.fanjr.simplify.utils.$;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +54,12 @@ public class NewObjectNodeInvoker extends NodeInvoker {
                         }
                     }
                     return () -> {
-                        throw new SimplifyException(className + "实例化失败！找不到构造方法！");
+                        throw new ELException(className + "实例化失败！找不到构造方法！");
                     };
                 }
             } catch (Exception e) {
                 return () -> {
-                    throw new SimplifyException(className + "实例化失败！", e);
+                    throw new ELException(className + "实例化失败！", e);
                 };
             }
         }).get();
@@ -67,7 +67,7 @@ public class NewObjectNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new SimplifyException("不可对【" + this + "】执行结果重新赋值！");
+        throw new ELException("不可对【" + this + "】执行结果重新赋值！");
     }
 
     @Override
@@ -80,12 +80,12 @@ public class NewObjectNodeInvoker extends NodeInvoker {
             } else {
                 Type[] types = constructor.getGenericParameterTypes();
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = ElUtils.cast(parameters[i], types[i]);
+                    parameters[i] = $.cast(parameters[i], types[i]);
                 }
                 return constructor.newInstance(parameters);
             }
         } catch (Exception e) {
-            throw new SimplifyException(className + "实例化失败！", e);
+            throw new ELException(className + "实例化失败！", e);
         }
     }
 

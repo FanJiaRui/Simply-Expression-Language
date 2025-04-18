@@ -1,4 +1,4 @@
-package net.fanjr.simplify.el.cache;
+package net.fanjr.simplify.utils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -12,7 +12,7 @@ import java.util.function.Function;
  *
  * @author fanjr@vip.qq.com
  */
-public final class ConcurrentCache<K, V> {
+public final class SimplifyCache<K, V> {
 
     private final int size;
 
@@ -20,7 +20,7 @@ public final class ConcurrentCache<K, V> {
 
     private final Map<K, V> longterm;
 
-    public ConcurrentCache(int size) {
+    public SimplifyCache(int size) {
         this.size = size;
         this.eden = new ConcurrentHashMap<>(size);
         this.longterm = new WeakHashMap<>(size);

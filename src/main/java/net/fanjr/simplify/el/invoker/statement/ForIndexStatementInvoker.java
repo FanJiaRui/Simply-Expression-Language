@@ -3,7 +3,7 @@ package net.fanjr.simplify.el.invoker.statement;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.builder.KeywordBuilder;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 public class ForIndexStatementInvoker implements ELInvoker {
 
@@ -25,7 +25,7 @@ public class ForIndexStatementInvoker implements ELInvoker {
 
     @Override
     public Object invoke(Object ctx) {
-        for (preEL.invoke(ctx); ElUtils.cast(condition.invoke(ctx), boolean.class); endEL.invoke(ctx)) {
+        for (preEL.invoke(ctx); $.cast(condition.invoke(ctx), boolean.class); endEL.invoke(ctx)) {
             if (KeywordBuilder.BREAK_FLAG == forBlock.invoke(ctx)) {
                 break;
             }

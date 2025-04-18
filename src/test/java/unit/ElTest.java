@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import net.fanjr.simplify.el.EL;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.invoker.node.Node;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -249,20 +249,20 @@ public class ElTest {
         // 类C模式
         ELExecutor.eval("for(i=0;i<10;i++){arr[i]=3 * (i + 1234) - i}", context);
         // 计算结果正确性断言
-        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        Assertions.assertArrayEquals(arr, $.cast(context.get("arr"), int[].class));
         context.clear();
 
         // 迭代器模式，可以遍历数组、List、Map等等
         context.put("num", new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
         ELExecutor.eval("for(i:num){arr[i]=3 * (i + 1234) - i}", context);
-        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        Assertions.assertArrayEquals(arr, $.cast(context.get("arr"), int[].class));
         // 计算结果正确性断言
         context.clear();
 
         // 数字模式 等价于i=0;i<1000;i++
         ELExecutor.eval("for(i:10){arr[i]=3 * (i + 1234) - i}", context);
         // 计算结果正确性断言
-        Assertions.assertArrayEquals(arr, ElUtils.cast(context.get("arr"), int[].class));
+        Assertions.assertArrayEquals(arr, $.cast(context.get("arr"), int[].class));
         context.clear();
     }
 

@@ -1,6 +1,6 @@
 package net.fanjr.simplify.el;
 
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.lang.reflect.Type;
 
@@ -28,7 +28,7 @@ public interface EL {
      * @return 执行结果
      */
     default Object invoke(Object ctx, Type type) {
-        return ElUtils.cast(invoke(ctx), type);
+        return $.cast(invoke(ctx), type);
     }
 
     /**
@@ -39,7 +39,7 @@ public interface EL {
      * @return 执行结果
      */
     default <T> T invoke(Object ctx, Class<T> type) {
-        return ElUtils.cast(invoke(ctx), type);
+        return $.cast(invoke(ctx), type);
     }
 
 

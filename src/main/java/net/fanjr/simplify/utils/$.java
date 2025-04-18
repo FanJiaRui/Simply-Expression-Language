@@ -9,40 +9,50 @@ import com.alibaba.fastjson2.util.TypeUtils;
 import com.alibaba.fastjson2.writer.FieldWriter;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
-import net.fanjr.simplify.el.EL;
-import net.fanjr.simplify.el.ELExecutor;
-import net.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
+import net.fanjr.simplify.context.SContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.*;
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
-/**
- * @author fanjr@vip.qq.com
- * @since 2021/7/13 上午10:23
- */
-public class ElUtils {
+import static net.fanjr.simplify.context.SContext.OBJECT_READER;
+
+public class $ {
 
     public static final String EMPTY = "";
-    private static final String SIMPLIFY_EL_FUNCTIONS = "META-INF/simplify-el.functions";
-    private static final Logger logger = LoggerFactory.getLogger(ElUtils.class);
-    /**
-     * 匹配#{xxx}和${xxx}两种形式的字符串
-     */
-    private static final Pattern PATTERN = Pattern.compile("[\\#\\$]\\{([^#{\\n}]*)([^${\\n}]*)\\}");
+    private static final Logger logger = LoggerFactory.getLogger($.class);
+
+    private static final Set<Class<?>> SIMPLE_TYPES = new HashSet<>();
 
     static {
-        init();
+        JSONFactory.getDefaultObjectReaderProvider().register(SContext.class, OBJECT_READER);
+    }
+
+    static {
+        // 封装基础类型
+        SIMPLE_TYPES.add(Byte.class);
+        SIMPLE_TYPES.add(Short.class);
+        SIMPLE_TYPES.add(Integer.class);
+        SIMPLE_TYPES.add(Character.class);
+        SIMPLE_TYPES.add(Long.class);
+        SIMPLE_TYPES.add(Float.class);
+        SIMPLE_TYPES.add(Double.class);
+        SIMPLE_TYPES.add(Boolean.class);
+
+        // 不可变类型
+        SIMPLE_TYPES.add(BigDecimal.class);
+        SIMPLE_TYPES.add(BigInteger.class);
+        SIMPLE_TYPES.add(String.class);
+        SIMPLE_TYPES.add(Class.class);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -56,13 +66,11 @@ public class ElUtils {
 
         ObjectReaderProvider provider = JSONFactory.getDefaultObjectReaderProvider();
         if (obj instanceof Collection) {
-            return (T) provider.getObjectReader(targetType)
-                    .createInstance((Collection) obj);
+            return (T) provider.getObjectReader(targetType).createInstance((Collection) obj);
         }
 
         if (obj instanceof Map) {
-            return (T) provider.getObjectReader(targetType)
-                    .createInstance((Map) obj, 0L);
+            return (T) provider.getObjectReader(targetType).createInstance((Map) obj, 0L);
         }
         Class<?> objClass = obj.getClass();
         Function typeConvert = provider.getTypeConvert(objClass, targetType);
@@ -75,6 +83,13 @@ public class ElUtils {
         } else {
             return JSON.parseObject(JSON.toJSONString(obj), targetType);
         }
+    }
+
+    public static boolean isSimpleType(Class<?> type) {
+        if (type.isPrimitive()) {
+            return true;
+        }
+        return SIMPLE_TYPES.contains(type);
     }
 
     @SuppressWarnings("unchecked")
@@ -97,6 +112,7 @@ public class ElUtils {
         if (targetClass.isInstance(obj)) {
             return (T) obj;
         }
+
         return TypeUtils.cast(obj, targetClass);
     }
 
@@ -157,31 +173,6 @@ public class ElUtils {
         return null;
     }
 
-    // Empty checks
-    //-----------------------------------------------------------------------
-
-    /**
-     * 获取表达式所有的变量节点名(不包括方法、常量、根节点等)
-     *
-     * @param el 表达式字符串
-     * @return 变量列表
-     */
-    public static Set<String> getVariants(String el) {
-        return getVariants(ELExecutor.compile(el));
-    }
-
-    /**
-     * 获取表达式所有的变量节点名(不包括方法、常量、根节点等)
-     *
-     * @param el 表达式对象
-     * @return 变量列表
-     */
-    public static Set<String> getVariants(EL el) {
-        ELVariantsVisitor visitor = new ELVariantsVisitor();
-        el.accept(visitor);
-        return visitor.getVars();
-    }
-
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
      *
@@ -208,10 +199,6 @@ public class ElUtils {
             }
         }
         return true;
-    }
-
-    public static boolean isElString(String str) {
-        return PATTERN.matcher(str).find();
     }
 
     /**
@@ -307,9 +294,7 @@ public class ElUtils {
                 }
                 // checking hex (it can't be anything else)
                 for (; i < chars.length; i++) {
-                    if ((chars[i] < '0' || chars[i] > '9')
-                            && (chars[i] < 'a' || chars[i] > 'f')
-                            && (chars[i] < 'A' || chars[i] > 'F')) {
+                    if ((chars[i] < '0' || chars[i] > '9') && (chars[i] < 'a' || chars[i] > 'f') && (chars[i] < 'A' || chars[i] > 'F')) {
                         return false;
                     }
                 }
@@ -371,15 +356,10 @@ public class ElUtils {
                 // single trailing decimal point after non-exponent is ok
                 return foundDigit;
             }
-            if (!allowSigns
-                    && (chars[i] == 'd'
-                    || chars[i] == 'D'
-                    || chars[i] == 'f'
-                    || chars[i] == 'F')) {
+            if (!allowSigns && (chars[i] == 'd' || chars[i] == 'D' || chars[i] == 'f' || chars[i] == 'F')) {
                 return foundDigit;
             }
-            if (chars[i] == 'l'
-                    || chars[i] == 'L') {
+            if (chars[i] == 'l' || chars[i] == 'L') {
                 // not allowing L with an exponent
                 return foundDigit && !hasExp;
             }
@@ -408,7 +388,7 @@ public class ElUtils {
                 Method method = fieldReader.method;
                 if (method != null) {
                     try {
-                        method.invoke(pojo, ElUtils.cast(value, fieldReader.fieldType));
+                        method.invoke(pojo, cast(value, fieldReader.fieldType));
                         return true;
                     } catch (Exception e) {
                         // skip
@@ -423,7 +403,7 @@ public class ElUtils {
                 Field field = fieldReader.field;
                 if (field != null) {
                     try {
-                        field.set(pojo, ElUtils.cast(value, fieldReader.fieldType));
+                        field.set(pojo, cast(value, fieldReader.fieldType));
                         return true;
                     } catch (IllegalAccessException e) {
                         // skip
@@ -460,45 +440,5 @@ public class ElUtils {
         return str == null ? EMPTY : str.trim();
     }
 
-    private synchronized static void init() {
-        try {
-            ClassLoader classLoader = ElUtils.class.getClassLoader();
-            final Enumeration<URL> functionsUrl =
-                    classLoader.getResources(SIMPLIFY_EL_FUNCTIONS);
 
-            while (functionsUrl.hasMoreElements()) {
-                Properties functionsProperties = new Properties();
-                final URL url = functionsUrl.nextElement();
-                try (InputStream inputStream = url.openStream()) {
-                    functionsProperties.load(inputStream);
-                }
-                for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
-                    final String utilsName = ((String) entry.getKey()).trim();
-                    final String utilsClassName = ((String) entry.getValue()).trim();
-                    for (String s : utilsClassName.split(",")) {
-                        try {
-                            ELFunctionInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(s));
-                        } catch (Exception e) {
-                            // SKIP
-                            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            // SKIP
-            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
-        }
-    }
-
-    public static void foreachArray(Object array, Function<Object, Boolean> function) {
-        int length = Array.getLength(array);
-        for (int i = 0; i < length; i++) {
-            Boolean result = function.apply(Array.get(array, i));
-            if (null == result || !result) {
-                // 返回为false时打破循环，否则执行到循环结束
-                break;
-            }
-        }
-    }
 }

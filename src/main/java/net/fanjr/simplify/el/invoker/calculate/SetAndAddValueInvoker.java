@@ -5,7 +5,7 @@ import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.node.NodeHolder;
 import net.fanjr.simplify.el.invoker.node.NodeInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -35,7 +35,7 @@ public class SetAndAddValueInvoker implements ELInvoker {
         Object val2 = elInvoker.invoke(ctx);
         NodeHolder nodeHolder = nodeInvoker.getNodeHolder(ctx);
         Object val1 = nodeHolder.getValue();
-        BigDecimal target = ElUtils.castToBigDecimal(val1).add(ElUtils.castToBigDecimal(val2));
+        BigDecimal target = $.castToBigDecimal(val1).add($.castToBigDecimal(val2));
         nodeHolder.setValue(target);
         return target;
     }

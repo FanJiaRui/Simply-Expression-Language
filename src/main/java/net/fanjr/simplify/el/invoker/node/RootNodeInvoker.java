@@ -1,7 +1,7 @@
 package net.fanjr.simplify.el.invoker.node;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.SimplifyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class RootNodeInvoker extends NodeInvoker {
 
     @Override
     public void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new SimplifyException("上下文根节点不可被赋值或为常量！");
+        throw new ELException("上下文根节点不可被赋值或为常量！");
     }
 
     @Override

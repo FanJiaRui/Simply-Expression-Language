@@ -1,8 +1,8 @@
 package net.fanjr.simplify.el.invoker.node;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.SimplifyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class FirstNodeInvoker extends NodeInvoker {
 
     @Override
     void setValueByParent(NodeHolder parentNode, Object value, int index) {
-        throw new SimplifyException("不可设置【" + el.toString() + "】的值！");
+        throw new ELException("不可设置【" + el.toString() + "】的值！");
     }
 
     @Override

@@ -3,7 +3,7 @@ package net.fanjr.simplify.el.invoker;
 
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.lang.reflect.Type;
 import java.util.LinkedList;
@@ -32,7 +32,7 @@ public class ConversionInvoker implements ELInvoker {
 
     @Override
     public Object invoke(Object ctx) {
-        return ElUtils.cast(subInvoker.invoke(ctx), type);
+        return $.cast(subInvoker.invoke(ctx), type);
     }
 
     @Override

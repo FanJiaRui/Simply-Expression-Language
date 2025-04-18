@@ -2,7 +2,7 @@ package net.fanjr.simplify.el.invoker;
 
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 import java.math.BigDecimal;
 
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @since 2021/6/29 上午10:58
  */
 public class NumberInvoker implements ELInvoker {
-    private static final ConcurrentCache<String, NumberInvoker> POOL = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<String, NumberInvoker> POOL = new SimplifyCache<>(10000);
 
     private final BigDecimal value;
 

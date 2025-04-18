@@ -1,11 +1,11 @@
 package net.fanjr.simplify.el.builder;
 
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELTokenUtils;
 import net.fanjr.simplify.el.invoker.calculate.*;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.util.LinkedList;
 import java.util.function.Function;
@@ -77,7 +77,7 @@ public enum CalculateEnum {
                     if (index - 3 >= start) {
                         if (chars[index - 3] == '+'){
                             //存在++++，语法异常！
-                            throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【+】");
+                            throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【+】");
                         }else {
                             return true;
                         }
@@ -107,7 +107,7 @@ public enum CalculateEnum {
                     if (index - 3 >= start) {
                         if (chars[index - 3] == '-'){
                             //存在----，语法异常！
-                            throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【-】");
+                            throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常,存在多余的【-】");
                         }else {
                             return true;
                         }

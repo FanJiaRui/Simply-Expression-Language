@@ -2,7 +2,6 @@ package net.fanjr.simplify.el;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.util.PropertiesUtils;
-import net.fanjr.simplify.utils.SimplifyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,14 +118,14 @@ public class InnerFunctions {
             try {
                 enumClass = Class.forName((String) enumObject);
             } catch (ClassNotFoundException e) {
-                throw new SimplifyException("无法转换为枚举类型", e);
+                throw new ELException("无法转换为枚举类型", e);
             }
         } else if (enumObject instanceof Class) {
             enumClass = (Class<?>) enumObject;
         } else if (enumObject instanceof Enum) {
             enumClass = ((Enum<?>) enumObject).getDeclaringClass();
         } else {
-            throw new SimplifyException("无法转换为枚举类型，无法获取对应映射关系！");
+            throw new ELException("无法转换为枚举类型，无法获取对应映射关系！");
         }
 
         if (enumClass.isEnum()) {
@@ -137,7 +136,7 @@ public class InnerFunctions {
             }
             return target;
         } else {
-            throw new SimplifyException("无法转换为枚举类型，无法获取对应映射关系！");
+            throw new ELException("无法转换为枚举类型，无法获取对应映射关系！");
         }
     }
 
@@ -167,16 +166,16 @@ public class InnerFunctions {
             try {
                 return Class.forName((String) clazz).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new SimplifyException("创建实例发生异常！", e);
+                throw new ELException("创建实例发生异常！", e);
             }
         } else if (clazz instanceof Class) {
             try {
                 return ((Class<?>) clazz).getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new SimplifyException("创建实例发生异常！", e);
+                throw new ELException("创建实例发生异常！", e);
             }
         } else {
-            throw new SimplifyException("创建实例发生异常！传入参数无法进行实例化:" + clazz);
+            throw new ELException("创建实例发生异常！传入参数无法进行实例化:" + clazz);
         }
     }
 }

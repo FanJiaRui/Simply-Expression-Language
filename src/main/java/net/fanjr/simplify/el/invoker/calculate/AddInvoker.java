@@ -1,7 +1,7 @@
 package net.fanjr.simplify.el.invoker.calculate;
 
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -32,8 +32,8 @@ public class AddInvoker extends BinocularInvoker {
 
         //左右两边均为数值时按数值加法计算，其他情况均按字符串拼接处理。
         if (val1 instanceof Number && val2 instanceof Number) {
-            BigDecimal num1 = ElUtils.castToBigDecimal(val1);
-            BigDecimal num2 = ElUtils.castToBigDecimal(val2);
+            BigDecimal num1 = $.castToBigDecimal(val1);
+            BigDecimal num2 = $.castToBigDecimal(val2);
             return num1.add(num2);
         }
 

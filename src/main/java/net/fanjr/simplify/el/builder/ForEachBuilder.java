@@ -1,12 +1,12 @@
 package net.fanjr.simplify.el.builder;
 
+import net.fanjr.simplify.el.ELException;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELTokenUtils;
 import net.fanjr.simplify.el.invoker.node.Node;
 import net.fanjr.simplify.el.invoker.statement.ForIndexStatementInvoker;
 import net.fanjr.simplify.el.invoker.statement.ForIterationStatementInvoker;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.util.function.Supplier;
 
@@ -65,7 +65,7 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
                 // 类c模式
                 int secondSemicolonToken = ELTokenUtils.findNextCharToken(chars, ';', firstSemicolonToken + 1, forEnd, false);
                 if (secondSemicolonToken == -1) {
-                    throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，for语句中语法错误，应该为for(x;y;z){...}或者for(a:b){...}");
+                    throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，for语句中语法错误，应该为for(x;y;z){...}或者for(a:b){...}");
                 }
                 int pre = start;
                 target.preEL = () -> ELExecutor.resolve(chars, pre, firstSemicolonToken);
@@ -79,7 +79,7 @@ public class ForEachBuilder implements Supplier<ELInvoker> {
         {
             start += ELTokenUtils.findHeadSpace(chars, start, end);
             if (chars[start] != '{') {
-                throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，for语句后缺少可执行语句，应该为for(...){...}");
+                throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，for语句后缺少可执行语句，应该为for(...){...}");
             }
             start += 1;
             int nextToken = ELTokenUtils.findNextCharToken(chars, '}', start, end);

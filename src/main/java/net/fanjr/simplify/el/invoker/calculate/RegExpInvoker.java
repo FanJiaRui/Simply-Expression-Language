@@ -1,8 +1,8 @@
 package net.fanjr.simplify.el.invoker.calculate;
 
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class RegExpInvoker extends BinocularInvoker {
 
-    private final ConcurrentCache<String, Pattern> cache = new ConcurrentCache<>(1000);
+    private final SimplifyCache<String, Pattern> cache = new SimplifyCache<>(1000);
 
     private RegExpInvoker() {
         //skip
@@ -28,8 +28,8 @@ public class RegExpInvoker extends BinocularInvoker {
 
     @Override
     protected Object doOperation(Object val1, Object val2) {
-        String matchStr = ElUtils.cast(val1, String.class);
-        String regExpStr = ElUtils.cast(val2, String.class);
+        String matchStr = $.cast(val1, String.class);
+        String regExpStr = $.cast(val2, String.class);
         if (null == matchStr || null == regExpStr) {
             return false;
         }

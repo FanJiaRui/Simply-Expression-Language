@@ -4,7 +4,7 @@ package net.fanjr.simplify.el.invoker;
 import com.alibaba.fastjson2.JSONArray;
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class ArrayInvoker implements ELInvoker {
 
-    private static final ConcurrentCache<String, ArrayInvoker> POOL = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<String, ArrayInvoker> POOL = new SimplifyCache<>(10000);
     private final List<ELInvoker> itemInvokers;
     private final String elString;
 

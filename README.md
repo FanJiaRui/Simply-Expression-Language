@@ -194,7 +194,7 @@ ELExecutor.eval("   " +
 # 在META-INF目录下新建simplify-el.functions，添加Function挂载
 # 工具名=类全限定名，多个类用','隔开，会将这些类中所有public static方法收集并挂载到工具名下
 # 同一个工具名下方法名+参数表相同的方法根据@ELMethod中的order属性进行排序生效，order数字小的优先级高
-$=InnerFunctions
+$=net.fanjr.simplify.el.InnerFunctions
 ```
 
 以下为`InnerFunctions`内容，表达式中通过工具名+方法名对其调用。<br>

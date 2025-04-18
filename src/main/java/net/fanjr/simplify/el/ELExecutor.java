@@ -2,14 +2,13 @@ package net.fanjr.simplify.el;
 
 
 import net.fanjr.simplify.el.builder.*;
-import net.fanjr.simplify.el.cache.ELCacheManager;
+import net.fanjr.simplify.el.cache.CacheManager;
 import net.fanjr.simplify.el.invoker.*;
 import net.fanjr.simplify.el.invoker.calculate.*;
 import net.fanjr.simplify.el.invoker.node.*;
 import net.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 import net.fanjr.simplify.utils.Pair;
-import net.fanjr.simplify.utils.SimplifyException;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -35,12 +34,12 @@ public class ELExecutor {
      * @return 可执行的表达式对象
      */
     public static EL compile(final String el) {
-        if (ElUtils.isBlank(el)) {
+        if ($.isBlank(el)) {
             // 容错处理
             return NullEL.INSTANCE;
         }
 
-        EL target = ELCacheManager.getEL(el);
+        EL target = CacheManager.getEL(el);
         if (null != target) {
             return target;
         }
@@ -55,12 +54,12 @@ public class ELExecutor {
      * @return 可执行的节点对象
      */
     public static Node compileNode(String nodeName) {
-        if (ElUtils.isBlank(nodeName)) {
+        if ($.isBlank(nodeName)) {
             // 容错处理
             return NullNodeInvoker.INSTANCE;
         }
 
-        Node target = ELCacheManager.getNode(nodeName);
+        Node target = CacheManager.getNode(nodeName);
         if (null != target) {
             return target;
         }
@@ -88,7 +87,7 @@ public class ELExecutor {
      * @return 计算结果
      */
     public static <T> T eval(String el, Object vars, Class<T> type) {
-        return ElUtils.cast(eval(el, vars), type);
+        return $.cast(eval(el, vars), type);
     }
 
     /**
@@ -100,7 +99,7 @@ public class ELExecutor {
      * @return 计算结果
      */
     public static Object eval(String el, Object vars, Type type) {
-        return ElUtils.cast(eval(el, vars), type);
+        return $.cast(eval(el, vars), type);
     }
 
     /**
@@ -354,12 +353,12 @@ public class ELExecutor {
                 //判断是否为数字
                 if (chars[start] <= '9' && chars[start] >= '0') {
                     String numStr = new String(chars, start, end - start);
-                    if (ElUtils.isNumber(numStr)) {
+                    if ($.isNumber(numStr)) {
                         pushOrBuild(builderStack, NumberInvoker.newInstance(numStr));
                         start = end;
                         continue;
                     } else {
-                        throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常,错误的数字或变量：" + numStr);
+                        throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常,错误的数字或变量：" + numStr);
                     }
                 }
 
@@ -433,7 +432,7 @@ public class ELExecutor {
                                     // 跳过分隔符
                                     start++;
                                 } else {
-                                    throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常，错误的方法后缀：" + String.valueOf(chars, start, end - start));
+                                    throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常，错误的方法后缀：" + String.valueOf(chars, start, end - start));
                                 }
                                 while (start < end) {
                                     nextDot = findNextCharToken(chars, '.', start, end, false);
@@ -460,10 +459,10 @@ public class ELExecutor {
 
             return buildAll(builderStack);
         } catch (Exception e) {
-            if (e instanceof SimplifyException) {
+            if (e instanceof ELException) {
                 throw e;
             } else {
-                throw new SimplifyException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于[" + start + "," + end + "]", e);
+                throw new ELException("解析表达式【" + String.valueOf(chars) + "】发生异常,问题可能存在于[" + start + "," + end + "]", e);
             }
         }
     }
@@ -489,7 +488,7 @@ public class ELExecutor {
             if (target.size() == 1) {
                 return target.get(0);
             } else {
-                throw new SimplifyException("表达式解析错误！");
+                throw new ELException("表达式解析错误！");
             }
         }
     }
@@ -503,7 +502,7 @@ public class ELExecutor {
 
     private static EL doCompile(String el) {
         synchronized (LOCK_KEY + el) {
-            EL elInstance = ELCacheManager.getEL(el);
+            EL elInstance = CacheManager.getEL(el);
             if (null != elInstance) {
                 return elInstance;
             }
@@ -521,22 +520,22 @@ public class ELExecutor {
 
             if (start >= end) {
                 elInstance = NullEL.INSTANCE;
-                ELCacheManager.putEL(el, elInstance);
+                CacheManager.putEL(el, elInstance);
                 return elInstance;
             }
             String trimStr = new String(chars, start, end - start);
-            elInstance = ELCacheManager.getEL(trimStr);
+            elInstance = CacheManager.getEL(trimStr);
             if (null != elInstance) {
-                ELCacheManager.putEL(el, elInstance);
+                CacheManager.putEL(el, elInstance);
                 return elInstance;
             }
 
             int elStart = findElStart(chars, start, end);
             if (-1 == elStart) {
                 elInstance = new SimpleEL(resolve(chars, start, end));
-                ELCacheManager.putEL(el, elInstance);
+                CacheManager.putEL(el, elInstance);
                 if (trim) {
-                    ELCacheManager.putEL(trimStr, elInstance);
+                    CacheManager.putEL(trimStr, elInstance);
                 }
                 return elInstance;
             }
@@ -548,11 +547,11 @@ public class ELExecutor {
                 } else if ('$' == chars[elStart]) {
                     elInstance = new SimpleEL(resolve(chars, start, end - 1));
                 } else {
-                    throw new SimplifyException("解析错误！错误的token:" + chars[elStart] + "{");
+                    throw new ELException("解析错误！错误的token:" + chars[elStart] + "{");
                 }
-                ELCacheManager.putEL(el, elInstance);
+                CacheManager.putEL(el, elInstance);
                 if (trim) {
-                    ELCacheManager.putEL(trimStr, elInstance);
+                    CacheManager.putEL(trimStr, elInstance);
                 }
                 return elInstance;
             }
@@ -571,7 +570,7 @@ public class ELExecutor {
                     elStart += 2;
                     targets.add(resolve(chars, elStart, elEnd));
                 } else {
-                    throw new SimplifyException("解析错误！错误的token:" + chars[elStart] + "{");
+                    throw new ELException("解析错误！错误的token:" + chars[elStart] + "{");
                 }
                 start = elEnd + 1;
                 elStart = findElStart(chars, start, end);
@@ -582,9 +581,9 @@ public class ELExecutor {
                 }
             }
             elInstance = new SpliceEL(targets);
-            ELCacheManager.putEL(el, elInstance);
+            CacheManager.putEL(el, elInstance);
             if (trim) {
-                ELCacheManager.putEL(trimStr, elInstance);
+                CacheManager.putEL(trimStr, elInstance);
             }
             return elInstance;
         }
@@ -594,7 +593,7 @@ public class ELExecutor {
         String nodeName = new String(chars, start, end - start);
         checkEL(chars, start, end);
         synchronized (LOCK_KEY + nodeName) {
-            NodeInvoker node = ELCacheManager.getNode(nodeName);
+            NodeInvoker node = CacheManager.getNode(nodeName);
             if (null != node) {
                 return node;
             }
@@ -608,13 +607,13 @@ public class ELExecutor {
 
             if (start >= end) {
                 node = NullNodeInvoker.INSTANCE;
-                ELCacheManager.putNode(nodeName, node);
+                CacheManager.putNode(nodeName, node);
                 return NullNodeInvoker.INSTANCE;
             }
             String trimStr = new String(chars, start, end - start);
-            node = ELCacheManager.getNode(trimStr);
+            node = CacheManager.getNode(trimStr);
             if (null != node) {
-                ELCacheManager.putNode(nodeName, node);
+                CacheManager.putNode(nodeName, node);
                 return node;
             }
 
@@ -623,16 +622,16 @@ public class ELExecutor {
             if (nextDot == -1) {
                 //没有.分割
                 node = resolveNode(chars, start, end);
-                ELCacheManager.putNode(nodeName, node);
+                CacheManager.putNode(nodeName, node);
                 if (trim) {
-                    ELCacheManager.putNode(trimStr, node);
+                    CacheManager.putNode(trimStr, node);
                 }
                 return node;
             }
 
             if (start == nextDot) {
                 // 节点表达式错误
-                throw new SimplifyException("解析错误！错误的节点:" + nodeName);
+                throw new ELException("解析错误！错误的节点:" + nodeName);
             } else {
                 //判断是否为this.开头
                 String key = new String(chars, start, nextDot - start);
@@ -655,9 +654,9 @@ public class ELExecutor {
                 start = nextDot + 1;
             } while (start < end);
 
-            ELCacheManager.putNode(nodeName, node);
+            CacheManager.putNode(nodeName, node);
             if (trim) {
-                ELCacheManager.putNode(trimStr, node);
+                CacheManager.putNode(trimStr, node);
             }
             return node;
         }
@@ -708,7 +707,7 @@ public class ELExecutor {
             //在下一个逗号前寻找冒号
             int nextColon = findNextCharToken(chars, ':', start, nextComma, false);
             if (-1 == nextColon) {
-                throw new SimplifyException("解析错误！错误的JSON:" + jsonStr);
+                throw new ELException("解析错误！错误的JSON:" + jsonStr);
             }
             Pair<ELInvoker, ELInvoker> pair = new Pair<>(resolve(chars, start, nextColon), resolve(chars, nextColon + 1, nextComma));
             itemInvokers.add(pair);
@@ -741,7 +740,7 @@ public class ELExecutor {
         String nodeName = new String(chars, start, end - start);
         if (nextToken != -1) {
             if (chars[end - 1] != ']') {
-                throw new SimplifyException("解析错误！错误的节点:" + nodeName);
+                throw new ELException("解析错误！错误的节点:" + nodeName);
             } else {
                 int lastArrayIndex = findLastCharToken(chars, '[', start, end - 1, false);
                 NodeInvoker parent = null;
@@ -762,7 +761,7 @@ public class ELExecutor {
         nextToken = findNextCharToken(chars, '(', start, end, false);
         if (-1 != nextToken) {
             if (chars[end - 1] != ')') {
-                throw new SimplifyException("解析错误！错误的节点:" + nodeName);
+                throw new ELException("解析错误！错误的节点:" + nodeName);
             } else {
                 return MethodNodeInvoker.newInstance(nodeName, new String(chars, start, nextToken - start), resolveList(chars, nextToken, end));
             }

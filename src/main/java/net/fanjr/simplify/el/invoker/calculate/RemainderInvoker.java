@@ -2,7 +2,7 @@ package net.fanjr.simplify.el.invoker.calculate;
 
 
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.util.LinkedList;
 
@@ -22,6 +22,6 @@ public class RemainderInvoker extends BinocularInvoker {
 
     @Override
     protected Object doOperation(Object val1, Object val2) {
-        return ElUtils.castToBigDecimal(val1).divideAndRemainder(ElUtils.castToBigDecimal(val2))[1];
+        return $.castToBigDecimal(val1).divideAndRemainder($.castToBigDecimal(val2))[1];
     }
 }

@@ -1,7 +1,7 @@
 package net.fanjr.simplify.el.invoker.calculate;
 
 import net.fanjr.simplify.el.ELInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -23,8 +23,8 @@ public class LessInvoker extends BinocularInvoker {
 
     @Override
     protected Object doOperation(Object val1, Object val2) {
-        BigDecimal num1 = ElUtils.castToBigDecimal(val1);
-        BigDecimal num2 = ElUtils.castToBigDecimal(val2);
+        BigDecimal num1 = $.castToBigDecimal(val1);
+        BigDecimal num2 = $.castToBigDecimal(val2);
         return num1.compareTo(num2) < 0;
     }
 }

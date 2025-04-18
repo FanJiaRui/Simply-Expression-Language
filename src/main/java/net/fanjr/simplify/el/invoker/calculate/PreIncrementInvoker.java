@@ -5,7 +5,7 @@ import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
 import net.fanjr.simplify.el.invoker.node.NodeHolder;
 import net.fanjr.simplify.el.invoker.node.NodeInvoker;
-import net.fanjr.simplify.utils.ElUtils;
+import net.fanjr.simplify.utils.$;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -29,7 +29,7 @@ public class PreIncrementInvoker implements ELInvoker {
     @Override
     public Object invoke(Object ctx) {
         NodeHolder nodeHolder = nodeInvoker.getNodeHolder(ctx);
-        BigDecimal oldVal = ElUtils.castToBigDecimal(nodeHolder.getValue());
+        BigDecimal oldVal = $.castToBigDecimal(nodeHolder.getValue());
         BigDecimal target = oldVal.add(BigDecimal.ONE);
         nodeHolder.setValue(target);
         //++i操作返回的是自增后的新值，先自增然后再返回

@@ -2,8 +2,8 @@ package net.fanjr.simplify.el.reflect;
 
 import com.alibaba.fastjson2.util.BeanUtils;
 import net.fanjr.simplify.el.ELMethod;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
 import net.fanjr.simplify.utils.Pair;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -25,12 +25,12 @@ public class ELFunctionInvokeUtils {
     /**
      * 用于存储类与其方法的映射关系
      */
-    private static final ConcurrentCache<Class<?>, Map<String, Set<ELObjectFunction>>> CLASS_METHOD_MAPPING = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<Class<?>, Map<String, Set<ELObjectFunction>>> CLASS_METHOD_MAPPING = new SimplifyCache<>(10000);
 
     /**
      * 方法映射
      */
-    private static final ConcurrentCache<Method, ELObjectFunction> METHOD_MAPPING = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<Method, ELObjectFunction> METHOD_MAPPING = new SimplifyCache<>(10000);
 
 
     /**

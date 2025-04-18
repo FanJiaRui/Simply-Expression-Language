@@ -2,14 +2,14 @@ package net.fanjr.simplify.el.invoker;
 
 import net.fanjr.simplify.el.ELInvoker;
 import net.fanjr.simplify.el.ELVisitor;
-import net.fanjr.simplify.el.cache.ConcurrentCache;
+import net.fanjr.simplify.utils.SimplifyCache;
 
 /**
  * @author fanjr@vip.qq.com
  * @since 2021/6/28 下午4:27
  */
 public class StringInvoker implements ELInvoker {
-    private static final ConcurrentCache<String, StringInvoker> POOL = new ConcurrentCache<>(10000);
+    private static final SimplifyCache<String, StringInvoker> POOL = new SimplifyCache<>(10000);
 
     private final String value;
 
