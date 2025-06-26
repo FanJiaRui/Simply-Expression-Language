@@ -39,7 +39,6 @@ public class SimplifySingletonManager {
     }
 
     public static void registerSingleton(String id, Object instance) {
-        Class<?> type = instance.getClass();
         SIMPLIFY_CACHE.put(id, instance);
     }
 

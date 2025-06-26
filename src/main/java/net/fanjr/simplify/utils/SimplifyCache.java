@@ -9,6 +9,7 @@ import java.util.function.Function;
 /**
  * 缓存参考自tomcat org.apache.el.util.ConcurrentCache，做了一点改进适配当前场景
  * 并发非常频繁且大量增加的时候，可能导致短时间内实际容量超过指定大小，但这不重要
+ * 当前工程场景中引入分代缓存的目标是为了避免垃圾对象无限膨胀而不是精确控制到垃圾最多达到多少个
  *
  * @author fanjr@vip.qq.com
  */
