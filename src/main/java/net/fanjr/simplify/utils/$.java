@@ -10,34 +10,34 @@ import com.alibaba.fastjson2.writer.FieldWriter;
 import com.alibaba.fastjson2.writer.ObjectWriter;
 import com.alibaba.fastjson2.writer.ObjectWriterProvider;
 import net.fanjr.simplify.context.SContext;
+import net.fanjr.simplify.el.ElUtils;
+import net.fanjr.simplify.el.reflect.ELFunctionInvokeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 import java.util.function.Function;
 
 import static net.fanjr.simplify.context.SContext.OBJECT_READER;
 
 public class $ {
 
+    private static final String SIMPLIFY_EL_FUNCTIONS = "META-INF/simplify-el.functions";
     public static final String EMPTY = "";
     private static final Logger logger = LoggerFactory.getLogger($.class);
-
     private static final Set<Class<?>> SIMPLE_TYPES = new HashSet<>();
 
     static {
         JSONFactory.getDefaultObjectReaderProvider().register(SContext.class, OBJECT_READER);
-    }
 
-    static {
         // 封装基础类型
         SIMPLE_TYPES.add(Byte.class);
         SIMPLE_TYPES.add(Short.class);
@@ -53,6 +53,39 @@ public class $ {
         SIMPLE_TYPES.add(BigInteger.class);
         SIMPLE_TYPES.add(String.class);
         SIMPLE_TYPES.add(Class.class);
+
+        init();
+    }
+
+    private synchronized static void init() {
+        try {
+            ClassLoader classLoader = ElUtils.class.getClassLoader();
+            final Enumeration<URL> functionsUrl =
+                    classLoader.getResources(SIMPLIFY_EL_FUNCTIONS);
+
+            while (functionsUrl.hasMoreElements()) {
+                Properties functionsProperties = new Properties();
+                final URL url = functionsUrl.nextElement();
+                try (InputStream inputStream = url.openStream()) {
+                    functionsProperties.load(inputStream);
+                }
+                for (Map.Entry<?, ?> entry : functionsProperties.entrySet()) {
+                    final String utilsName = ((String) entry.getKey()).trim();
+                    final String utilsClassName = ((String) entry.getValue()).trim();
+                    for (String s : utilsClassName.split(",")) {
+                        try {
+                            ELFunctionInvokeUtils.addFunctionClass(utilsName, classLoader.loadClass(s));
+                        } catch (Exception e) {
+                            // SKIP
+                            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            // SKIP
+            logger.warn("加载表达式Functions发生异常，可能并不影响使用，但请排查是否存在预期外的加载。", e);
+        }
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -290,7 +323,8 @@ public class $ {
             if (chars[start] == '0' && chars[start + 1] == 'x') {
                 int i = start + 2;
                 if (i == sz) {
-                    return false; // str == "0x"
+                    // str == "0x"
+                    return false;
                 }
                 // checking hex (it can't be anything else)
                 for (; i < chars.length; i++) {

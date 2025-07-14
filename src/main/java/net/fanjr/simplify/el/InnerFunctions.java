@@ -1,7 +1,9 @@
 package net.fanjr.simplify.el;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.util.PropertiesUtils;
+import net.fanjr.simplify.utils.$;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,12 +147,14 @@ public class InnerFunctions {
      * $.merge([map1,map2,map3...])
      */
     @ELMethod(order = Integer.MAX_VALUE)
-    public static Map<String, Object> merge(Map<?, ?>... maps) {
+    public static Map<String, Object> merge(JSONArray maps) {
         JSONObject target = new JSONObject();
-        for (Map<?, ?> map : maps) {
-            Properties properties = PropertiesUtils.toProperties(map);
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                ELExecutor.putNode(target, String.valueOf(entry.getKey()), entry.getValue());
+        for (Object map : maps) {
+            if (null != map && !$.isSimpleType(map.getClass())) {
+                Properties properties = PropertiesUtils.toProperties(map);
+                for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                    ELExecutor.putNode(target, String.valueOf(entry.getKey()), entry.getValue());
+                }
             }
         }
         return target;

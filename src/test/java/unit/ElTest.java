@@ -2,6 +2,7 @@ package unit;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import net.fanjr.simplify.context.SContext;
 import net.fanjr.simplify.el.EL;
 import net.fanjr.simplify.el.ELExecutor;
 import net.fanjr.simplify.el.invoker.node.Node;
@@ -376,8 +377,12 @@ public class ElTest {
         ELExecutor.eval("$.println(a++)", of);
         ELExecutor.eval("$.println($.max(a+10,1))", of);
         ELExecutor.eval("$.println($.min(a,10))", of);
-
         ELExecutor.eval("$.println($.new('java.util.ArrayList'))", of);
+
+
+        SContext context = SContext.of("obj1.b.x", "1", "obj2.b.y", "3");
+        Object eval = context.eval("$.merge([obj1, obj2])");
+        System.out.println(eval);
 
     }
 
